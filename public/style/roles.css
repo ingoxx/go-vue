@@ -1,0 +1,111 @@
+.box{
+    margin: 10px auto;
+}
+.search {
+    height: 42px;
+    line-height: 42px;
+    margin: 10px auto 10px auto;
+}
+.operate {
+    margin: 9px auto 9px auto;
+}
+.table{
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+.el-table .warning-row {
+    background: oldlace;
+  }
+
+.el-table .success-row {
+    background: #f0f9eb;
+}
+.demo-ruleForm {
+    margin: auto;
+}
+.cell button {
+    margin-right: 7px;
+}
+.el-select {
+    float: left;
+}
+.el-popover__reference-wrapper button  {
+    margin-left: 20px;
+}
+.el-form-item__content {
+    width: 292px;
+    margin: 0 auto !important;
+}
+.el-form-item__label {
+    padding: 0;
+}
+.level-top {
+  border-top: 1px solid #eee;
+}
+.level-bottom {
+  border-bottom: 1px solid #eee;
+}
+.center {
+  display: flex;
+  align-items: center;
+}
+.el-tag {
+  margin: 7px;
+}
+.perms-tree {
+    margin: 0 auto;
+    text-align: center;
+}
+/* // ::-webkit-scrollbar {
+//   display: none;
+// } */
+.el-tree {
+    height: 550px;
+    overflow-y: auto;
+    margin-left: 49px;
+    background-color: #f9f9f9;
+}
+.el-tree::-webkit-scrollbar {
+  width: 6px!important; /* 设置滚动条宽度 */
+}
+
+.el-tree::-webkit-scrollbar-track {
+  background-color: #f9f9f9!important; /* 设置滚动条背景颜色 */
+}
+
+.el-tree::-webkit-scrollbar-thumb {
+  background-color: #cecece!important; /* 设置滚动条滑块颜色 */
+  border-radius: 5px; /* 设置滑块的圆角 */
+}
+
+.el-tree::-webkit-scrollbar-thumb:hover {
+  background-color: #bdbdbd!important; /* 设置滚动条滑块悬停时的颜色 */
+}
+
+.el-dialog--center {
+    cursor: move;
+}
+.el-dialog__header {
+    background-color: rgb(48, 65, 86);
+    padding: 16px 20px 16px;
+}
+.el-dialog__title {
+    color: #fff;
+    font-size: 16px;
+}
+.el-dialog__headerbtn .el-dialog__close {
+    color: #fff;
+}
+.el-dialog__headerbtn .el-dialog__close:hover {
+    color: rgb(187, 160, 102);
+}
+.el-dialog__body {
+    /* // height: 50px !important; */
+    background-color: #f9f9f9;
+}
+.el-dialog--center .el-dialog__footer {
+    background-color: #f9f9f9;
+}
+.el-table tr {
+    cursor: pointer;
+}

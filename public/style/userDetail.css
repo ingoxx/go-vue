@@ -1,0 +1,17 @@
+.box {
+    height: 342px;
+}
+.user-info {
+  text-align: center;
+}
+.icon {
+  position: relative;
+  height: 33px;
+  width: 33px;
+  margin: 0 13px;
+  background-color: #00BCD4;
+  border-radius: 40px;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
+}

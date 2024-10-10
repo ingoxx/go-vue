@@ -1,0 +1,143 @@
+.box {
+    height: 100%;
+  }
+.boxc {
+    height: 342px;
+}
+.home {
+    height: 100%;
+}
+.user {
+    float: right;
+}
+.el-dropdown {
+    color: #fff;
+}
+.el-menu-vertical-demo {
+    height: 100%;
+}
+.el-menu {
+text-align: left;
+}
+.el-header {
+    line-height: 60px;
+    background-color: #fff;
+    box-shadow: 0 1px 4px rgba(0,21,41,.08);
+}
+.el-header > * {
+    display: block;
+    float: left;
+}
+.el-footer {
+    /* // background-color: rgb(48, 65, 86); */
+    color: #fff;
+    text-align: left;
+    line-height: 60px;
+}
+.el-aside {
+  background-color: #545c64;
+  text-align: left;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: auto!important;
+}
+
+.el-main {
+    overflow: hidden;
+    overflow-y: auto;
+}
+.el-main::-webkit-scrollbar {
+  width: 10px!important; /* 设置滚动条宽度 */
+}
+
+.el-main::-webkit-scrollbar-track {
+  background-color: #f9f9f9!important; /* 设置滚动条背景颜色 */
+}
+
+.el-main::-webkit-scrollbar-thumb {
+  background-color: #cecece!important; /* 设置滚动条滑块颜色 */
+  border-radius: 5px; /* 设置滑块的圆角 */
+}
+
+.el-main::-webkit-scrollbar-thumb:hover {
+  background-color: #bdbdbd!important; /* 设置滚动条滑块悬停时的颜色 */
+}
+body > .el-container {
+    margin-bottom: 40px;
+}
+.el-container {
+    overflow: hidden;
+    overflow-y: auto;
+}
+.el-submenu .el-menu-item {
+    min-width: 199px;
+}
+.el-breadcrumb {
+  line-height: 60px;
+  padding: 0 20px;
+}
+.el-menu-vertical-demo:not(.el-menu--collapse) {
+    width: 200px;
+    min-height: 400px;
+}
+.el-icon-caret-left, .el-icon-caret-right {
+    line-height: 20px;
+}
+.el-tag--mini {
+    line-height: 20px;
+}
+.switch1 {
+    cursor: pointer;
+    margin-top: 20px;
+}
+.drop-min-width {
+  min-width: 98px;
+}
+.el-dropdown-link {
+    cursor: pointer;
+    color: #409EFF;
+}
+.el-icon-arrow-down {
+    font-size: 12px;
+}
+.el-dropdown {
+  float: right;
+  margin: 0 10px;
+  font-size: 16px;
+}
+.el-dialog--center {
+    cursor: move;
+}
+.el-dialog__header {
+    background-color: rgb(48, 65, 86);
+    padding: 16px 20px 16px;
+}
+.el-dialog__title {
+    color: #fff;
+    font-size: 16px;
+}
+.el-dialog__headerbtn .el-dialog__close {
+    color: #fff;
+}
+.el-dialog__headerbtn .el-dialog__close:hover {
+    color: rgb(187, 160, 102);
+}
+.el-dialog__body {
+    /* // height: 340px; */
+    background-color: #f9f9f9;
+}
+.el-dropdown-menu .el-popper {
+    min-width: 117px;
+}
+.icon {
+  position: relative;
+  height: 38px;
+  width: 38px;
+  margin: 0 8px;
+  top: 12px;
+  background-color: #00BCD4;
+  border-radius: 50%;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
+}

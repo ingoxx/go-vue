@@ -1,0 +1,59 @@
+/* user.vue */
+.box{
+
+    margin: 10px auto;
+}
+.search {
+    height: 42px;
+    line-height: 42px;
+    margin: 10px auto 10px auto;
+}
+.operate {
+    margin: 9px auto 9px auto;
+}
+.table{
+    margin-bottom: 15px;
+}
+.demo-ruleForm {
+    margin: auto;
+}
+.cell button {
+    margin-right: 7px;
+}
+.el-select {
+    float: left;
+}
+.el-popover__reference-wrapper button  {
+    margin-left: 20px;
+}
+.el-form-item__content {
+    width: 292px;
+}
+.el-dialog__header {
+    background-color: rgb(48, 65, 86);
+    padding: 16px 20px 16px;
+}
+.el-dialog__title {
+    color: #fff;
+    font-size: 16px;
+}
+.el-dialog__headerbtn .el-dialog__close {
+    color: #fff;
+}
+.el-dialog__headerbtn .el-dialog__close:hover {
+    color: rgb(187, 160, 102);
+}
+.el-dialog__body {
+    /* // height: 351px !important; */
+    background-color: #f9f9f9;
+}
+.el-dialog--center {
+    cursor: move;
+}
+.el-dialog--center .el-dialog__footer {
+    background-color: #f9f9f9;
+}
+.el-table tr {
+    cursor: pointer;
+}
+
