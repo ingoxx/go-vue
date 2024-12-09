@@ -2,7 +2,7 @@
     <div class="box">
         <div class="section-4" v-if="isHidden('/assets/upload', permissionList)">
             <el-card>
-                <el-divider><i class="el-icon-upload"></i>上传文件</el-divider>
+                <el-divider><i class="el-icon-upload"></i>文件分发</el-divider>
                 <div class="upload">
                     <el-row :gutter="10">
                         <el-upload
@@ -30,7 +30,7 @@
         </div>
         <div class="section-2" v-if="isHidden('/assets/api', permissionList)">
             <el-card>
-                <el-divider><i class="el-icon-s-tools"></i>操作</el-divider>
+                <el-divider><i class="el-icon-s-tools"></i>更新操作</el-divider>
                 <div class="operate">
                     <el-row :gutter="10">
                         <template v-for="(data, index) in processList">
