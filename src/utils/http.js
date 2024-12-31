@@ -57,6 +57,7 @@ export const get = (url, params) => {
         }).then(resp => {
             resolve(resp);
         }).catch(error => {
+            Message.error(error+":无法连接服务器");
             reject(error);
         })
     })
@@ -68,6 +69,7 @@ export const post = (url, data, method) => {
             method.call(); // 不知道当初为啥要传入一个method
             resolve(resp);
         }).catch(error => {
+            Message.error(error+":无法连接服务器");
             reject(error);
         })
     })

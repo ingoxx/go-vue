@@ -58,19 +58,27 @@
                     <el-table-column prop="name" label="name" ></el-table-column>
                     <el-table-column prop="isopenga" label="isopenga" >
                         <template slot-scope="scope">
-                            <el-tag size="small" v-if="scope.row.isopenga == 1">ga认证开启</el-tag>
-                            <el-tag size="small" type="danger" v-else-if="scope.row.isopenga == 2">ga认证关闭</el-tag>
+                            <el-tag size="small" v-if="scope.row.isopenga == 1">MFA认证开启</el-tag>
+                            <el-tag size="small" type="danger" v-else-if="scope.row.isopenga == 2">MFA认证关闭</el-tag>
                         </template>
                     </el-table-column>
                     <el-table-column prop="isopenqr" label="isopenqr" >
                         <template slot-scope="scope">
-                            <el-tag size="small" v-if="scope.row.isopenqr == 1">ga二维码开启</el-tag>
-                            <el-tag size="small" type="danger" v-else-if="scope.row.isopenqr == 2">ga二维码关闭</el-tag>
+                            <el-tag size="small" v-if="scope.row.isopenqr == 1">MFA重置开启</el-tag>
+                            <el-tag size="small" type="danger" v-else-if="scope.row.isopenqr == 2">MFA重置关闭</el-tag>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="role" label="role">
+                    <el-table-column prop="roles" label="role">
                         <template slot-scope="scope">
-                            <el-tag size="small" type="success" v-if="scope.row.role.length != 0">{{ scope.row.role[0].rolename }}</el-tag>
+                            <template v-if="scope.row.roles.length > 0">
+                                <template v-for="(d, i) in scope.row.roles">
+                                    <el-tag :key="d.ID" size="small" type="success">{{ d.rolename }}</el-tag>
+                                </template>
+                            </template>
+                            <el-tag size="small" type="danger" v-else>未分配角色</el-tag>
+                            <!-- <template v-for="(d, i) in scope.row.roles">
+                                <el-tag :key="d.ID" size="small" type="success">{{ d.rolename }}</el-tag>
+                            </template> -->
                         </template>
                     </el-table-column>
                     <el-table-column prop="tel" label="tel"></el-table-column>
@@ -134,7 +142,7 @@
                     <el-input type="password" v-model="ruleForm.repass" autocomplete="off" clearable></el-input>
                 </el-form-item>
                 <el-form-item label="用户组" prop="role">
-                    <el-select v-model="ruleForm.role" placeholder="请选择" clearable>
+                    <el-select v-model="ruleForm.roles" placeholder="请选择用户组" clearable>
                         <el-option
                             v-for="item in roles"
                             :key="item.ID"
@@ -189,8 +197,11 @@
                 <el-form-item label="确认密码" prop="urepass">
                     <el-input type="password" v-model="ruleForm.urepass" autocomplete="off" clearable></el-input>
                 </el-form-item>
-                <el-form-item label="用户组" prop="role">
-                    <el-select v-model="ruleForm.role" placeholder="请选择" clearable>
+                <el-form-item label="当前用户组" prop="roles">
+                    <el-tag  size="small" type="success">{{ ruleForm.roles|get_role_name(roles) }}</el-tag>
+                </el-form-item>
+                <el-form-item label="用户组" prop="roles">
+                    <el-select v-model="ruleForm.roles" placeholder="请选择用户组" clearable>
                         <el-option
                             v-for="item in roles"
                             :key="item.ID"
@@ -385,7 +396,7 @@ export default {
                 upass:'',
                 urepass:'',
                 tel:'',
-                role:'',
+                roles:'',
             },
             rules: {
                 name: [
@@ -397,7 +408,7 @@ export default {
                 tel: [
                     { validator: validatetel, trigger: 'blur' }
                 ],
-                role: [
+                roles: [
                         { validator: validaterole, trigger: 'blur' }
                 ],
                 pass: [
@@ -452,8 +463,8 @@ export default {
                 return Message.error(resp.data.message);
             }
 
+            this.RolesNameList();
             this.pages.curPage = pageNum;
-
             this.userList = resp.data.data; //用户列表
             this.total = resp.data.total; //用户总数
             this.pages.pageSize = resp.data.pageSize; //一页显示的数据
@@ -467,7 +478,7 @@ export default {
             if (resp.data.code !== 10000) {
                 return Message.error(resp.data.message);
             }
-
+            
             this.roles = resp.data.data;       
         },
         async AddUser() {
@@ -482,7 +493,7 @@ export default {
             params.append('tel', this.ruleForm.tel);
             params.append('isopenqr', isopenqr);
             params.append('isopenga', isopenga);
-            params.append('roleId', this.ruleForm.role);
+            params.append('roleId', this.ruleForm.roles);
             const resp = await addUsers(params, this.callMethod).catch(err => {
                 this.addLoad = false;
             })
@@ -516,6 +527,7 @@ export default {
                     } else {
                         this.delByID.push(id);
                     };
+                    console.log("delByID >>> ", this.delByID);
                     data = JSON.stringify({uid: this.delByID});
                     break
             };
@@ -544,7 +556,7 @@ export default {
             const resp = await updateUsers({
                 name: this.ruleForm.name,
                 uid: this.ruleForm.uid,
-                rid: this.ruleForm.role,
+                rid: this.ruleForm.roles,
                 isopenqr: isopenqr,
                 isopenga: isopenga,
                 password: this.ruleForm.upass,
@@ -581,7 +593,7 @@ export default {
         editUserData(row) {
             this.editDialogVisible = true;
             this.ruleForm.name = row.name;
-            this.ruleForm.role = row.role[0].ID;
+            this.ruleForm.roles = row.roles.length > 0 ? row.roles[0].ID : '';
             this.ruleForm.uid = row.ID
             this.ruleForm.isopenqr = row.isopenqr == 1 ? true : false;
             this.ruleForm.isopenga = row.isopenga == 1 ? true : false;
@@ -644,6 +656,10 @@ export default {
             if (seconds < 10) seconds = '0' + seconds;
             return (year + '-' + month + '-' + day + ' ' + hours + ':' + min + ':' + seconds);
         },
+        get_role_name(id, roleList) {
+            let data = roleList.find(item => item.ID == id);
+            return data ? data.rolename : "未分配角色";
+        }
     },
 }
 </script>

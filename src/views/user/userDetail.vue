@@ -1,12 +1,19 @@
 <template>
     <div class="box">
-        <el-divider>
+        <!-- <el-divider>
             <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon008-saving"></use>
             </svg>
-        </el-divider>
+        </el-divider> -->
+        <div class="user-info">
+            <el-link :underline="false" type="success">
+                <svg class="icon" aria-hidden="true">
+                    <use xlink:href="#icon008-saving"></use>
+                </svg>
+            </el-link>
+        </div>
         <el-divider>
-            <strong><i class="el-icon-user"></i>姓名</strong>
+            <strong><i class="el-icon-user"></i>用户</strong>
         </el-divider>
         <div class="user-info">
             <el-link :underline="false" type="success">{{ userdetail.name }}</el-link>
@@ -27,7 +34,7 @@
             <strong><i class="el-icon-orange"></i>所属组</strong>
         </el-divider>
         <div class="user-info">
-            <el-link :underline="false" type="success">{{ userdetail.role[0].rolename }}</el-link>
+            <el-link :underline="false" type="success">{{ userdetail.roles[0].rolename }}</el-link>
         </div>
     </div>
 </template>

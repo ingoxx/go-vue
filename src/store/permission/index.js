@@ -29,7 +29,7 @@ const addRouters = {
         async getUserPerms(state) {
             const permissionList = await getUserPerms({"uid": sessionStorage.getItem("uid")})
             if (permissionList == null || permissionList.data.data.lenght === 0) {
-                return Message.error("数据获取失败");
+                return Message.error(permissionList.data.message);
             }
             
             state.commit('CHANGE_PERM_LOAD', false);

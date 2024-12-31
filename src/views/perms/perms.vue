@@ -14,7 +14,7 @@
                                 @confirm="handleMutilDelete()"
                                 ref="fs"
                             >
-                                <el-button v-if="isHidden('/perms/delete', permissionList)" size="small" type="danger" slot="reference" :loading="delLoad" icon="el-icon-delete-solid" >删除</el-button>
+                            <el-button v-if="isHidden('/perms/delete', permissionList)" size="small" type="danger" slot="reference" :loading="delLoad" icon="el-icon-delete-solid" @click="permsCheck()" >删除</el-button>
                         </el-popconfirm>
                     </el-col>
                 </el-row>
@@ -235,6 +235,12 @@ export default {
             this.centerDialogVisible =  false;
             return Message.success(resp.data.message);
         },
+        permsCheck() {
+            if (this.multipleSelection.length === 0) {
+                this.delLoad = false;
+                return Message.error("请先勾选需要删除的权限id")
+            }
+        },
         async DelPerms() {
             this.delLoad = true;
             var data = "";
@@ -274,6 +280,10 @@ export default {
             this.PermsList();
         },
         handleMutilDelete() {
+            if (this.multipleSelection.length === 0) {
+                this.delLoad = false;
+                return Message.error("请先勾选需要删除的权限id")
+            }
             this.DelPerms();
         },
         clearData() {

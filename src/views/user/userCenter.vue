@@ -1,6 +1,6 @@
 <template>
     <div class="boxc">
-        <el-tabs style="height: 200px;" v-model="activeNames">
+        <el-tabs class="el-tabs-c" style="height: 200px;" v-model="activeNames">
             <el-tab-pane label="个人信息" name="user">
                 <userDetailInfo></userDetailInfo>
             </el-tab-pane>
@@ -36,8 +36,22 @@ export default {
     @import '../../../public/style/userCenter.css';
 </style> -->
 
-<style>
+<style  lang="scss" scoped>
 :deep .boxc {
     height: 342px;
 }
+.el-tabs-c  {
+    :deep .el-tabs__item.is-active {
+       background-color: unset;
+       border-color: unset;
+       color: unset;
+    }
+
+}
+.el-tabs-c 
+    :deep .el-tabs__item.is-active {
+    //   background-color: #FAFAFA;
+    //   border-color: #42b983;
+    //   color: #fff;
+    }
 </style>

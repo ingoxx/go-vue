@@ -3,7 +3,7 @@
         <el-card>
             <el-row :gutter="10" class="content">
                 <el-col>
-                    <h3 class="title">谷歌认证登录</h3>
+                    <h3 class="title">MFA多因素认证登录</h3>
                 </el-col>
             </el-row>
             <el-row :gutter="10" class="content" v-if="isShowQr == 1">
@@ -16,12 +16,12 @@
                         :dot-scale="1"
                         :text="url"
                     />
-                    <p class="notice">打开谷歌验证器Authenticator扫码</p>
+                    <p class="notice">打开验证器Authenticator扫码</p>
                 </el-col>
             </el-row>
             <el-row :gutter="10" class="content">
                 <el-col>
-                    <el-input v-model="gacode" placeholder="请输入谷歌认证码" suffix-icon="el-icon-edit" clearable @keyup.enter.native="GaLogin()"></el-input>
+                    <el-input v-model="gacode" placeholder="请输入MFA认证码" suffix-icon="el-icon-edit" clearable @keyup.enter.native="GaLogin()"></el-input>
                 </el-col>
             </el-row>
             <el-row :gutter="10" class="content">

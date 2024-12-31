@@ -43,6 +43,12 @@ export const showDynamicRoutes = [
       },
     ],
   },
+  {
+    path: '*',
+    component: () => import('../views/forbidden/403'),
+    meta: {name: '禁止访问', keepAlive: false },
+    hidden: false,
+  }
 ]
 
 const router = new VueRouter({

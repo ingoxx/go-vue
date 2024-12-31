@@ -43,7 +43,7 @@
                     <el-tag size="mini" class="switch1" type="success" v-if="isCollapse"  @click="toggleHandle">展开<i class="el-icon-caret-right"></i></el-tag>
                     <el-tag size="mini" class="switch1" type="warning" v-else @click="toggleHandle"><i class="el-icon-caret-left"></i>折叠</el-tag>
                     <el-breadcrumb separator="/" class="c-el-bread">
-                        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+                        <el-breadcrumb-item @click.native="jumpHome('/')" :to="{ path: '/' }">首页</el-breadcrumb-item>
                         <el-breadcrumb-item v-for="(item, index) in this.$route.meta.title" :key="index">{{ item }}</el-breadcrumb-item>
                     </el-breadcrumb>
                     <el-dropdown trigger="click">
@@ -104,6 +104,7 @@ import { logout } from '../../api'
 import { mapState } from 'vuex'
 import store from '../../store/index'
 import  userCenter  from '../user/userCenter'
+import { Message } from 'element-ui'
 
 export default {
     name:"home",
@@ -182,11 +183,15 @@ export default {
         async logout() {
             var params = new URLSearchParams();
             params.append('user', this.user);
-            await logout(params, sessionStorage.getItem("user"), this.callMethod);
+            const resp = await logout(params, sessionStorage.getItem("user"), this.callMethod);
+            if (resp.data.code !== 10000) {
+                return Message.error(resp.data.message);
+            }
+            Message.success(resp.data.message);
             sessionStorage.clear();
             store.commit('CLEAR_PERMISSION', null);
-            location.reload();
-            // this.$router.replace('/login').catch((err) => err);
+            // location.reload();
+            this.$router.replace('/login').catch((err) => err);
         },
         addTabs (title, path) {
             let data = {title, path};
@@ -227,7 +232,10 @@ export default {
             )
         },
         TabsHome (path) {
-            this.editableTabsValue = path
+            this.editableTabsValue = path;
+        },
+        jumpHome (path) {
+            this.editableTabsValue = path;
         },
         toggleHandle() {
             this.isCollapse = !this.isCollapse

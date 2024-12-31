@@ -28,7 +28,7 @@
 <script>
 import { updateUsers } from '../../api'
 import { mapState } from 'vuex'
-
+import { Message } from 'element-ui'
 
 export default {
     name:"password",
@@ -77,17 +77,22 @@ export default {
     methods: {
         async UpdateUser() {
             this.updateLoad = true;
-            await updateUsers({
+            const resp = await updateUsers({
                 name: this.userdetail.name,
                 uid: this.userdetail.ID,
-                rid: this.userdetail.role[0].ID,
+                rid: this.userdetail.roles[0].ID,
                 password: this.ruleForm.pass,
                 rePassword: this.ruleForm.repass,
             }, this.callMethod).catch(err => {
                 this.updateLoad = false;
-            })
-            this.updateLoad = false;
+            });
 
+            if (resp.data.code !== 10000) {
+                this.updateLoad = false;
+                return Message.error(resp.data.message);
+            }
+            this.updateLoad = false;
+            return Message.success(resp.data.message);
         },
         resetForm(formName) {
             this.$refs[formName].resetFields();
@@ -127,4 +132,5 @@ export default {
 .submit {
     text-align: center;
 }
+
 </style>

@@ -31,7 +31,7 @@
                             <el-row :class="['level-bottom', index === 0 ? 'level-top' : '', 'center']" v-for="(item1, index) in scope.row.mm" :key="item1.ID">
                                 <!---一级菜单--->
                                 <el-col :span="5">
-                                    <el-tag closable @close="removeRolePerms(item1.ID, scope.row, 'tag')">{{ item1.title }}</el-tag>
+                                    <el-tag closable :disable-transitions="false" @close="removeRolePerms(item1.ID, scope.row, 'tag')">{{ item1.title }}</el-tag>
                                     <i class="el-icon-caret-right"></i>
                                 </el-col>
                                 <!---二级,三级菜单--->
@@ -39,12 +39,12 @@
                                     <el-row :class="[index === 0 ? '' : 'level-top']" v-for="(item2, index) in item1.children" :key="item2.ID">
                                         <!---二级菜单--->
                                         <el-col :span="5">
-                                            <el-tag closable type="success" @close="removeRolePerms(item2.ID, scope.row, 'tag')">{{ item2.title }}</el-tag>
+                                            <el-tag closable :disable-transitions="false" type="success" @close="removeRolePerms(item2.ID, scope.row, 'tag')">{{ item2.title }}</el-tag>
                                             <i class="el-icon-caret-right"></i>
                                         </el-col>
                                         <!---三级菜单--->
                                         <el-col :span="18">
-                                            <el-tag closable type="warning" @close="removeRolePerms(item3.ID, scope.row, 'tag')" v-for="item3 in item2.children" :key="item3.ID">{{ item3.title }}</el-tag>
+                                            <el-tag closable :disable-transitions="false" type="warning" @close="removeRolePerms(item3.ID, scope.row, 'tag')" v-for="item3 in item2.children" :key="item3.ID">{{ item3.title }}</el-tag>
                                         </el-col>
                                     </el-row>
                                 </el-col>
@@ -57,14 +57,7 @@
                 <el-table-column prop="operate" label="operate" width="226">
                     <template slot-scope="scope">
                         <el-button size="mini" type="primary" icon="el-icon-edit" plain @click="showAllotPerms(scope.row)" v-if="isHidden('/role/allotperms', permissionList)">权限分配</el-button>
-                        <el-popconfirm :title="'确定删除'+scope.row.name+'吗?'"
-                            icon="el-icon-info"
-                            icon-color="red"
-                            confirm-button-text='删除'
-                            @confirm="handleDelete(scope.row)"
-                        >
-                            <el-button size="mini" type="danger" slot="reference" icon="el-icon-delete-solid" plain v-if="isHidden('/role/delete', permissionList)">删除</el-button>
-                        </el-popconfirm>
+                        <el-button size="mini" type="danger" slot="reference" icon="el-icon-delete-solid" @click="handleDeleteRoles(scope.row)" plain v-if="isHidden('/role/delete', permissionList)">删除</el-button>
                     </template>
                 </el-table-column>
                 </el-table>
@@ -142,7 +135,7 @@
                                 confirm-button-text='确定'
                                 @confirm="submitForm('ruleForm', allotPermsToRole)"
                         >
-                    <el-button type="warning" icon="el-icon-warning" :loading="allotLoad" slot="reference">确定</el-button>
+                    <el-button type="warning" icon="el-icon-warning" :disabled="allowSubmitChangePerms" :loading="allotLoad" slot="reference">刷新权限</el-button>
                 </el-popconfirm>
             </span>
         </el-dialog>
@@ -150,9 +143,10 @@
 </template>
 
 <script>
-import { getRolesList, removePerms, getPermsTree, allotPerms, getRolePerms, createRole } from '../../api'
+import { getRolesList, removePerms, getPermsTree, allotPerms, getRolePerms, createRole, delRoles } from '../../api'
 import { mapState } from 'vuex'
 import { Message } from 'element-ui'
+import { MessageBox } from 'element-ui';
 
 export default {
     name: "roles",
@@ -209,6 +203,7 @@ export default {
             }
         };
         return {
+            allowSubmitChangePerms: false,
             roleHavePerms:[],
             roleList: [],
             multipleSelection: [],
@@ -254,6 +249,23 @@ export default {
         tableRowClick(row, column, event) {
             this.$refs.multipleTable.toggleRowSelection(row);
         },
+        async getMm() {
+            const resp = await getRolesList({
+                rolename: this.rolename,
+                page: this.pages.curPage,
+            }).catch(err => {
+                this.tableLoad = false;
+            })
+
+            if (resp.data.code !== 10000) {
+                this.tableLoad = false;
+                return Message.error(resp.data.message);
+            }
+            
+            this.roleList = resp.data.data;
+            this.pages.pageSize = resp.data.pageSize;
+            this.total = resp.data.total;
+        },
         async RolesList() {
             this.tableLoad = true;
             const resp = await getRolesList({
@@ -277,7 +289,7 @@ export default {
             this.addLoad = true;
             var params = new URLSearchParams();
             params.append('rolename', this.ruleForm.rolename);
-            await createRole(params, this.RolesList).catch(err => {
+            const resp = await createRole(params, this.RolesList).catch(err => {
                 this.addLoad = false;
             });
 
@@ -323,7 +335,6 @@ export default {
             return Message.success(resp.data.message);
         },
         async allotPermsToRole() {
-            // await this.removeRolePerms("", "", "button");
             this.allotLoad = true;
             let pidlist = this.$refs.tree.getCheckedKeys();
             let data = "";
@@ -338,6 +349,7 @@ export default {
             }
 
             this.allotLoad = false;
+            this.getMm();
             return Message.success(resp.data.message);
         },
         async permsTree(rid) {
@@ -353,6 +365,7 @@ export default {
             this.permsTreeList = resp.data.data;
             this.RolePerms(rid);
             this.treeLoading = false;
+            this.allowSubmitChangePerms = false;
         },
         async RolePerms(rid) {
             const resp = await getRolePerms({ rid });
@@ -363,7 +376,29 @@ export default {
 
             this.roleHavePerms = resp.data.pidList;
         },
+        handleDeleteRoles(row) {
+            MessageBox.confirm(`确定删除角色【${row.rolename}】吗？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                let rids = [];
+                rids.push(row.ID);
+                this.deleteRole(rids);
+            }).catch((err) => {     
+            });
+        },
+        async deleteRole(rid) {
+            let data = JSON.stringify({ rid });
+            const resp = await delRoles(data, this.callMethod);
+            if (resp.data.code !== 10000) {
+                return Message.error(resp.data.message);
+            }
+            this.RolesList();
+            Message.success(resp.data.message);
+        },
         showAllotPerms(row) {
+            this.allowSubmitChangePerms = true;
             this.treeLoading = true;
             this.roleHavePerms = [];
             this.allotDialogVisible = true;
