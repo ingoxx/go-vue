@@ -1,12 +1,12 @@
 <template>
-    <div class="box">
+    <div class="box-ga">
         <el-card>
-            <el-row :gutter="10" class="content">
+            <el-row :gutter="10" class="content-ga">
                 <el-col>
                     <h3 class="title">MFA多因素认证登录</h3>
                 </el-col>
             </el-row>
-            <el-row :gutter="10" class="content" v-if="isShowQr == 1">
+            <el-row :gutter="10" class="content-ga" v-if="isShowQr == 1">
                 <el-col>
                     <vue-qr 
                         :logo-src="appSrc"
@@ -16,15 +16,15 @@
                         :dot-scale="1"
                         :text="url"
                     />
-                    <p class="notice">打开验证器Authenticator扫码</p>
+                    <p class="notice">打开MFA应用扫码登陆</p>
                 </el-col>
             </el-row>
-            <el-row :gutter="10" class="content">
+            <el-row :gutter="10" class="content-ga">
                 <el-col>
                     <el-input v-model="gacode" placeholder="请输入MFA认证码" suffix-icon="el-icon-edit" clearable @keyup.enter.native="GaLogin()"></el-input>
                 </el-col>
             </el-row>
-            <el-row :gutter="10" class="content">
+            <el-row :gutter="10" class="content-ga">
                 <el-col>
                     <el-button type="success" plain @click="GaLogin()" :loading="submitLoad">{{ logintext }}</el-button>
                 </el-col>
@@ -95,13 +95,13 @@ export default {
     },
 }
 </script>
-<!-- 
-<style lang="scss" scoped>
-    @import '../../../public/style/ga.css';
+
+<!-- <style lang="scss" scoped>
+    @import '../../../public/style/ga.scss';
 </style> -->
 
 <style lang="scss" scoped>
-.box {
+.box-ga {
     padding-top: 150px;
     // height: 100%;
     // background-color: #e9e9e9;
@@ -116,7 +116,7 @@ export default {
     bottom: 30px;
     background-color: #1ab395;
 }
-.content {
+.content-ga {
     margin-top: 10px;
 }
 .notice {

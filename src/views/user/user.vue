@@ -151,16 +151,23 @@
                         </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="是否开启ga">
+                <el-form-item label="是否开启MFA">
                     <el-switch
                         v-model="ruleForm.isopenga"
                         active-text="开启"
                         inactive-text="关闭">
                     </el-switch>
                 </el-form-item>
-                <el-form-item label="是否开启gaqr">
+                <el-form-item label="是否重置MFA">
                     <el-switch
                         v-model="ruleForm.isopenqr"
+                        active-text="开启"
+                        inactive-text="关闭">
+                    </el-switch>
+                </el-form-item>
+                <el-form-item label="是否下载MFA">
+                    <el-switch
+                        v-model="ruleForm.mfa_app"
                         active-text="开启"
                         inactive-text="关闭">
                     </el-switch>
@@ -210,16 +217,23 @@
                         </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="是否开启ga">
+                <el-form-item label="是否开启MFA">
                     <el-switch
                         v-model="ruleForm.isopenga"
                         active-text="开启"
                         inactive-text="关闭">
                     </el-switch>
                 </el-form-item>
-                <el-form-item label="是否开启gaqr">
+                <el-form-item label="是否重置MFA">
                     <el-switch
                         v-model="ruleForm.isopenqr"
+                        active-text="开启"
+                        inactive-text="关闭">
+                    </el-switch>
+                </el-form-item>
+                <el-form-item label="是否下载MFA">
+                    <el-switch
+                        v-model="ruleForm.mfa_app"
                         active-text="开启"
                         inactive-text="关闭">
                     </el-switch>
@@ -391,6 +405,7 @@ export default {
                 email: '',
                 isopenga: true,
                 isopenqr: true,
+                mfa_app: true,
                 pass:'',
                 repass:'',
                 upass:'',
@@ -486,6 +501,7 @@ export default {
             var params = new URLSearchParams();
             var isopenqr = this.ruleForm.isopenqr ? 1 : 2;
             var isopenga = this.ruleForm.isopenga ? 1 : 2;
+            var mfaapp = this.ruleForm.mfa_app ? 1 : 2;
             params.append('password', this.ruleForm.pass);
             params.append('rePassword', this.ruleForm.repass);
             params.append('name', this.ruleForm.name);
@@ -493,6 +509,7 @@ export default {
             params.append('tel', this.ruleForm.tel);
             params.append('isopenqr', isopenqr);
             params.append('isopenga', isopenga);
+            params.append('mfa_app', mfa_app);
             params.append('roleId', this.ruleForm.roles);
             const resp = await addUsers(params, this.callMethod).catch(err => {
                 this.addLoad = false;
@@ -553,12 +570,15 @@ export default {
             this.updateLoad = true;
             var isopenqr = this.ruleForm.isopenqr ? 1 : 2;
             var isopenga = this.ruleForm.isopenga ? 1 : 2;
+            var mfaapp = this.ruleForm.mfa_app ? 1 : 2;
+            console.log("this.ruleForm.mfa_app >>> ", this.ruleForm.mfa_app);
             const resp = await updateUsers({
                 name: this.ruleForm.name,
                 uid: this.ruleForm.uid,
                 rid: this.ruleForm.roles,
                 isopenqr: isopenqr,
                 isopenga: isopenga,
+                mfa_app: mfaapp,
                 password: this.ruleForm.upass,
                 rePassword: this.ruleForm.urepass,
             }, this.callMethod).catch(err => {
@@ -591,12 +611,16 @@ export default {
             this.$refs[formName].resetFields();
         },
         editUserData(row) {
+            console.log("row.mfa_app >>> ", row.mfa_app);
+            console.log("row.isopenga >>> ", row.isopenga);
             this.editDialogVisible = true;
             this.ruleForm.name = row.name;
             this.ruleForm.roles = row.roles.length > 0 ? row.roles[0].ID : '';
-            this.ruleForm.uid = row.ID
+            this.ruleForm.uid = row.ID;
             this.ruleForm.isopenqr = row.isopenqr == 1 ? true : false;
             this.ruleForm.isopenga = row.isopenga == 1 ? true : false;
+            this.ruleForm.mfa_app = row.mfa_app == 1 ? true : false;
+            
         },
         clearData() {
             this.centerDialogVisible = true;
@@ -670,7 +694,6 @@ export default {
 
 <style lang="scss" scoped>
 .box{
-
     margin: 10px auto;
 }
 .search {
@@ -700,7 +723,7 @@ export default {
     width: 292px;
 }
 :deep .el-dialog__header {
-    background-color: rgb(48, 65, 86);
+    background-color: #1f211f;
     padding: 16px 20px 16px;
 }
 :deep .el-dialog__title {

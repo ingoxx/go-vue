@@ -19,6 +19,12 @@ const routes = [
     component: () => import('../views/login/ga')
   },
   {
+    path: '/mfa/:user/:qr/:url',
+    name: 'mfa',
+    meta: { name: 'mfa认证器应用' },
+    component: () => import('../views/login/mfaApp')
+  },
+  {
     path: '/assets/update/:project/:ip/:name/:uuid',
     name: 'assets-update',
     meta: { name: '查看更新' },

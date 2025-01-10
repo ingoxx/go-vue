@@ -52,9 +52,11 @@ import { ButtonGroup } from 'element-ui'
 import { Popover } from 'element-ui'
 import { Upload } from 'element-ui'
 import { Progress } from 'element-ui'
+import { Image } from 'element-ui'
 import VueBus from 'vue-bus';
 import VuePageTransition from 'vue-page-transition'
 
+Vue.use(Image);
 Vue.use(Dropdown);
 Vue.use(DropdownMenu);
 Vue.use(DropdownItem);

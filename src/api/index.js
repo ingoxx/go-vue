@@ -1,5 +1,6 @@
 import { get, post, loginPost } from '../utils/http'
 
+// post
 export const addUsers = (params, method) => post("/user/add?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 export const delUsers = (params, method) => post("/user/del?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 export const createPerms = (params, method) => post("/perms/create?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
@@ -13,11 +14,14 @@ export const removePerms = (params, method) => post("/role/rmperms?user="+ sessi
 export const allotPerms = (params, method) => post("/role/allotperms?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 export const createRole = (params, method) => post("/role/create?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 export const assetsUpload = (params, method) => post("/assets/upload?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
-export const createProgramUpdateRecord = (params, method) => post("/assets/process/update/create?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
+export const createProgramUpdateRecord = (params, method) => post("/assets/program/update/create?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 export const createServer = (params, method) => post("/assets/add?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 export const editServer = (params, method) => post("/assets/update?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 export const delServer = (params, method) => post("/assets/del?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 export const runProgram = (params, method) => post("/assets/api?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
+export const ProgramAdd = (params, method) => post("/assets/program/add?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
+// get
+export const getProgramList = (params) => get("/assets/program/list?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params);
 export const getUserList = (params) => get("/user/list?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params);
 export const getRolesName = (params) => get("/role/rolesname?user="+ sessionStorage.getItem("user") +"&token=" + sessionStorage.getItem("token"), params);
 export const getUserPerms = (params) => get("/role/userperms?user="+ sessionStorage.getItem("user") +"&token="+ sessionStorage.getItem("token"), params);
@@ -28,7 +32,7 @@ export const getPermsTree= (params) => get("/role/pmenu?user="+ sessionStorage.g
 export const getUserDetail= (params) => get("/user/getinfobyname?user="+ sessionStorage.getItem("user") +"&token="+ sessionStorage.getItem("token"), params);
 export const getOperateLogList= (params) => get("/log/list?user="+ sessionStorage.getItem("user") +"&token="+ sessionStorage.getItem("token"), params);
 export const getAssetsList = (params) => get("/assets/list?user=" + sessionStorage.getItem("user") + "&token=" + sessionStorage.getItem("token"), params);
-export const getProcessStatus = (params) => get("/assets/process/status?user=" + sessionStorage.getItem("user") + "&token=" + sessionStorage.getItem("token"), params);
-export const getUpdateList = (params) => get("/assets/process/update/list?user=" + sessionStorage.getItem("user") + "&token=" + sessionStorage.getItem("token"), params);
+export const getProcessStatus = (params) => get("/assets/program/status?user=" + sessionStorage.getItem("user") + "&token=" + sessionStorage.getItem("token"), params);
+export const getUpdateList = (params) => get("/assets/program/update/list?user=" + sessionStorage.getItem("user") + "&token=" + sessionStorage.getItem("token"), params);
 
 

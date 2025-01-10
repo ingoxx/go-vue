@@ -1,7 +1,6 @@
-
 .login {
     height: 100%;
-    /* // padding: 80px auto; */
+    padding: 80px auto;
     background-color:#2d3a4b;
 }
 .login h2 {
@@ -11,14 +10,14 @@
 .demo-ruleForm {
     margin: auto;
 }
-.el-input input {
+.demo-ruleForm .el-input input {
     background-color: #283443;
     border: 1px solid rgba(0,0,0,.1)
 }
-.el-form-item__content {
+.login-body .el-form-item__content {
     margin: 0 auto !important;
     width: 450px;
 }
-.el-button+.el-button, .el-checkbox.is-bordered+.el-checkbox.is-bordered {
+.login-body .el-button+.el-button, .el-checkbox.is-bordered+.el-checkbox.is-bordered {
     margin-left: 30px;
 }

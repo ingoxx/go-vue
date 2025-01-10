@@ -1,3 +1,13 @@
 .boxc {
     height: 342px;
 }
+.el-tabs__item .is-top .is-active {
+    background-color: unset;
+    border-color: unset;
+    color: unset;
+}
+/* .el-tabs-c .el-tabs__item .is-active  {
+    background-color: #FAFAFA;
+    border-color: #42b983;
+    color: #fff;
+} */

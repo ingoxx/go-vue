@@ -132,5 +132,4 @@ export default {
 .submit {
     text-align: center;
 }
-
 </style>

@@ -1,9 +1,6 @@
 .box {
-    /* // padding: 15px;
-    // padding: 20px; */
     overflow-y: auto;
     height: 96%;
-    /* // background-color: #f5f5f5; */
 }
 .section-2, .section-1-2, .section-3, .table, .page, .result-data, .section-5 {
     margin-top: 16px;
@@ -14,8 +11,6 @@
 .cell button {
     margin-right: 7px;
 }
-
-/* 修改elementui css */
 .op-name {
     display: flex;
     justify-content: center;
@@ -78,10 +73,12 @@
     width: 500px;
     margin: 22px auto;
 }
-
 .el-dialog__body {
-
     background-color: #f9f9f9;
+}
+.el-dialog__header {
+    background-color: #1f211f;
+    padding: 16px 20px 16px;
 }
 .el-dialog--center {
     cursor: move;
@@ -103,4 +100,7 @@
 }
 .el-table tr {
     cursor: pointer;
+}
+.el-link--inner {
+    white-space: break-spaces;
 }

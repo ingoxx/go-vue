@@ -1,6 +1,6 @@
-.box {
+.box-home {
     height: 100%;
-  }
+}
 .boxc {
     height: 342px;
 }
@@ -76,6 +76,11 @@ body > .el-container {
   line-height: 60px;
   padding: 0 20px;
 }
+.el-tabs__item.is-active {
+  background-color: #42b983;
+  border-color: #42b983;
+  color: #fff;
+}
 .el-menu-vertical-demo:not(.el-menu--collapse) {
     width: 200px;
     min-height: 400px;
@@ -109,7 +114,7 @@ body > .el-container {
     cursor: move;
 }
 .el-dialog__header {
-    background-color: rgb(48, 65, 86);
+    background-color: #1f211f;
     padding: 16px 20px 16px;
 }
 .el-dialog__title {

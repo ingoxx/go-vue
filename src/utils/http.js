@@ -33,7 +33,7 @@ instance.interceptors.response.use(resp => {
             Message.error(err.response.data.message);
             break
         case 500:
-            Message.error(err.response.data.message);
+            Message.error(err);
             break
         case 502:
             Message.error(err.response.data.message+" 3秒后将跳转到登录页!");
@@ -69,7 +69,7 @@ export const post = (url, data, method) => {
             method.call(); // 不知道当初为啥要传入一个method
             resolve(resp);
         }).catch(error => {
-            Message.error(error+":无法连接服务器");
+            // Message.error(error+":无法连接服务器");
             reject(error);
         })
     })
@@ -82,7 +82,7 @@ export const loginPost = (url, data, other, method) => {
             method.call();
             resolve(resp);
         }).catch(error => {
-            Message.error(error+":无法连接服务器");
+            // Message.error(error+":无法连接服务器");
             reject(error);
         })
     })

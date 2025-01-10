@@ -1,7 +1,5 @@
-/* user.vue */
 .box{
-
-    margin: 10px auto;
+    /* margin: 10px auto; */
 }
 .search {
     height: 42px;
@@ -30,7 +28,7 @@
     width: 292px;
 }
 .el-dialog__header {
-    background-color: rgb(48, 65, 86);
+    background-color: #1f211f;
     padding: 16px 20px 16px;
 }
 .el-dialog__title {
@@ -44,7 +42,7 @@
     color: rgb(187, 160, 102);
 }
 .el-dialog__body {
-    /* // height: 351px !important; */
+    /* height: 351px !important; */
     background-color: #f9f9f9;
 }
 .el-dialog--center {
@@ -56,4 +54,3 @@
 .el-table tr {
     cursor: pointer;
 }
-

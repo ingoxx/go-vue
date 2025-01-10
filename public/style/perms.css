@@ -1,5 +1,5 @@
 .box{
-    margin: 10px auto;
+    /* margin: 10px auto; */
 }
 .box .operate {
     height: 42px;
@@ -16,7 +16,7 @@
     width: 292px;
 }
 .el-dialog__header {
-    background-color: rgb(48, 65, 86);
+    background-color: #1f211f;
     padding: 16px 20px 16px;
 }
 .el-dialog__title {

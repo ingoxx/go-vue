@@ -31,8 +31,7 @@ export default {
 }
 </script>
 
-<!-- 
-<style lang="scss" scoped>
+<!-- <style lang="scss" scoped>
     @import '../../../public/style/userCenter.css';
 </style> -->
 
@@ -46,12 +45,5 @@ export default {
        border-color: unset;
        color: unset;
     }
-
 }
-.el-tabs-c 
-    :deep .el-tabs__item.is-active {
-    //   background-color: #FAFAFA;
-    //   border-color: #42b983;
-    //   color: #fff;
-    }
 </style>

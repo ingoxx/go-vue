@@ -30,17 +30,17 @@
         </div>
         <div class="section-2" v-if="isHidden('/assets/api', permissionList)">
             <el-card>
-                <el-divider><i class="el-icon-s-tools"></i>更新操作</el-divider>
+                <el-divider><i class="el-icon-s-tools"></i>程序操作</el-divider>
                 <div class="operate">
                     <el-row :gutter="10">
-                        <template v-for="(data, index) in processList">
+                        <template v-for="(data, index) in programList">
                             <template>
-                                <el-col :span="1.9" :key="data.pid">
-                                    <el-button v-if="data.type==1" type="primary" size="mini" icon="el-icon-basketball" @click="runProcess('sin', data.name, index)" :loading="data.load">{{ data.name }}</el-button>
-                                    <el-button v-else-if="data.type==2" type="warning" size="mini" icon="el-icon-basketball" @click="runProcess('sin', data.name, index)" :loading="data.load">{{ data.name }}</el-button>
+                                <el-col :span="1.9" :key="data.id" v-if="isHidden(data.path, permissionList)">
+                                    <el-button  type="primary" size="mini" icon="el-icon-basketball" @click="runProcess('sin', data.cnname, index)" :loading="data.load">{{ data.cnname }}</el-button>
                                 </el-col>
                             </template>
                         </template>
+                        <el-col :span="1.9" v-if="isHidden('/assets/program/add', permissionList)"><el-button  type="info" size="mini" icon="el-icon-document-add" @click="handleCreateProgramOp">添加操作</el-button></el-col>
                     </el-row>
                 </div>
             </el-card>
@@ -65,10 +65,10 @@
                                 default-first-option
                             >
                                 <el-option
-                                    v-for="item in processList"
-                                    :key="item.name"
-                                    :label="item.name"
-                                    :value="item.name">
+                                    v-for="item in programList"
+                                    :key="item.cnname"
+                                    :label="item.cnname"
+                                    :value="item.cnname">
                                 </el-option>
                             </el-select>
                         </el-col>
@@ -91,12 +91,12 @@
                                 <h3 class="title-2">更新设置</h3>
                             </el-row>
                             <el-row :gutter="10" class="detail-content">
-                                <el-col :span="4">
+                                <el-col :span="6">
                                    <label class="detail-2">是否查看更新过程(默认关闭):</label> <el-switch v-model="isJump" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
                                 </el-col>
                             </el-row>
                             <el-row :gutter="10" class="detail-content">
-                                <el-col :span="4">
+                                <el-col :span="7">
                                    <label class="detail-2">是否删除更新记录(默认不删除):</label> <el-switch v-model="isDelUpdateLog" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
                                 </el-col>
                             </el-row>
@@ -146,9 +146,9 @@
                 </div>
             </el-card>
         </div>
-        <div class="section-5" v-if="isHidden('/assets/process/update/list', permissionList)">
+        <div class="section-5" v-if="isHidden('/assets/program/update/list', permissionList)">
             <el-card>
-                <el-divider><i class="el-icon-s-help"></i>更新记录列表</el-divider>
+                <el-divider><i class="el-icon-s-help"></i>更新记录</el-divider>
                 <div class="search">
                     <el-row :gutter=10>
                         <el-col :span=3.9>
@@ -196,9 +196,9 @@
                     </el-table-column>
                     <el-table-column prop="status" label="更新状态"  width="160">
                         <template slot-scope="scope">
-                            <el-button type="warning" size="mini"  v-if="scope.row.status === 400" :loading="true" plain>更新中</el-button>
-                            <el-link type="success" :underline="false"  size="mini" v-else-if="scope.row.status === 200" plain>完成</el-link>
+                            <el-link type="success" :underline="false"  size="mini" v-if="scope.row.status === 200" plain>完成</el-link>
                             <el-link type="danger" :underline="false"  size="mini" v-else-if="scope.row.status === 300" plain>失败</el-link>
+                            <el-button type="warning" size="mini"  v-else-if="scope.row.status === 400" :loading="true" plain>更新中</el-button>
                         </template>
                     </el-table-column>
                     <el-table-column prop="progress" label="更新进度" width="250">
@@ -352,6 +352,38 @@
                 </div>
                 </el-dialog>
         </div>
+        <!-- 添加操作 -->
+        <el-dialog
+            title="添加操作"
+            :visible.sync="addOpDialogVisible"
+            width="500px"
+            :close-on-click-modal="false"
+            v-draggable
+            center
+            >
+            <el-form :model="ruleForm" status-icon label-position="right" :rules="rules" ref="ruleForm" label-width="100px" class="progame-add">
+                <el-form-item label="操作中文名" prop="cnname">
+                    <el-input type="name" v-model="ruleForm.cnname" autocomplete="off" clearable></el-input>
+                </el-form-item>
+                <el-form-item label="操作英文名" prop="enname">
+                    <el-input type="name" v-model="ruleForm.enname" autocomplete="off" clearable></el-input>
+                </el-form-item>
+                <el-form-item label="请求地址" prop="path">
+                    <el-input type="name" v-model="ruleForm.path" autocomplete="off" clearable></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="resetForm('ruleForm')">重置</el-button>
+                <el-popconfirm :title="'确定添加【'+ruleForm.cnname+'】吗?'"
+                                icon="el-icon-info"
+                                icon-color="red"
+                                confirm-button-text='确定'
+                                @confirm="submitForm('ruleForm', createProgramOpMth)"
+                            >
+                    <el-button type="primary" :loading="addOpLoad" slot="reference">确 定</el-button>
+                </el-popconfirm>
+            </span>
+        </el-dialog>
         <!-- 分发文件窗口 -->
         <div class="syncFile">
             <el-dialog
@@ -366,7 +398,7 @@
                     <el-card v-loading="syncFileLoading"
                             element-loading-text="正在拼命同步中..."
                             element-loading-spinner="el-icon-loading">
-                        <el-divider><strong><i class="el-icon-platform-eleme"></i>文件同步</strong></el-divider>
+                        <el-divider><strong><i class="el-icon-platform-eleme"></i>文件MD5</strong></el-divider>
                         <p class="op-name">
                             <el-row :gutter="10">
                                 <el-col :span="1.9">
@@ -380,7 +412,7 @@
                     <el-card v-loading="logLoading"
                             element-loading-text="正在拼命连接中..."
                             element-loading-spinner="el-icon-loading">
-                        <el-divider><strong><i class="el-icon-platform-eleme"></i>文件同步</strong></el-divider>
+                        <el-divider><strong><i class="el-icon-platform-eleme"></i>分发到服务器返回的文件MD5</strong></el-divider>
                         <div class="copy">
                             <el-button type="success" size="mini" plain @click="copy(syncFileContent.join(''))">复制</el-button>
                         </div>
@@ -397,7 +429,7 @@
 <script>
 import { Message, MessageBox } from 'element-ui'
 import { mapState } from 'vuex'
-import { getAssetsList, getProcessStatus, createProgramUpdateRecord, runProgram, getUpdateList, assetsUpload, createServer, delServer, editServer } from '../../api'
+import { getAssetsList, getProcessStatus, createProgramUpdateRecord, runProgram, getUpdateList, assetsUpload, createServer, delServer, editServer, ProgramAdd, getProgramList } from '../../api'
 import { v4 as uuidv4 } from 'uuid';
 import CryptoJS from 'crypto-js';
 import baseUrl from "../../utils/baseUrl";
@@ -470,7 +502,31 @@ export default {
                 callback();
             }
         };
+        // new
+        var validateOpCNName = (rule, value, callback) => {
+            if (!value) {
+                callback(new Error('操作中文名不能为空'));
+            } else {
+                callback();
+            }
+        };
+        var validateOpENName= (rule, value, callback) => {
+            if (!value) {
+                callback(new Error('操作英文名不能为空'));
+            } else {
+                callback();
+            }
+        };
+        var validatePath = (rule, value, callback) => {
+            if (!value) {
+                callback(new Error('请求路径不能为空'));
+            } else {
+                callback();
+            }
+        };
         return {
+            addOpLoad: false,
+            addOpDialogVisible: false,
             searchData: "",
             updateListSeach: "",
             updatestatus:"",
@@ -529,6 +585,9 @@ export default {
             ruleForm: {
                 project:'',
                 ip:'',
+                cnname: '',
+                enname: '',
+                path: '',
             },
             rules: {
                 project: [
@@ -537,9 +596,19 @@ export default {
                 ip: [
                     { validator: validateip, trigger: 'blur' }
                 ],
+                cnname: [
+                    { validator: validateOpCNName, trigger: 'blur' }
+                ],
+                enname: [
+                    { validator: validateOpENName, trigger: 'blur' }
+                ],
+                path: [
+                    { validator: validatePath, trigger: 'blur' }
+                ],
             },
-            processList: [],
-            processName: {},
+
+            programList: [],
+            programName: {},
             pages: {
                 curPage:1,
                 pageSize:5,
@@ -568,6 +637,32 @@ export default {
         // VueDraggableResizable
     },
     methods: {
+        handleCreateProgramOp() {
+            this.addOpDialogVisible = true;
+        },
+        async getProgramListMth() {
+            let data = {
+                cnname: "",
+                enname: "",
+                path: "",
+            };
+            const resp = await getProgramList(data);
+            if (resp.data.code !== 10000) {
+                return Message.error(resp.data.message)
+            }
+            this.programList = resp.data.data.pl;
+            this.programName = resp.data.data.pn;
+        },
+        async createProgramOpMth() {
+            const resp = await ProgramAdd({cnname: this.ruleForm.cnname, enname: this.ruleForm.enname, path: this.ruleForm.path}, this.callMethod)
+            if (resp.data.code !== 10000) {
+                return Message.error(resp.data.message);
+            }
+
+            this.programList = resp.data.data.pl;
+            this.programName = resp.data.data.pn;
+            Message.success(resp.data.message);
+        },
         dialogDrag(event) {
             if (!this.dragDialog.dragging) {
                 return;
@@ -865,9 +960,6 @@ export default {
             this.detailICon = this.detailICon === "el-icon-arrow-down" ? "el-icon-arrow-up" : "el-icon-arrow-down";
             this.detailView = this.detailView === false ? true : false;
         },
-        createUuid() {
-            return uuidv4();
-        },
         // 程序更新的入口
         runProcess(action, name, index) {
             if (this.multipleSelection.length === 0) {
@@ -885,11 +977,11 @@ export default {
 
             switch (action) {
                 case "sin":
-                    title = "服务器: " + ip.join("&") + ", 确定操作: " + name + "吗？";
+                    title = "服务器: " + ip.join("&") + ", 确定操作: 【" + name + "】吗？";
                     this.open('sin', title, name, index);
                     break
                 case "mul":
-                    title = "服务器: " + ip.join("&") + ", 确定操作: " + this.selectVal.join("&") + "吗？";
+                    title = "服务器: " + ip.join("&") + ", 确定操作: 【" + this.selectVal.join("&") + "】吗？";
                     this.open('mul', title, this.selectVal.join("&"), index);
                     break
             }
@@ -904,10 +996,11 @@ export default {
             }).then(() => {
                 this.confirmUpdate(action, process, index);
                 // Message.success(`${process}操作已提交`);
-            }).catch((err) => {
-                console.log(err);
-                Message.info(`${process}操作已取消`);       
-            });
+            })
+        },
+        // 创建uuid
+        createUuid() {
+            return uuidv4();
         },
         // 确定更新
         async confirmUpdate(action,process, index) {
@@ -919,7 +1012,7 @@ export default {
             let operator = sessionStorage.getItem("user");
             switch (action) {
                 case 'sin':
-                    this.processList[index].load = true;
+                    this.programList[index].load = true;
                     for (let i = 0; i < this.multipleSelection.length; i++) {
                         ip = this.multipleSelection[i].ip;
                         project = this.multipleSelection[i].project;
@@ -941,7 +1034,6 @@ export default {
                     }
                     break
             }
-
             // 先提交执行程序任务(后端异步执行)
             this.runningJumpOrNot(data_list);
             
@@ -956,7 +1048,7 @@ export default {
             }
 
             if (action==="sin") {
-                this.processList[index].load = false;
+                this.programList[index].load = false;
             } else if (action==="mul") {
                 this.submitLoading = false;
             }
@@ -979,7 +1071,7 @@ export default {
                 // 在新的页面执行
                 if (this.isJump) {
                     let routeData = this.$router.resolve(
-                        { path: `/assets/update/${data_list[i].project}/${data_list[i].ip}/${this.processName[data_list[i].update_name]}/${data_list[i].uuid}` }
+                        { path: `/assets/update/${data_list[i].project}/${data_list[i].ip}/${this.programName[data_list[i].update_name]}/${data_list[i].uuid}` }
                     );
                     window.open(routeData.href, '_blank');
                 } else {
@@ -996,7 +1088,7 @@ export default {
             const resp = await runProgram({
                 ip: data.ip,
                 uuid: data.uuid,
-                update_name: this.processName[data.update_name]
+                update_name: this.programName[data.update_name]
             }, this.callMethod).catch((err)=>{Message.error(err)});
             return resp
         },
@@ -1049,8 +1141,8 @@ export default {
             this.pages.pageSize = resp.data.pageSize;
             this.total = resp.data.total;
             this.tableLoad = false;
-            this.processList = resp.data.config.config;
-            this.processName = resp.data.config.select;
+            // this.programList = resp.data.config.config;
+            // this.programName = resp.data.config.select;
 
         },
         // 更新记录列表
@@ -1063,9 +1155,12 @@ export default {
             let data = {};
             let check_status = "";
             let pageNum = 1;
-
-            if (cancel==300) {
+            
+            console.log("this.timer >>> ", this.timer);
+            if (cancel==300 && this.timer) {
+                console.log("this.timer >>> ", 1111);
                 clearInterval(this.timer);
+                this.timer = null;
             }
 
             if (status==="更新中") {
@@ -1135,7 +1230,7 @@ export default {
             this.logLoading = true;
             let data = {
                 ip: val.ip,
-                name: this.processName[val.update_name+"Log"],
+                name: this.programName[val.update_name]+"Log",
                 uuid: val.uuid
             }
             this.ws = new WebSocket(wssUrl+"/assets/ws?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"));
@@ -1160,6 +1255,7 @@ export default {
         // 分发文件并返回分发完毕后的文件md5码
         syncFileOutput() {
             this.logLoading = true;
+            this.syncFileLoading = true;
             let data = {
                 ip: this.multipleSelection.map(item => item.ip),
                 file: this.fileList.map(file => file.name)
@@ -1167,7 +1263,7 @@ export default {
             this.ws = new WebSocket(wssUrl+"/assets/file/ws?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"));
             this.ws.onopen = () => {
                 this.logLoading = false;
-                console.log('WebSocket连接已打开');
+                console.log('WebSocket连接成功');
                 this.ws.send(JSON.stringify(data));
             };
             this.ws.onmessage = (event) => {
@@ -1183,7 +1279,7 @@ export default {
             };
             this.ws.onerror = (error) => {
                 this.logLoading = false;
-                Message.error('WebSocket连接出错:', error);
+                Message.error('WebSocket连接出错: ', error);
                 this.syncFileLoading = false;
             };
         },
@@ -1207,6 +1303,7 @@ export default {
     mounted () {
         this.getUpdateList("page", '', 200);
         this.getAssetsList("page");
+        this.getProgramListMth();
     },
     filters: {
         formatDate(date) {
@@ -1323,10 +1420,13 @@ export default {
     width: 500px;
     margin: 22px auto;
 }
-
 :deep .el-dialog__body {
     // height: 50px !important;
     background-color: #f9f9f9;
+}
+:deep .el-dialog__header {
+    background-color: #1f211f;
+    padding: 16px 20px 16px;
 }
 :deep .el-dialog--center {
     cursor: move;
@@ -1351,6 +1451,9 @@ export default {
 }
 :deep .el-link--inner {
     white-space: break-spaces;
+}
+.progame-add .el-form-item {
+    margin-right: 22px;
 }
 </style>
 

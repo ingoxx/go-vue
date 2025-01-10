@@ -337,7 +337,7 @@ export default {
     width: 292px;
 }
 :deep .el-dialog__header {
-    background-color: rgb(48, 65, 86);
+    background-color: #1f211f;
     padding: 16px 20px 16px;
 }
 :deep .el-dialog__title {

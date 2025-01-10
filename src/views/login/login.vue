@@ -74,6 +74,19 @@ export default {
                 return Message.error(resp.data.message)
             }
 
+            if (resp.data.data.mfa_app == 1) {
+                this.$router.push(
+                    { 
+                        name: 'mfa', 
+                        params: { 
+                                user: resp.data.data.name, 
+                                qr: resp.data.data.isopenqr,
+                                url: resp.data.data.qrurl,
+                        }, 
+                    });
+                return
+            }
+
             if (resp.data.data.isopenga == 1) {
                 this.$router.push(
                     { 
