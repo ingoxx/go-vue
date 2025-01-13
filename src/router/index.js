@@ -30,6 +30,12 @@ const routes = [
     meta: { name: '查看更新' },
     component: () => import('../views/assets/assetsUpdate')
   },
+  {
+    path: '/func',
+    name: 'func',
+    meta: { name: '功能测试' },
+    component: () => import('../views/func/slideVerify')
+  },
 ]
 
 export const showDynamicRoutes = [

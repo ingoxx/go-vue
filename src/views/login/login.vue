@@ -1,6 +1,6 @@
 <template>
     <div class="login">
-        <h2>CMDB登录</h2>
+        <h2>服务器管理平台</h2>
         <div class="login-body">
             <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
                 <el-form-item  prop="username">
@@ -40,6 +40,7 @@ export default {
             }
         };
         return {
+            verify: false,
             loginLoad:false,
             logintext:"登录",
             ruleForm:{
@@ -78,7 +79,7 @@ export default {
                 this.$router.push(
                     { 
                         name: 'mfa', 
-                        params: { 
+                        query: { 
                                 user: resp.data.data.name, 
                                 qr: resp.data.data.isopenqr,
                                 url: resp.data.data.qrurl,
@@ -91,7 +92,7 @@ export default {
                 this.$router.push(
                     { 
                         name: 'ga', 
-                        params: { 
+                        query: { 
                                 user: resp.data.data.name, 
                                 qr: resp.data.data.isopenqr,
                                 url: resp.data.data.qrurl,

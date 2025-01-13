@@ -56,6 +56,7 @@ import { Image } from 'element-ui'
 import VueBus from 'vue-bus';
 import VuePageTransition from 'vue-page-transition'
 
+
 Vue.use(Image);
 Vue.use(Dropdown);
 Vue.use(DropdownMenu);

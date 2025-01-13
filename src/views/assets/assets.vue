@@ -209,7 +209,7 @@
                     </el-table-column>
                     <el-table-column prop="process" label="更新日志" width="200">
                         <template slot-scope="scope">
-                            <el-link slot="reference" type="success" @click="viewContent(scope.row)">查看更新日志</el-link>
+                            <el-link slot="reference" type="success" @click="viewUpdateLog(scope.row)">查看更新日志</el-link>
                         </template>
                     </el-table-column>
                     <el-table-column prop="start" label="开始时间" width="190">
@@ -1093,7 +1093,7 @@ export default {
             return resp
         },
         // 查看脚本执行的输出
-        viewContent (row) {
+        viewUpdateLog (row) {
             this.content = [];
             this.resultVisible = true;
             this.curIp = row.ip;
@@ -1232,7 +1232,7 @@ export default {
                 ip: val.ip,
                 name: this.programName[val.update_name]+"Log",
                 uuid: val.uuid
-            }
+            };
             this.ws = new WebSocket(wssUrl+"/assets/ws?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"));
             this.ws.onopen = () => {
                 this.logLoading = false;
@@ -1282,6 +1282,10 @@ export default {
                 Message.error('WebSocket连接出错: ', error);
                 this.syncFileLoading = false;
             };
+        },
+        wsConnectObj(addr) {
+            var ws = new WebSocket(addr);
+            return ws;
         },
         callMethod() {},
         isHidden(path, routers=[]) {

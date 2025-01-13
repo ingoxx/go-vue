@@ -54,7 +54,7 @@ export default {
             this.$router.push(
                 { 
                     name: 'ga', 
-                    params: { 
+                    query: { 
                             user: this.user, 
                             qr: this.isShowQr,
                             url: this.url,
@@ -64,10 +64,10 @@ export default {
         callMethod() {},
     },
     created () {
-        this.user = this.$route.params.user;
-        this.isShowQr =  this.$route.params.qr;
+        this.user = this.$route.query.user;
+        this.isShowQr =  this.$route.query.qr;
         if (this.isShowQr == 1) {
-            this.url = this.$route.params.url;
+            this.url = this.$route.query.url;
         }
     },
 }

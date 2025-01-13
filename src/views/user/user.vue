@@ -71,14 +71,11 @@
                     <el-table-column prop="roles" label="role">
                         <template slot-scope="scope">
                             <template v-if="scope.row.roles.length > 0">
-                                <template v-for="(d, i) in scope.row.roles">
-                                    <el-tag :key="d.ID" size="small" type="success">{{ d.rolename }}</el-tag>
-                                </template>
+                                <div v-for="(d, i) in scope.row.roles"  :key="d.ID">
+                                    <el-tag size="small" type="success">{{ d.rolename }}</el-tag>
+                                </div>
                             </template>
                             <el-tag size="small" type="danger" v-else>未分配角色</el-tag>
-                            <!-- <template v-for="(d, i) in scope.row.roles">
-                                <el-tag :key="d.ID" size="small" type="success">{{ d.rolename }}</el-tag>
-                            </template> -->
                         </template>
                     </el-table-column>
                     <el-table-column prop="tel" label="tel"></el-table-column>
@@ -165,13 +162,13 @@
                         inactive-text="关闭">
                     </el-switch>
                 </el-form-item>
-                <el-form-item label="是否下载MFA">
+                <!-- <el-form-item label="是否下载MFA">
                     <el-switch
                         v-model="ruleForm.mfa_app"
                         active-text="开启"
                         inactive-text="关闭">
                     </el-switch>
-                </el-form-item>
+                </el-form-item> -->
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="resetForm('ruleForm')">重置</el-button>
@@ -231,13 +228,13 @@
                         inactive-text="关闭">
                     </el-switch>
                 </el-form-item>
-                <el-form-item label="是否下载MFA">
+                <!-- <el-form-item label="是否下载MFA">
                     <el-switch
                         v-model="ruleForm.mfa_app"
                         active-text="开启"
                         inactive-text="关闭">
                     </el-switch>
-                </el-form-item>
+                </el-form-item> -->
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="resetForm('ruleForm')">重置</el-button>
@@ -570,15 +567,13 @@ export default {
             this.updateLoad = true;
             var isopenqr = this.ruleForm.isopenqr ? 1 : 2;
             var isopenga = this.ruleForm.isopenga ? 1 : 2;
-            var mfaapp = this.ruleForm.mfa_app ? 1 : 2;
-            console.log("this.ruleForm.mfa_app >>> ", this.ruleForm.mfa_app);
             const resp = await updateUsers({
                 name: this.ruleForm.name,
                 uid: this.ruleForm.uid,
                 rid: this.ruleForm.roles,
                 isopenqr: isopenqr,
                 isopenga: isopenga,
-                mfa_app: mfaapp,
+                mfa_app: isopenqr,
                 password: this.ruleForm.upass,
                 rePassword: this.ruleForm.urepass,
             }, this.callMethod).catch(err => {
@@ -611,16 +606,13 @@ export default {
             this.$refs[formName].resetFields();
         },
         editUserData(row) {
-            console.log("row.mfa_app >>> ", row.mfa_app);
-            console.log("row.isopenga >>> ", row.isopenga);
             this.editDialogVisible = true;
             this.ruleForm.name = row.name;
             this.ruleForm.roles = row.roles.length > 0 ? row.roles[0].ID : '';
             this.ruleForm.uid = row.ID;
             this.ruleForm.isopenqr = row.isopenqr == 1 ? true : false;
             this.ruleForm.isopenga = row.isopenga == 1 ? true : false;
-            this.ruleForm.mfa_app = row.mfa_app == 1 ? true : false;
-            
+            this.ruleForm.mfa_app = this.ruleForm.isopenqr;
         },
         clearData() {
             this.centerDialogVisible = true;
