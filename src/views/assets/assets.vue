@@ -1,5 +1,6 @@
 <template>
     <div class="box">
+        <!-- 分发文件 -->
         <div class="section-4" v-if="isHidden('/assets/upload', permissionList)">
             <el-card>
                 <el-divider><i class="el-icon-upload"></i>文件分发</el-divider>
@@ -20,14 +21,15 @@
                             :before-upload="beforeUpload"
                             multiple
                             :auto-upload="false">
-                            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-                            <el-button style="margin-left: 10px;" size="small" type="success" @click="uploadFile()" :loading="uploadLoading">分发到指定服务器</el-button>
-                            <div slot="tip" class="el-upload__tip size">这里可以上传文件, 系统会批量的分发到勾选的服务器然后再点击对应按钮更新或重启</div>
+                            <el-button slot="trigger" size="small" type="primary" icon="el-icon-s-finance">选取文件</el-button>
+                            <el-button style="margin-left: 10px;" size="small" type="success" @click="uploadFile()" :loading="uploadLoading" icon="el-icon-s-promotion">分发到指定服务器</el-button>
+                            <div slot="tip" class="el-upload__tip size">*这里可以上传文件, 系统会批量的分发到勾选的服务器然后再点击对应按钮更新或重启</div>
                         </el-upload>
                     </el-row>
                 </div>
             </el-card>
         </div>
+        <!-- 程序操作 -->
         <div class="section-2" v-if="isHidden('/assets/api', permissionList)">
             <el-card>
                 <el-divider><i class="el-icon-s-tools"></i>程序操作</el-divider>
@@ -40,11 +42,12 @@
                                 </el-col>
                             </template>
                         </template>
-                        <el-col :span="1.9" v-if="isHidden('/assets/program/add', permissionList)"><el-button  type="info" size="mini" icon="el-icon-document-add" @click="handleCreateProgramOp">添加操作</el-button></el-col>
+                        <el-col :span="1.9" v-if="isHidden('/assets/program/add', permissionList)"><el-button  type="info" size="mini" icon="el-icon-document-add" @click="handleCreateProgramOpMth">添加操作</el-button></el-col>
                     </el-row>
                 </div>
             </el-card>
         </div>
+        <!-- 服务器列表 -->
         <div class="section-3">
             <el-card>
                 <el-divider><i class="el-icon-s-platform"></i>服务器列表</el-divider>
@@ -66,6 +69,7 @@
                             >
                                 <el-option
                                     v-for="item in programList"
+                                    v-if="isHidden(item.path, permissionList)"
                                     :key="item.cnname"
                                     :label="item.cnname"
                                     :value="item.cnname">
@@ -73,12 +77,15 @@
                             </el-select>
                         </el-col>
                         <el-col :span="3.9">
-                            <el-button type="primary" icon="el-icon-upload" size="mini" @click="runProcess('mul', '')" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">提交</el-button>
+                            <el-button type="primary" icon="el-icon-mouse" size="mini" @click="runProcess('mul', '')" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">更新程序</el-button>
                         </el-col>
                         <el-col :span="3.9">
-                            <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openCreateDialog()" v-if="isHidden('/assets/add', permissionList)">新建</el-button>
+                            <el-button type="primary" icon="el-icon-mouse" size="mini" @click="openLinuxCmdMth()" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">执行linux命令</el-button>
                         </el-col>
-                        <el-col :span="2" class="c1">
+                        <el-col :span="3.9">
+                            <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openCreateDialog()" v-if="isHidden('/assets/add', permissionList)">新建服务器</el-button>
+                        </el-col>
+                        <el-col :span="2" class="c3">
                             <el-link type="primary" @click="updateSetup">{{ detailContent }}<i :class="detailICon"></i> </el-link>
                         </el-col>
                     </div>
@@ -110,8 +117,31 @@
                     <el-table-column prop="id" label="id"></el-table-column>
                     <el-table-column prop="project" label="项目"></el-table-column>
                     <el-table-column prop="ip" label="服务器"></el-table-column>
-                    
-                    <el-table-column prop="start" label="添加/修改时间">
+                    <el-table-column prop="status" label="服务器状态">
+                        <template slot-scope="scope">
+                            <el-link type="success" :underline="false"  size="mini" v-if="scope.row.status === 200" plain>正常</el-link>
+                            <el-link type="danger" :underline="false"  size="mini" v-else-if="scope.row.status === 100" plain>异常</el-link>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="cpu_usage" label="cpu使用率">
+                        <template slot-scope="scope">
+                            <el-link type="danger" :underline="false"  size="mini" plain v-if="scope.row.cpu_usage >= 50">{{ scope.row.cpu_usage }}%</el-link>
+                            <el-link type="success" :underline="false"  size="mini" plain v-else>{{ scope.row.cpu_usage }}%</el-link>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="ram_usage" label="内存使用率">
+                        <template slot-scope="scope">
+                            <el-link type="danger" :underline="false"  size="mini" plain v-if="scope.row.ram_usage >= 50">{{ scope.row.ram_usage }}%</el-link>
+                            <el-link type="success" :underline="false"  size="mini" plain v-else>{{ scope.row.ram_usage }}%</el-link>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="disk_usage" label="磁盘使用率">
+                        <template slot-scope="scope">
+                            <el-link type="danger" :underline="false"  size="mini" plain v-if="scope.row.disk_usage >= 50">{{ scope.row.disk_usage }}%</el-link>
+                            <el-link type="success" :underline="false"  size="mini" plain v-else>{{ scope.row.disk_usage }}%</el-link>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="start" label="添加/修改时间" width="180">
                         <template slot-scope="scope">
                             <i class="el-icon-time"></i>
                             <span style="margin-left: 10px">{{ scope.row.start | formatDate }}</span>
@@ -146,14 +176,15 @@
                 </div>
             </el-card>
         </div>
+        <!-- 更新记录 -->
         <div class="section-5" v-if="isHidden('/assets/program/update/list', permissionList)">
             <el-card>
                 <el-divider><i class="el-icon-s-help"></i>更新记录</el-divider>
+                <!-- 状态查询 -->
                 <div class="search">
                     <el-row :gutter=10>
                         <el-col :span=3.9>
                             <el-button-group>
-                                <!-- <el-button type="primary"  size="mini">全部</el-button> -->
                                 <el-button type="warning"  size="mini" @click="getUpdateList('search','更新中', 300)">更新中</el-button>
                                 <el-button type="success" size="mini" @click="getUpdateList('search','完成', 300)">完成</el-button>
                                 <el-button type="danger"  size="mini" @click="getUpdateList('search','失败', 300)">失败</el-button>
@@ -177,6 +208,11 @@
                         <el-col :span="3.9">
                             <el-input v-model="updateproject" placeholder="请输入项目" size="mini" clearable @keyup.enter.native="getUpdateList('search', updatestatus)" @clear="getUpdateList('search', updatestatus)"></el-input>
                         </el-col>
+                        <transition name="el-zoom-in-center">
+                            <el-col :span="3.9" v-if="realTimeRefreshBotVisible">
+                                <el-link class="rr" type="primary" size="mini" :underline="false"><span>实时刷新中{{ realTimeRefreshBot }}</span></el-link>
+                            </el-col>
+                        </transition>
                     </el-row>
                 </div>
                 <div class="table">
@@ -204,12 +240,23 @@
                     <el-table-column prop="progress" label="更新进度" width="250">
                         <template slot-scope="scope">
                             <el-progress :percentage="scope.row.progress" v-if="scope.row.status === 300" status="exception"></el-progress>
+                            <el-progress :percentage="scope.row.progress" v-else-if="scope.row.progress === 100" status="success"></el-progress>
                             <el-progress :percentage="scope.row.progress" v-else></el-progress>
                         </template>
                     </el-table-column>
                     <el-table-column prop="process" label="更新日志" width="200">
                         <template slot-scope="scope">
                             <el-link slot="reference" type="success" @click="viewUpdateLog(scope.row)">查看更新日志</el-link>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="process" label="失败日志" width="200">
+                        <template slot-scope="scope">
+                            <el-popover trigger="hover" placement="top">
+                                <p class="p-pop">更新失败可以点击这里查看失败日志</p>
+                                <div slot="reference" class="name-wrapper">
+                                    <el-link type="danger" @click="viewUpdateLog(scope.row)">查看失败日志</el-link>
+                                </div>
+                            </el-popover>
                         </template>
                     </el-table-column>
                     <el-table-column prop="start" label="开始时间" width="190">
@@ -226,8 +273,9 @@
                     </el-table-column>
                     <el-table-column prop="cost_time" label="耗时/秒" width="190">
                         <template slot-scope="scope">
-                            <i class="el-icon-time"></i>
-                            <span style="margin-left: 10px">{{ scope.row.cost_time }}s</span>
+                            <i class="el-icon-odometer"></i>
+                            <span style="margin-left: 10px" v-if="scope.row.cost_time">{{ scope.row.cost_time }}s</span>
+                            <span style="margin-left: 10px" v-else>0s</span>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -246,6 +294,77 @@
                 </div>
             </el-card>
         </div>
+        <!-- 执行linux命令 -->
+        <div class="create">
+            <el-dialog
+                title="执行linux命令"
+                :visible.sync="runLinuxCmdVisible"
+                :close-on-click-modal="false"
+                center
+                :close="clearIplist"
+                v-draggable
+                >
+                <div class="result-title run-linux-cmd-title">
+                    <el-card>
+                        <el-divider><strong><i class="el-icon-platform-eleme"></i>已选择的服务器</strong></el-divider>
+                        <p class="op-name">
+                            <el-row :gutter="10">
+                                <template v-for="(data, index) in ipList">
+                                    <el-col :span="1.9" :key="data.id">
+                                        <el-tag effect="plain"  type="success">{{ data.ip }}</el-tag>
+                                    </el-col>
+                                </template>
+                            </el-row>
+                        </p>
+                    </el-card>
+                </div>
+                <div class="run-linux-cmd run-linux-cmd-content">
+                    <el-card>
+                        <el-divider><strong><i class="el-icon-platform-eleme"></i>输入linxu命令</strong></el-divider>
+                        <div class="run-linux-cmd-input">
+                            <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm fix-form-css">
+                                <el-form-item prop="cmd">
+                                    <el-input type="textarea" :rows="10" v-model="ruleForm.cmd" autocomplete="off" placeholder="请输入linux命令如:df -h" clearable></el-input>
+                                </el-form-item>
+                            </el-form>
+                            <span slot="footer" class="dialog-footer run-linux-cmd-footer">
+                                <el-button @click="resetForm('ruleForm')" size="small">清空</el-button>
+                                <el-popconfirm :title="'确定执行吗?'"
+                                                icon="el-icon-info"
+                                                icon-color="red"
+                                                confirm-button-text='确定'
+                                                @confirm="submitForm('ruleForm', runLinuxCmdMth)"
+                                            >
+                                    <el-button type="primary" :loading="runLinuxCmdlogLoading" size="small" slot="reference">确 定</el-button>
+                                </el-popconfirm>
+                            </span>
+                        </div>
+                    </el-card>
+                </div>
+                <div class="result-data">
+                    <el-card v-loading="getLinuxCmdOutputLoading"
+                            element-loading-text="正在拼命捕获命令输出..."
+                            element-loading-spinner="el-icon-loading">
+                        <el-divider><strong><i class="el-icon-platform-eleme"></i>命令输出</strong></el-divider>
+                        <div class="copy">
+                            <!-- <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">复制</el-button> -->
+                            <el-row :gutter=10>
+                                <el-col :span="1.9">
+                                    <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">复制</el-button>
+                                </el-col>
+                                <el-col :span="1.9">
+                                    <el-button type="success" size="mini" plain @click="clearLinuxCmdOutput()" icon="el-icon-delete-solid">清空</el-button>
+                                </el-col>
+                            </el-row>
+                        </div>
+                        <div class="format-code">
+                            <pre><code>{{ content.join('') }}</code></pre>
+                        </div>
+                    </el-card>
+                </div>
+            </el-dialog>
+        </div>
+        <!-- 添加服务器 -->
         <div class="create">
             <el-dialog
                 title="添加服务器"
@@ -276,6 +395,7 @@
                 </span>
             </el-dialog>
         </div>
+        <!-- 修改服务器 -->
         <div class="edit">
             <el-dialog
                 title="修改服务器"
@@ -298,7 +418,7 @@
                 </el-form>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="resetForm('ruleForm')">重置</el-button>
-                    <el-popconfirm :title="'确定添加吗?'"
+                    <el-popconfirm :title="'确定修改吗?'"
                                     icon="el-icon-info"
                                     icon-color="red"
                                     confirm-button-text='确定'
@@ -312,7 +432,7 @@
         <!-- 脚本日志 -->
         <div class="result">
             <el-dialog
-                title="脚本输出"
+                :title="upText"
                 :visible.sync="resultVisible"
                 v-draggable
                 :close-on-click-modal="false"
@@ -321,7 +441,7 @@
                 >
                 <div class="result-title">
                     <el-card>
-                        <el-divider><strong><i class="el-icon-platform-eleme"></i>更新内容</strong></el-divider>
+                        <el-divider><strong><i class="el-icon-platform-eleme"></i>服务器</strong></el-divider>
                         <p class="op-name">
                             <el-row :gutter="10">
                                 <el-col :span="1.9" >
@@ -341,9 +461,17 @@
                     <el-card v-loading="logLoading"
                             element-loading-text="正在拼命连接中..."
                             element-loading-spinner="el-icon-loading">
-                        <el-divider><strong><i class="el-icon-platform-eleme"></i>脚本输出</strong></el-divider>
+                        <el-divider><strong><i class="el-icon-platform-eleme"></i>日志输出</strong></el-divider>
                         <div class="copy">
-                            <el-button type="success" size="mini" plain @click="copy(content.join(''))">复制</el-button>
+                            <el-row :gutter="10">
+                                <el-col :span="1.9">
+                                    <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">复制</el-button>
+                                </el-col>
+                                <el-col :span="1.9">
+                                    <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">清空</el-button>
+                                </el-col>
+                            </el-row>
+                            <!-- <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">复制</el-button> -->
                         </div>
                         <div class="format-code">
                             <pre><code>{{ content.join('') }}</code></pre>
@@ -353,37 +481,39 @@
                 </el-dialog>
         </div>
         <!-- 添加操作 -->
-        <el-dialog
-            title="添加操作"
-            :visible.sync="addOpDialogVisible"
-            width="500px"
-            :close-on-click-modal="false"
-            v-draggable
-            center
-            >
-            <el-form :model="ruleForm" status-icon label-position="right" :rules="rules" ref="ruleForm" label-width="100px" class="progame-add">
-                <el-form-item label="操作中文名" prop="cnname">
-                    <el-input type="name" v-model="ruleForm.cnname" autocomplete="off" clearable></el-input>
-                </el-form-item>
-                <el-form-item label="操作英文名" prop="enname">
-                    <el-input type="name" v-model="ruleForm.enname" autocomplete="off" clearable></el-input>
-                </el-form-item>
-                <el-form-item label="请求地址" prop="path">
-                    <el-input type="name" v-model="ruleForm.path" autocomplete="off" clearable></el-input>
-                </el-form-item>
-            </el-form>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="resetForm('ruleForm')">重置</el-button>
-                <el-popconfirm :title="'确定添加【'+ruleForm.cnname+'】吗?'"
-                                icon="el-icon-info"
-                                icon-color="red"
-                                confirm-button-text='确定'
-                                @confirm="submitForm('ruleForm', createProgramOpMth)"
-                            >
-                    <el-button type="primary" :loading="addOpLoad" slot="reference">确 定</el-button>
-                </el-popconfirm>
-            </span>
-        </el-dialog>
+        <div class="add-operate">
+            <el-dialog
+                title="添加操作"
+                :visible.sync="addOpDialogVisible"
+                width="500px"
+                :close-on-click-modal="false"
+                v-draggable
+                center
+                >
+                <el-form :model="ruleForm" status-icon label-position="right" :rules="rules" ref="ruleForm" label-width="100px" class="progame-add">
+                    <el-form-item label="操作中文名" prop="cnname">
+                        <el-input type="name" v-model="ruleForm.cnname" autocomplete="off" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="操作英文名" prop="enname">
+                        <el-input type="name" v-model="ruleForm.enname" autocomplete="off" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="请求地址" prop="path">
+                        <el-input type="name" v-model="ruleForm.path" autocomplete="off" clearable></el-input>
+                    </el-form-item>
+                </el-form>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="resetForm('ruleForm')">重置</el-button>
+                    <el-popconfirm :title="'确定添加【'+ruleForm.cnname+'】吗?'"
+                                    icon="el-icon-info"
+                                    icon-color="red"
+                                    confirm-button-text='确定'
+                                    @confirm="submitForm('ruleForm', createProgramOpMth)"
+                                >
+                        <el-button type="primary" :loading="addOpLoad" slot="reference">确 定</el-button>
+                    </el-popconfirm>
+                </span>
+            </el-dialog>
+        </div>
         <!-- 分发文件窗口 -->
         <div class="syncFile">
             <el-dialog
@@ -524,7 +654,27 @@ export default {
                 callback();
             }
         };
+        var validateCmd = (rule, value, callback) => {
+            if (!value) {
+                callback(new Error('linux命令不能为空'));
+            } else {
+                const regex = /^\s*(rm|mv|chmod|chown|su|sudo|useradd|userdel|groupadd| )\b/;
+                if (regex.test(value)) {
+                    callback(new Error('输入的bash命令不合法'));
+                }
+                callback();
+            }
+        };
         return {
+            refreshAssetsStatusInterval: 30000,
+            ipList: [],
+            getLinuxCmdOutputLoading: false,
+            runLinuxCmdlogLoading: false,
+            runLinuxCmdVisible: false,
+            realTimeRefreshBotVisible: false,
+            realTimeInterval: null,
+            realTimeRefreshBot: "",
+            upText: "更新日志",
             addOpLoad: false,
             addOpDialogVisible: false,
             searchData: "",
@@ -588,6 +738,7 @@ export default {
                 cnname: '',
                 enname: '',
                 path: '',
+                cmd: '',
             },
             rules: {
                 project: [
@@ -604,6 +755,9 @@ export default {
                 ],
                 path: [
                     { validator: validatePath, trigger: 'blur' }
+                ],
+                cmd: [
+                    { validator: validateCmd, trigger: 'blur' }
                 ],
             },
 
@@ -637,7 +791,51 @@ export default {
         // VueDraggableResizable
     },
     methods: {
-        handleCreateProgramOp() {
+        clearIplist() {
+            this.setDataStroage('ipList', []);
+        },
+        setDataStroage(key, data) {
+            sessionStorage.setItem(key, JSON.stringify(data));
+        },
+        getDataStroage(key) {
+            return JSON.parse(sessionStorage.getItem(key));
+        },
+        clearLinuxCmdOutput() {
+            this.content = [];
+        },
+        runLinuxCmdMth() {
+            this.getLinuxCmdOutputLoading = true;
+            this.ipList = this.getDataStroage('ipList');
+            let data = {
+                ip: this.ipList.map(item => item.ip),
+                name: "runLinuxCmd",
+                uuid: "",
+                cmd: this.ruleForm.cmd,
+            };
+            this.multiContentOutputMth(data, false);
+        },
+        openLinuxCmdMth() {
+            this.content = [];
+            var ipList = [];
+            if (this.multipleSelection.length === 0) {
+                return Message.error("请选择服务器");
+            }
+            this.setDataStroage('ipList', this.multipleSelection);
+            this.ipList = this.getDataStroage('ipList');
+            this.runLinuxCmdVisible = true;
+        },
+        updateRealTimeRefreshMth() {
+            this.realTimeInterval = setInterval(() => {
+                this.realTimeRefreshBot += '.';
+                if (this.realTimeRefreshBot.length > 3) {
+                    this.realTimeRefreshBot = ''; 
+                }
+            }, 500);
+        },
+        saveInStroage(key, value) {
+            
+        },
+        handleCreateProgramOpMth() {
             this.addOpDialogVisible = true;
         },
         async getProgramListMth() {
@@ -1055,12 +1253,12 @@ export default {
         },
         // 添加更新记录
         async createProgramUpdateRecord(data) {
-            const resp = await createProgramUpdateRecord(JSON.stringify({data_list: data}), this.callMethod).catch((err)=>{;Message.error(err);})
+            const resp = await createProgramUpdateRecord(JSON.stringify({data_list: data}), this.callMethod).catch((err)=>{Message.error(err);})
             return resp
         },
         // 实时获取任务状态
         actualTimeGetTaskStatus() {
-            console.log("setInterval num");
+            this.realTimeRefreshBotVisible = true;
             this.timer = setInterval(() => {
                 this.getUpdateList("page", "", 200, false);
             }, 1000)
@@ -1099,6 +1297,7 @@ export default {
             this.curIp = row.ip;
             this.curName = row.update_name;
             this.curProject = row.project;
+            this.upText = (row.status == 200 || row.status == 400) ? "更新日志" : "失败日志";
             this.contentOutput(row);
         },
         // 分发文件
@@ -1156,9 +1355,8 @@ export default {
             let check_status = "";
             let pageNum = 1;
             
-            console.log("this.timer >>> ", this.timer);
-            if (cancel==300 && this.timer) {
-                console.log("this.timer >>> ", 1111);
+            if (cancel==300) {
+                this.realTimeRefreshBotVisible = false;
                 clearInterval(this.timer);
                 this.timer = null;
             }
@@ -1192,18 +1390,24 @@ export default {
                 status: check_status,
             };
             
-            const resp = await getUpdateList(data).catch((err)=>{this.tableLoad2 = false;Message.error(err)});
+            const resp = await getUpdateList(data).catch((err)=>{
+                this.tableLoad2 = false;
+                this.realTimeRefreshBotVisible = false;
+            });
+
             if (resp.data.code !== 10000) {
+                clearInterval(this.timer);
+                this.timer = null;
                 return Message.error(resp.data.message)
             }
 
             this.pages2.curPage = pageNum;
-
             this.dataList2 = resp.data.data;
             this.pages2.pageSize = resp.data.pageSize;
             this.total2 = resp.data.total;
             this.tableLoad2 = false;
-
+            clearInterval(this.timer);
+            this.timer = null;
         },
         handleDelete (data) {
             this.delServer('sig', data);
@@ -1226,26 +1430,51 @@ export default {
             this.pages2.curPage = val;
             this.getUpdateList('page', this.updatestatus, 200, true);
         },
+        multiContentOutputMth(data, loading) {
+            var ws = new WebSocket(wssUrl+"/assets/ws?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"));
+            ws.onopen = () => {
+                console.log('WebSocket连接已打开');
+                ws.send(JSON.stringify(data));
+            };
+            ws.onmessage = (event) => {
+                this.getLinuxCmdOutputLoading = loading;
+                this.content.push(event.data);
+                let div = document.querySelector(".result-data");
+                div.scrollTop = div.scrollHeight - div.clientHeight;
+            };
+            ws.onclose = () => {
+                this.getLinuxCmdOutputLoading = loading;
+                console.log('WebSocket连接已关闭');
+            };
+            ws.onerror = (error) => {
+                this.getLinuxCmdOutputLoading = loading;
+                Message.error('WebSocket连接失败:', error);
+            };
+        },
         contentOutput(val) {
             this.logLoading = true;
+            var ipList = [];
+            ipList.push(val.ip);
             let data = {
-                ip: val.ip,
+                ip: ipList,
                 name: this.programName[val.update_name]+"Log",
-                uuid: val.uuid
+                uuid: val.uuid,
+                cmd: val.cmd ? val.cmd : "",
             };
             this.ws = new WebSocket(wssUrl+"/assets/ws?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"));
             this.ws.onopen = () => {
-                this.logLoading = false;
                 console.log('WebSocket连接已打开');
                 this.ws.send(JSON.stringify(data));
             };
             this.ws.onmessage = (event) => {
+                this.logLoading = false;
                 this.content.push(event.data);
                 let div = document.querySelector(".result-data");
                 div.scrollTop = div.scrollHeight - div.clientHeight;
             };
             this.ws.onclose = () => {
                 console.log('WebSocket连接已关闭');
+
             };
             this.ws.onerror = (error) => {
                 this.logLoading = false;
@@ -1275,17 +1504,22 @@ export default {
                 console.log('WebSocket连接已关闭');
                 this.syncFileLoading = false;
                 this.fileList = [];
-                Message.success("同步完成");
+                // Message.success("同步完成");
             };
             this.ws.onerror = (error) => {
                 this.logLoading = false;
-                Message.error('WebSocket连接出错: ', error);
+                Message.error('WebSocket连接失败: ', error);
                 this.syncFileLoading = false;
             };
         },
         wsConnectObj(addr) {
             var ws = new WebSocket(addr);
             return ws;
+        },
+        loopGetAssetsList() {
+            setInterval(() => {
+                this.getAssetsList("page");
+            }, this.refreshAssetsStatusInterval);
         },
         callMethod() {},
         isHidden(path, routers=[]) {
@@ -1307,7 +1541,9 @@ export default {
     mounted () {
         this.getUpdateList("page", '', 200);
         this.getAssetsList("page");
+        this.loopGetAssetsList();
         this.getProgramListMth();
+        this.updateRealTimeRefreshMth();
     },
     filters: {
         formatDate(date) {
@@ -1458,6 +1694,27 @@ export default {
 }
 .progame-add .el-form-item {
     margin-right: 22px;
+}
+.p-pop {
+    color: #f56c6c
+}
+.rr {
+    padding-top: 9px;
+}
+.c3 {
+    position: relative;
+    top: 10px;
+    width:auto!important;
+}
+.run-linux-cmd-input {
+    margin-top: 19px;
+}
+.run-linux-cmd-title,.run-linux-cmd-content {
+    margin-top: 19px;
+}
+.run-linux-cmd-footer {
+    display: flex;
+    justify-content: center;
 }
 </style>
 

@@ -402,7 +402,6 @@ export default {
                 email: '',
                 isopenga: true,
                 isopenqr: true,
-                mfa_app: true,
                 pass:'',
                 repass:'',
                 upass:'',
@@ -498,7 +497,6 @@ export default {
             var params = new URLSearchParams();
             var isopenqr = this.ruleForm.isopenqr ? 1 : 2;
             var isopenga = this.ruleForm.isopenga ? 1 : 2;
-            var mfaapp = this.ruleForm.mfa_app ? 1 : 2;
             params.append('password', this.ruleForm.pass);
             params.append('rePassword', this.ruleForm.repass);
             params.append('name', this.ruleForm.name);
@@ -506,7 +504,7 @@ export default {
             params.append('tel', this.ruleForm.tel);
             params.append('isopenqr', isopenqr);
             params.append('isopenga', isopenga);
-            params.append('mfa_app', mfa_app);
+            params.append('mfa_app', isopenga);
             params.append('roleId', this.ruleForm.roles);
             const resp = await addUsers(params, this.callMethod).catch(err => {
                 this.addLoad = false;
@@ -612,7 +610,6 @@ export default {
             this.ruleForm.uid = row.ID;
             this.ruleForm.isopenqr = row.isopenqr == 1 ? true : false;
             this.ruleForm.isopenga = row.isopenga == 1 ? true : false;
-            this.ruleForm.mfa_app = this.ruleForm.isopenqr;
         },
         clearData() {
             this.centerDialogVisible = true;

@@ -30,6 +30,20 @@
                 </el-col>
             </el-row>
         </el-card>
+        <div class="add-operate">
+            <el-dialog
+                title="验证"
+                :visible.sync="loginVerifyVisible"
+                width="500px"
+                :close-on-click-modal="false"
+                :close-on-press-escape="false"
+                :show-close="false"
+                :destroy-on-close="true"
+                center
+                >
+                <slideVerify @update-success="handleSuccessMth"></slideVerify>
+            </el-dialog>
+        </div>
     </div>
 </template>
 
@@ -38,11 +52,13 @@ import { gaLogin } from '../../api'
 import store from '../../store/index'
 import VueQr from 'vue-qr'
 import { Message } from 'element-ui'
+import  slideVerify  from '../func/slideVerify'
 
 export default {
     name:"ga",
     data () {
         return {
+            loginVerifyVisible: false,
             user: "",
             appSrc:"",
             gacode:"",
@@ -54,22 +70,31 @@ export default {
         }
     },
     components: {
-        VueQr
+        VueQr,
+        slideVerify,
     },
     methods: {
+        handleSuccessMth(success) {
+            this.loginVerifyVisible = success;
+        },
         async GaLogin() {
             if (!this.gacode) {
                 return Message.error("请输入谷歌验证码");
             }
-            this.logintext = "确定...";
 
+            this.logintext = "确定...";
             this.submitLoad = true;
             const resp = await gaLogin({code: this.gacode, user: this.user}, this.user, this.callMethod).catch(err => {this.submitLoad = false;})
-
-            if (resp.data.code !== 10000) {
+            if (resp.status) {
                 this.submitLoad = false;
                 this.logintext = "确定";
-                return Message.error(resp.data.message)
+            }
+
+            if (resp.data.code === 10002) {
+                this.loginVerifyVisible = true;
+                return Message.error(resp.data.message);
+            } else if (resp.data.code === 10001 || resp.data.code === 10003) {
+                return Message.error(resp.data.message);
             }
 
             sessionStorage.setItem("token", resp.data.data.token);

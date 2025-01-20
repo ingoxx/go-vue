@@ -48,7 +48,8 @@ export default {
             content: [],
             uuid: "",
             project:"",    
-            ip: "",    
+            ip: "",
+            ipList: [],
             socket:"",
         }
     },
@@ -94,8 +95,9 @@ export default {
         },
         send () {
             // this.socket.send(this.chatContent+'|'+this.value);
+            this.ipList.push(this.ip);
             let data = {
-                ip: this.ip,
+                ip: this.ipList,
                 name: this.curName,
                 uuid: this.uuid
             };

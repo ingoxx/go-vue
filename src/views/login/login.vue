@@ -15,12 +15,27 @@
                 </el-form-item>
             </el-form>
         </div>
+        <div class="add-operate">
+            <el-dialog
+                title="验证"
+                :visible.sync="loginVerifyVisible"
+                width="500px"
+                :close-on-click-modal="false"
+                :close-on-press-escape="false"
+                :show-close="false"
+                :destroy-on-close="true"
+                center
+                >
+                <slideVerify @update-success="handleSuccessMth"></slideVerify>
+            </el-dialog>
+        </div>
     </div>
 </template>
 
 <script>
 import { login } from '../../api'
 import { Message } from 'element-ui'
+import  slideVerify  from '../func/slideVerify'
 
 export default {
     name:"login",
@@ -40,6 +55,7 @@ export default {
             }
         };
         return {
+            loginVerifyVisible: false,
             verify: false,
             loginLoad:false,
             logintext:"登录",
@@ -57,7 +73,13 @@ export default {
             },
         }
     },
+    components: {
+        slideVerify,
+    },
     methods:{
+        handleSuccessMth(success) {
+            this.loginVerifyVisible = success;
+        },
         // async和await的组合也可以写成 login().then(res=>{console.log(111)})但不建议这样写，最好就是async和await的组合避免了primiss.then()的回调地狱，如：func().then().then().then().....
         async Login() {
             this.loginLoad = true;
@@ -69,10 +91,16 @@ export default {
                 this.callMethod
             )
 
-            if (resp.data.code !== 10000) {
+            if (resp.status) {
                 this.loginLoad = false;
                 this.logintext = "登录";
-                return Message.error(resp.data.message)
+            }
+
+            if (resp.data.code === 10002) {
+                this.loginVerifyVisible = true;
+                return Message.error(resp.data.message);
+            } else if (resp.data.code === 10001 || resp.data.code === 10003) {
+                return Message.error(resp.data.message);
             }
 
             if (resp.data.data.mfa_app == 1) {
@@ -85,7 +113,7 @@ export default {
                                 url: resp.data.data.qrurl,
                         }, 
                     });
-                return
+                return;
             }
 
             if (resp.data.data.isopenga == 1) {
