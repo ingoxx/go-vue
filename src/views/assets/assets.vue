@@ -77,19 +77,33 @@
                             </el-select>
                         </el-col>
                         <el-col :span="3.9">
+                            <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openCreateDialog()" v-if="isHidden('/assets/add', permissionList)">新建服务器</el-button>
+                        </el-col>
+                        <!-- <el-col :span="3.9">
                             <el-button type="primary" icon="el-icon-mouse" size="mini" @click="runProcess('mul', '')" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">更新程序</el-button>
                         </el-col>
                         <el-col :span="3.9">
                             <el-button type="primary" icon="el-icon-mouse" size="mini" @click="openLinuxCmdMth()" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">执行linux命令</el-button>
-                        </el-col>
-                        <el-col :span="3.9">
-                            <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openCreateDialog()" v-if="isHidden('/assets/add', permissionList)">新建服务器</el-button>
-                        </el-col>
+                        </el-col> -->
                         <el-col :span="2" class="c3">
                             <el-link type="primary" @click="updateSetup">{{ detailContent }}<i :class="detailICon"></i> </el-link>
                         </el-col>
                     </div>
                     </el-row>
+                    <div class="linux-op">
+                        <el-row :gutter=10>
+                            <el-col :span="3.9">
+                                <el-button type="primary" icon="el-icon-mouse" size="mini" @click="runProcess('mul', '')" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">更新程序</el-button>
+                            </el-col>
+                            <el-col :span="3.9">
+                                <el-button type="primary" icon="el-icon-mouse" size="mini" @click="openLinuxCmdMth()" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">执行linux命令</el-button>
+                            </el-col>
+                            <el-col :span="3.9">
+                                <el-button type="primary" icon="el-icon-mouse" size="mini" @click="openLinuxCmdMth()" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">查看服务器系统日志</el-button>
+                            </el-col>
+                        </el-row>
+                    </div>
+                    
                 </div>
                 <div class="table">
                     <transition name="el-zoom-in-center">
@@ -125,19 +139,42 @@
                     </el-table-column>
                     <el-table-column prop="cpu_usage" label="cpu使用率">
                         <template slot-scope="scope">
-                            <el-link type="danger" :underline="false"  size="mini" plain v-if="scope.row.cpu_usage >= 50">{{ scope.row.cpu_usage }}%</el-link>
+                            <el-link type="danger" :underline="false"  size="mini" plain v-if="scope.row.cpu_usage >= 50">
+                                <el-popover trigger="hover" placement="top" v-if="scope.row.cpu_usage >= 50">
+                                    <p>cpu使用率已超过50%, 请及时处理!</p>
+                                    <div slot="reference" class="name-wrapper">
+                                        {{ scope.row.cpu_usage }}%
+                                    </div>
+                                </el-popover>
+                            </el-link>
+                            <!-- <el-link type="danger" :underline="false"  size="mini" plain v-if="scope.row.cpu_usage >= 50">{{ scope.row.cpu_usage }}%</el-link> -->
                             <el-link type="success" :underline="false"  size="mini" plain v-else>{{ scope.row.cpu_usage }}%</el-link>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="ram_usage" label="内存使用率">
+                    <el-table-column prop="ram_usage" label="内存使用率" width="180">
                         <template slot-scope="scope">
-                            <el-link type="danger" :underline="false"  size="mini" plain v-if="scope.row.ram_usage >= 50">{{ scope.row.ram_usage }}%</el-link>
+                            <el-link type="danger" :underline="false"  size="mini" plain v-if="scope.row.ram_usage >= 50">
+                                <el-popover trigger="hover" placement="top" v-if="scope.row.ram_usage >= 50">
+                                    <p>内存使用率已超过50%, 请及时处理!</p>
+                                    <div slot="reference" class="name-wrapper">
+                                        {{ scope.row.ram_usage }}%
+                                    </div>
+                                </el-popover>
+                            </el-link>
                             <el-link type="success" :underline="false"  size="mini" plain v-else>{{ scope.row.ram_usage }}%</el-link>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="disk_usage" label="磁盘使用率">
+                    <el-table-column prop="disk_usage" label="根磁盘使用率">
                         <template slot-scope="scope">
-                            <el-link type="danger" :underline="false"  size="mini" plain v-if="scope.row.disk_usage >= 50">{{ scope.row.disk_usage }}%</el-link>
+                            <el-link type="danger" :underline="false"  size="mini" plain v-if="scope.row.disk_usage >= 50">
+                                <el-popover trigger="hover" placement="top" v-if="scope.row.disk_usage >= 50">
+                                    <p>根磁盘使用率已超过50%, 请及时处理!</p>
+                                    <div slot="reference" class="name-wrapper">
+                                        {{ scope.row.disk_usage }}%
+                                    </div>
+                                </el-popover>
+                            </el-link>
+                            <!-- <el-link type="danger" :underline="false"  size="mini" plain v-if="scope.row.disk_usage >= 50">{{ scope.row.disk_usage }}%</el-link> -->
                             <el-link type="success" :underline="false"  size="mini" plain v-else>{{ scope.row.disk_usage }}%</el-link>
                         </template>
                     </el-table-column>
@@ -251,12 +288,14 @@
                     </el-table-column>
                     <el-table-column prop="process" label="失败日志" width="200">
                         <template slot-scope="scope">
-                            <el-popover trigger="hover" placement="top">
-                                <p class="p-pop">更新失败可以点击这里查看失败日志</p>
-                                <div slot="reference" class="name-wrapper">
-                                    <el-link type="danger" @click="viewUpdateLog(scope.row)">查看失败日志</el-link>
-                                </div>
-                            </el-popover>
+                            <el-link type="danger" @click="viewUpdateLog(scope.row)">
+                                <el-popover trigger="hover" placement="top">
+                                    <p class="p-pop">更新失败可以点击这里查看失败日志</p>
+                                    <div slot="reference" class="name-wrapper">
+                                        查看失败日志
+                                    </div>
+                                </el-popover>
+                            </el-link>
                         </template>
                     </el-table-column>
                     <el-table-column prop="start" label="开始时间" width="190">
@@ -301,16 +340,16 @@
                 :visible.sync="runLinuxCmdVisible"
                 :close-on-click-modal="false"
                 center
-                :close="clearIplist"
+                @close="clearIplist"
                 v-draggable
                 >
                 <div class="result-title run-linux-cmd-title">
-                    <el-card>
+                    <el-card class="server-card">
                         <el-divider><strong><i class="el-icon-platform-eleme"></i>已选择的服务器</strong></el-divider>
-                        <p class="op-name">
+                        <p class="op-name server-op">
                             <el-row :gutter="10">
                                 <template v-for="(data, index) in ipList">
-                                    <el-col :span="1.9" :key="data.id">
+                                    <el-col :span="1.9" :key="data.id" class="server-col">
                                         <el-tag effect="plain"  type="success">{{ data.ip }}</el-tag>
                                     </el-col>
                                 </template>
@@ -666,6 +705,7 @@ export default {
             }
         };
         return {
+            cmdIPListKey: "cmd-ip-list",
             refreshAssetsStatusInterval: 30000,
             ipList: [],
             getLinuxCmdOutputLoading: false,
@@ -792,7 +832,10 @@ export default {
     },
     methods: {
         clearIplist() {
-            this.setDataStroage('ipList', []);
+            this.delstrogage(this.cmdIPListKey);
+        },
+        delstrogage(key) {
+            sessionStorage.removeItem(key);
         },
         setDataStroage(key, data) {
             sessionStorage.setItem(key, JSON.stringify(data));
@@ -805,7 +848,7 @@ export default {
         },
         runLinuxCmdMth() {
             this.getLinuxCmdOutputLoading = true;
-            this.ipList = this.getDataStroage('ipList');
+            this.ipList = this.getDataStroage(this.cmdIPListKey);
             let data = {
                 ip: this.ipList.map(item => item.ip),
                 name: "runLinuxCmd",
@@ -820,8 +863,8 @@ export default {
             if (this.multipleSelection.length === 0) {
                 return Message.error("请选择服务器");
             }
-            this.setDataStroage('ipList', this.multipleSelection);
-            this.ipList = this.getDataStroage('ipList');
+            this.setDataStroage(this.cmdIPListKey, this.multipleSelection);
+            this.ipList = this.getDataStroage(this.cmdIPListKey);
             this.runLinuxCmdVisible = true;
         },
         updateRealTimeRefreshMth() {
@@ -1406,8 +1449,6 @@ export default {
             this.pages2.pageSize = resp.data.pageSize;
             this.total2 = resp.data.total;
             this.tableLoad2 = false;
-            clearInterval(this.timer);
-            this.timer = null;
         },
         handleDelete (data) {
             this.delServer('sig', data);
@@ -1604,6 +1645,9 @@ export default {
     align-items: center;
     margin-top: 16px;
 }
+.server-op {
+    margin-top: 1px!important;
+}
 .format-code {
     height: 533px;
     text-align: justify;
@@ -1715,6 +1759,16 @@ export default {
 .run-linux-cmd-footer {
     display: flex;
     justify-content: center;
+}
+.linux-op {
+    margin-top: 19px;
+}
+.server-card {
+    height: 138px;
+    overflow-y: auto;
+}
+.server-col {
+    padding: 10px!important;
 }
 </style>
 
