@@ -34,7 +34,7 @@ const routes = [
     path: '/func',
     name: 'func',
     meta: { name: '功能测试' },
-    component: () => import('../views/func/slideVerify')
+    component: () => import('../views/func/visualization')
   },
 ]
 
@@ -43,14 +43,21 @@ export const showDynamicRoutes = [
     path: '/',
     name: 'home',
     component: () => import('../views/home/home'),
-    redirect: 'index',
+    redirect: 'dashboard',
     meta: { requireAuth: true, name: '首页', keepAlive: true },
     children:[
       {
         path: '/index',
         name: 'index',
         component: () => import('../views/index/index'),
-        meta: {name: '首页', keepAlive: false },
+        meta: {name: '首页', keepAlive: true },
+        hidden: false,
+      },
+      {
+        path: '/dashboard',
+        name: 'dashboard',
+        component: () => import('../views/dashboard/dashboard'),
+        meta: { name: '仪表盘', keepAlive: false },
         hidden: false,
       },
     ],

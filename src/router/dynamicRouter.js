@@ -10,7 +10,7 @@ const dynamicRoutes = [
   {
     path: '/perms',
     name: 'permsManage',
-    redirect: 'list',
+    redirect: '/perms/list',
     component: layOut,
     meta: {name:'权限管理', icon: 'el-icon-key'},
     children:[
@@ -97,7 +97,7 @@ const dynamicRoutes = [
   {
     path: '/user',
     name: 'userManage',
-    redirect: 'list',
+    redirect: '/user/list',
     hidden: false,
     component: layOut,
     meta: {name:'用户管理', icon: 'el-icon-s-custom'},
@@ -140,24 +140,44 @@ const dynamicRoutes = [
   {
     path: '/log',
     name: 'logManage',
-    redirect: 'list',
+    redirect: '/log/list',
     hidden: false,
     component: layOut,
     meta: {name:'日志管理', icon: 'el-icon-postcard'},
     children: [
-    {
-      path:'/log/list',
-      name: 'logList',
-      hidden: false,
-      component: logList,
-      meta: { title: ['日志管理', '日志列表'], name: '日志列表',  icon: 'el-icon-menu', keepAlive: true },
-      },
+        {
+            path:'/log/list',
+            name: 'logList',
+            hidden: false,
+            component: logList,
+            meta: { title: ['日志管理', '日志列表'], name: '日志列表',  icon: 'el-icon-menu', keepAlive: true },
+            children: [
+                  {
+                      path:'/log/get-login-num',
+                      name: 'loginCount',
+                      meta: { name: '登录日志统计'},
+                      hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+                  },
+                  {
+                    path:'/log/get-run-linux-cmd-num',
+                    name: 'runLinuxCmdCount',
+                    meta: { name: 'linux命令执行统计'},
+                    hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+                  },
+                  {
+                    path:'/log/get-user-login-num',
+                    name: 'userLoginCount',
+                    meta: { name: '用户登录统计'},
+                    hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+                  },
+            ],
+        },
     ],
   },
   {
     path: '/assets',
     name: 'assetsManage',
-    redirect: 'list',
+    redirect: '/assets/list',
     hidden: false,
     component: layOut,
     meta: { name: '服务器管理', icon: 'el-icon-bangzhu'},
@@ -257,6 +277,18 @@ const dynamicRoutes = [
             path:'/assets/program/list',
             name: 'program-list',
             meta: { name: '程序列表'},
+            hidden: false,
+          },
+          {
+            path:'/assets/view-system-log',
+            name: 'view-system-log',
+            meta: { name: '查看系统日志'},
+            hidden: false,
+          },
+          {
+            path:'/assets/run-linux-cmd',
+            name: 'run-linux-cmd',
+            meta: { name: '执行linux命令'},
             hidden: false,
           },
         ],

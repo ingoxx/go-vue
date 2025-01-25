@@ -16,3 +16,8 @@
   }
   </script>
   
+  <style lang="scss" scoped>
+  .box-card {
+    padding: 20px;  
+  }
+</style>

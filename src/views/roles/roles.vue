@@ -457,7 +457,8 @@ export default {
 
 <style lang="scss" scoped>
 .box{
-    margin: 10px auto;
+    // margin: 10px auto;
+    padding: 20px;
 }
 .search {
     height: 42px;

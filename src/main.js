@@ -53,10 +53,14 @@ import { Popover } from 'element-ui'
 import { Upload } from 'element-ui'
 import { Progress } from 'element-ui'
 import { Image } from 'element-ui'
+import { RadioGroup } from 'element-ui'
+import { Radio } from 'element-ui'
 import VueBus from 'vue-bus';
 import VuePageTransition from 'vue-page-transition'
 
 
+Vue.use(RadioGroup);
+Vue.use(Radio);
 Vue.use(Image);
 Vue.use(Dropdown);
 Vue.use(DropdownMenu);
@@ -113,7 +117,12 @@ Vue.use(VueClipboardPlus);
 Vue.config.productionTip = false
 
 new Vue({
-  router,
-  store,
-  render: h => h(App)
+    router,
+    store,
+    render: h => h(App)
 }).$mount('#app')
+
+if (process.env.NODE_ENV === 'development') {
+    Vue.config.silent = true; // 禁用所有 Vue 的警告
+}
+

@@ -34,5 +34,6 @@ export const getOperateLogList= (params) => get("/log/list?user="+ sessionStorag
 export const getAssetsList = (params) => get("/assets/list?user=" + sessionStorage.getItem("user") + "&token=" + sessionStorage.getItem("token"), params);
 export const getProcessStatus = (params) => get("/assets/program/status?user=" + sessionStorage.getItem("user") + "&token=" + sessionStorage.getItem("token"), params);
 export const getUpdateList = (params) => get("/assets/program/update/list?user=" + sessionStorage.getItem("user") + "&token=" + sessionStorage.getItem("token"), params);
-
+export const getLoginNum = (params) => get("/log/get-login-num?user="+ sessionStorage.getItem("user") +"&token="+ sessionStorage.getItem("token"), params);
+export const getRunLinuxCmdNum = (params) => get("/log/get-run-linux-cmd-num?user="+ sessionStorage.getItem("user") +"&token="+ sessionStorage.getItem("token"), params);
 

@@ -3,9 +3,6 @@
         <el-card>
             <div class="search">
                 <el-row :gutter="10">
-                    <!-- <el-col :span="3" v-for="(k,i) in searchTitle" :key="i">
-                        <el-input clearable size="small" :placeholder="k.title" suffix-icon="el-icon-date" v-model="k.value"></el-input>
-                    </el-col> -->
                     <el-col :span="3">
                         <el-input clearable size="small" @clear="ListUser('search')" placeholder="请输入用户名搜索" suffix-icon="el-icon-date" v-model="name"></el-input>
                     </el-col>
@@ -162,13 +159,6 @@
                         inactive-text="关闭">
                     </el-switch>
                 </el-form-item>
-                <!-- <el-form-item label="是否下载MFA">
-                    <el-switch
-                        v-model="ruleForm.mfa_app"
-                        active-text="开启"
-                        inactive-text="关闭">
-                    </el-switch>
-                </el-form-item> -->
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="resetForm('ruleForm')">重置</el-button>
@@ -683,7 +673,8 @@ export default {
 
 <style lang="scss" scoped>
 .box{
-    margin: 10px auto;
+    // margin: 10px auto;
+    padding: 20px;
 }
 .search {
     height: 42px;

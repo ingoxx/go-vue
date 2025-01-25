@@ -13,10 +13,14 @@
                     background-color="#1f211f"
                     text-color="#fff"
                     active-text-color="#ffd04b">
-                    <el-menu-item index="/" @click.native="TabsHome('/')">
+                    <el-menu-item index="/dashboard" @click.native="TabsHome('/dashboard')">
+                        <i class="el-icon-s-data"></i>
+                        <span slot="title">仪表盘</span>
+                    </el-menu-item>
+                    <!-- <el-menu-item index="/" @click.native="TabsHome('/')">
                         <i class="el-icon-s-home"></i>
                         <span slot="title">首页</span>
-                    </el-menu-item>
+                    </el-menu-item> -->
                     <!-- 菜单 -->
                     <el-submenu v-for="(item1, index1) in permissionList" :key="index1" :index="item1.path">
                         <template slot="title">
@@ -43,7 +47,8 @@
                     <el-tag size="mini" class="switch1" type="success" v-if="isCollapse"  @click="toggleHandle">展开<i class="el-icon-caret-right"></i></el-tag>
                     <el-tag size="mini" class="switch1" type="warning" v-else @click="toggleHandle"><i class="el-icon-caret-left"></i>折叠</el-tag>
                     <el-breadcrumb separator="/" class="c-el-bread">
-                        <el-breadcrumb-item @click.native="jumpHome('/')" :to="{ path: '/' }">首页</el-breadcrumb-item>
+                        <el-breadcrumb-item @click.native="jumpHome('/dashboard')" :to="{ path: '/dashboard' }"><i class="el-icon-s-data"></i> 仪表盘</el-breadcrumb-item>
+                        <!-- <el-breadcrumb-item @click.native="jumpHome('/')" :to="{ path: '/' }">首页</el-breadcrumb-item> -->
                         <el-breadcrumb-item v-for="(item, index) in this.$route.meta.title" :key="index">{{ item }}</el-breadcrumb-item>
                     </el-breadcrumb>
                     <el-dropdown trigger="click">
@@ -61,7 +66,8 @@
                     </el-dropdown>
                 </el-header>
                 <el-tabs v-model="editableTabsValue" type="card" @tab-click="tabChange" @tab-remove="removeTab">
-                    <el-tab-pane label="首页" name="/" :closable="false" :lazy="true"></el-tab-pane>
+                    <el-tab-pane label="仪表盘" name="/dashboard" :closable="false" :lazy="true"></el-tab-pane>
+                    <!-- <el-tab-pane label="首页" name="/" :closable="false" :lazy="true"></el-tab-pane> -->
                     <el-tab-pane
                         :closable="true"
                         v-for="item in editableTabs"
@@ -73,11 +79,11 @@
                 </el-tabs>
                 <el-main>
                     <vue-page-transition name="fade-in-right">
-                        <keep-alive>
-                            <router-view v-if="this.$route.meta.keepAlive"></router-view>
+                        <keep-alive v-if="this.$route.meta.keepAlive">
+                            <router-view></router-view>
                         </keep-alive>
+                        <router-view v-else></router-view>
                     </vue-page-transition>
-                    <router-view v-if="!this.$route.meta.keepAlive"></router-view>
                 </el-main>
             </el-container>
         </el-container>
@@ -203,6 +209,7 @@ export default {
             store.commit('UPDATE_TABS', this.editableTabs);
         },
         removeTab (targetName) {
+            
             let tabs = this.editableTabs;
             let activeName = this.editableTabsValue;
             if (activeName === targetName) {
@@ -212,7 +219,7 @@ export default {
                         if (nextTab) {
                             activeName = nextTab.path;
                         } else {
-                            activeName = '/';
+                            activeName = '/dashboard';
                         }
                     }
                 });
@@ -262,7 +269,7 @@ export default {
         store.dispatch("GetUserDetail");
     },
     mounted () {
-        if (this.$route.meta.name !== '首页') {
+        if (this.$route.meta.name !== '仪表盘') {
             this.editableTabs.push({
                 title: this.$route.meta.name,
                 path: this.$route.path
@@ -330,17 +337,20 @@ text-align: left;
   overflow-x: hidden;
   width: auto!important;
 }
-
+.el-main {
+    padding: 0;
+}
 .el-main {
     overflow: hidden;
     overflow-y: auto;
+    background: #f3f3f4;
 }
 .el-main::-webkit-scrollbar {
   width: 10px!important; /* 设置滚动条宽度 */
 }
 
 .el-main::-webkit-scrollbar-track {
-  background-color: #f9f9f9!important; /* 设置滚动条背景颜色 */
+  background-color: #f3f3f4!important; /* 设置滚动条背景颜色 */
 }
 
 .el-main::-webkit-scrollbar-thumb {
@@ -419,6 +429,9 @@ body > .el-container {
 :deep .el-dialog__body {
     // height: 340px;
     background-color: #f9f9f9;
+}
+:deep .el-tabs__header {
+    margin: 0;
 }
 .el-dropdown-menu .el-popper {
     min-width: 117px;

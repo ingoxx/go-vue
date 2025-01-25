@@ -83,7 +83,7 @@
                             <el-button type="primary" icon="el-icon-mouse" size="mini" @click="runProcess('mul', '')" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">更新程序</el-button>
                         </el-col>
                         <el-col :span="3.9">
-                            <el-button type="primary" icon="el-icon-mouse" size="mini" @click="openLinuxCmdMth()" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">执行linux命令</el-button>
+                            <el-button type="primary" icon="el-icon-mouse" size="mini" @click="openDialogMth()" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">执行linux命令</el-button>
                         </el-col> -->
                         <el-col :span="2" class="c3">
                             <el-link type="primary" @click="updateSetup">{{ detailContent }}<i :class="detailICon"></i> </el-link>
@@ -96,11 +96,11 @@
                                 <el-button type="primary" icon="el-icon-mouse" size="mini" @click="runProcess('mul', '')" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">更新程序</el-button>
                             </el-col>
                             <el-col :span="3.9">
-                                <el-button type="primary" icon="el-icon-mouse" size="mini" @click="openLinuxCmdMth()" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">执行linux命令</el-button>
+                                <el-button type="primary" icon="el-icon-mouse" size="mini" @click="openDialogMth('cmd', null)" v-if="isHidden('/assets/run-linux-cmd', permissionList)" :loading="submitLoading">执行linux命令</el-button>
                             </el-col>
-                            <el-col :span="3.9">
-                                <el-button type="primary" icon="el-icon-mouse" size="mini" @click="openLinuxCmdMth()" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">查看服务器系统日志</el-button>
-                            </el-col>
+                            <!-- <el-col :span="3.9">
+                                <el-button type="primary" icon="el-icon-mouse" size="mini" @click="openDialogMth()" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">查看服务器系统日志</el-button>
+                            </el-col> -->
                         </el-row>
                     </div>
                     
@@ -130,7 +130,7 @@
                     <el-table-column type="selection" width="55"></el-table-column>
                     <el-table-column prop="id" label="id"></el-table-column>
                     <el-table-column prop="project" label="项目"></el-table-column>
-                    <el-table-column prop="ip" label="服务器"></el-table-column>
+                    <el-table-column prop="ip" label="服务器" width="180"></el-table-column>
                     <el-table-column prop="status" label="服务器状态">
                         <template slot-scope="scope">
                             <el-link type="success" :underline="false"  size="mini" v-if="scope.row.status === 200" plain>正常</el-link>
@@ -184,8 +184,9 @@
                             <span style="margin-left: 10px">{{ scope.row.start | formatDate }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="operate" label="操作" width="250">
+                    <el-table-column prop="operate" label="操作" width="350">
                         <template slot-scope="scope">
+                            <el-button size="mini" type="primary" plain icon="el-icon-view" @click="openDialogMth('log', scope.row)" v-if="isHidden('/assets/view-system-log', permissionList)">查看系统日志</el-button>
                             <el-button size="mini" icon="el-icon-edit" v-if="isHidden('/assets/update', permissionList)" @click="openEditDialog(scope.row)">编辑</el-button>
                             <el-popconfirm :title="'确定删除'+scope.row.ip+'吗?'"
                                 icon="el-icon-info"
@@ -193,7 +194,7 @@
                                 confirm-button-text='删除'
                                 @confirm="handleDelete(scope.row)"
                             >
-                                <el-button size="mini" type="danger" slot="reference" icon="el-icon-delete-solid" plain v-if="isHidden('/assets/del', permissionList)">删除</el-button>
+                                <el-button class="pop-btn" size="mini" type="danger" slot="reference" icon="el-icon-delete-solid" plain v-if="isHidden('/assets/del', permissionList)">删除</el-button>
                             </el-popconfirm>
                         </template>
                     </el-table-column>
@@ -333,14 +334,119 @@
                 </div>
             </el-card>
         </div>
+        <!-- 系统日志 -->
+        <div class="create" >
+            <el-dialog
+                title="系统日志"
+                :visible.sync="systemLogVisible"
+                center
+                @close="clearIplistMth"
+                v-draggable
+                :width="setDialogWth"
+                >
+                <div class="result-title run-linux-cmd-title">
+                    <el-card>
+                        <el-divider><strong><i class="el-icon-platform-eleme"></i>已选择的服务器</strong></el-divider>
+                        <p class="op-name">
+                            <el-row :gutter="10">
+                                <template v-for="(data, index) in ipList">
+                                    <el-col :span="1.9" :key="data.id">
+                                        <el-tag effect="plain"  type="success">{{ data.ip }}</el-tag>
+                                    </el-col>
+                                </template>
+                            </el-row>
+                        </p>
+                    </el-card>
+                </div>
+                <div class="run-linux-cmd run-linux-cmd-content">
+                    <el-card>
+                        <el-divider><strong><i class="el-icon-platform-eleme"></i>日志选择与查询</strong></el-divider>
+                        <div class="one">
+                            <el-radio-group v-model="logSelected">
+                                <!-- <el-radio class="raido-el" size="mini" :border="true" :label="item.log" :key="item.id" v-for="(item, index) in systemLogList">{{ item.label }}</el-radio> -->
+                                <el-radio class="raido-el" size="mini" :border="true" :label="item.log" :key="item.id" v-for="(item, index) in systemLogList">
+                                    <el-popover trigger="hover" placement="top">
+                                        <p>{{ item.desc }}</p>
+                                        <span slot="reference" class="name-wrapper">
+                                            {{ item.label }}
+                                        </span>
+                                    </el-popover>
+                                </el-radio>                       
+                            </el-radio-group>
+                        </div>
+                        <div class="two log-filter">
+                            <el-row :gutter="10" class="detail-content">
+                                <el-col :span="3.9" class="el-col-111">
+                                    <el-input v-model="logFilterText" placeholder="过滤信息" size="mini" clearable></el-input>
+                                </el-col>
+                                <el-col :span="3.9" class="el-col-111">
+                                    <el-date-picker
+                                        size="mini"
+                                        v-model="logDate"
+                                        type="daterange"
+                                        start-placeholder="开始日期"
+                                        end-placeholder="结束日期"
+                                        format="MM 月 dd 日"
+                                        value-format="MM-dd">
+                                    </el-date-picker>
+                                </el-col>
+                                <el-col :span="3.9" class="el-col-111">
+                                    <el-popconfirm :title="'确定查询吗?'"
+                                            icon="el-icon-info"
+                                            icon-color="red"
+                                            confirm-button-text='确定'
+                                            @confirm="filterSystemLogMth()"
+                                        >
+                                        <el-button class="pop-btn2" type="primary" size="mini" slot="reference" plain icon="el-icon-search">查 询</el-button>
+                                    </el-popconfirm>
+                                </el-col>
+                                <el-col :span="3.9" class="el-col-111">
+                                    <el-popconfirm :title="'确定停止吗?'"
+                                            icon="el-icon-info"
+                                            icon-color="red"
+                                            confirm-button-text='确定'
+                                            @confirm="stopWsOutputMth()"
+                                        >
+                                        <el-button class="pop-btn2" type="danger" size="mini" slot="reference" plain icon="el-icon-video-pause">停 止</el-button>
+                                    </el-popconfirm>
+                                </el-col>
+                            </el-row>
+                        </div>
+
+                    </el-card>
+                </div>
+                <div class="result-data">
+                    <el-card v-loading="getLinuxCmdOutputLoading"
+                            element-loading-text="正在拼命捕获命令输出..."
+                            element-loading-spinner="el-icon-loading">
+                        <el-divider><strong><i class="el-icon-platform-eleme"></i>日志输出</strong></el-divider>
+                        <div class="copy">
+                            <!-- <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">复制</el-button> -->
+                            <el-row :gutter=10>
+                                <el-col :span="1.9">
+                                    <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">复制</el-button>
+                                </el-col>
+                                <el-col :span="1.9">
+                                    <el-button type="success" size="mini" plain @click="clearOutputMth()" icon="el-icon-delete-solid">清空</el-button>
+                                </el-col>
+                            </el-row>
+                        </div>
+                        <div class="format-code">
+                            <pre><code>{{ content.join('') }}</code></pre>
+                        </div>
+                    </el-card>
+                </div>
+            </el-dialog>
+        </div>
         <!-- 执行linux命令 -->
         <div class="create">
             <el-dialog
                 title="执行linux命令"
                 :visible.sync="runLinuxCmdVisible"
-                :close-on-click-modal="false"
+                :close-on-click-modal="true"
                 center
-                @close="clearIplist"
+                @close="clearIplistMth"
+                :width="setDialogWth"
                 v-draggable
                 >
                 <div class="result-title run-linux-cmd-title">
@@ -392,7 +498,7 @@
                                     <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">复制</el-button>
                                 </el-col>
                                 <el-col :span="1.9">
-                                    <el-button type="success" size="mini" plain @click="clearLinuxCmdOutput()" icon="el-icon-delete-solid">清空</el-button>
+                                    <el-button type="success" size="mini" plain @click="clearOutputMth()" icon="el-icon-delete-solid">清空</el-button>
                                 </el-col>
                             </el-row>
                         </div>
@@ -507,7 +613,7 @@
                                     <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">复制</el-button>
                                 </el-col>
                                 <el-col :span="1.9">
-                                    <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">清空</el-button>
+                                    <el-button type="success" size="mini" plain @click="clearOutputMth()" icon="el-icon-copy-document">清空</el-button>
                                 </el-col>
                             </el-row>
                             <!-- <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">复制</el-button> -->
@@ -525,7 +631,7 @@
                 title="添加操作"
                 :visible.sync="addOpDialogVisible"
                 width="500px"
-                :close-on-click-modal="false"
+                :close-on-click-modal="true"
                 v-draggable
                 center
                 >
@@ -558,9 +664,11 @@
             <el-dialog
                 title="文件同步"
                 :visible.sync="syncFileVisible"
-                :close-on-click-modal="false"
+                :close-on-click-modal="true"
                 width="800px"
                 center
+                :width="setDialogWth"
+                @close="clearIplistMth"
                 v-draggable
                 >
                 <div class="result-title">
@@ -614,47 +722,62 @@ export default {
     // 弹窗可拖拽
     directives: {
         draggable: {
-            bind(el, binding, vnode) {
-                el.style.position = 'fixed';
-                el.style.zIndex = 1000;
+      bind(el) {
+        // 设置弹窗的基础样式，确保宽度固定
+        const computedStyle = window.getComputedStyle(el);
+        el.style.position = "fixed";
+        el.style.zIndex = 1000;
 
-                el.dragging = false;
-                el.startX = 0;
-                el.startY = 0;
-                el.left = 0;
-                el.top = 0;
+        // 锁定宽度和高度
+        el.style.width = computedStyle.width;
+        el.style.height = computedStyle.height;
 
-                el.addEventListener('mousedown', function (event) {
-                    el.dragging = true;
-                    el.startX = event.clientX;
-                    el.startY = event.clientY;
+        // 初始化拖动参数
+        el.dragging = false;
+        el.startX = 0;
+        el.startY = 0;
+        el.left = 0;
+        el.top = 0;
 
-                    const rect = el.getBoundingClientRect();
-                    el.left = rect.left;
-                    el.top = rect.top;
+        // 鼠标按下事件
+        el.addEventListener("mousedown", function (event) {
+          el.dragging = true;
+          el.startX = event.clientX;
+          el.startY = event.clientY;
 
-                    document.addEventListener('mousemove', mouseMove);
-                    document.addEventListener('mouseup', mouseUp);
-                });
+          // 获取弹窗的初始位置
+          const rect = el.getBoundingClientRect();
+          el.left = rect.left;
+          el.top = rect.top;
 
-                function mouseMove(event) {
-                    if (el.dragging) {
-                        const left = event.clientX - el.startX + el.left;
-                        const top = event.clientY - el.startY + el.top;
-                        el.style.left = `${left}px`;
-                        el.style.top = `${top}px`;
-                    }
-                }
+          // 添加鼠标移动和松开事件
+          document.addEventListener("mousemove", mouseMove);
+          document.addEventListener("mouseup", mouseUp);
+        });
 
-                function mouseUp() {
-                    if (el.dragging) {
-                        el.dragging = false;
-                        document.removeEventListener('mousemove', mouseMove);
-                        document.removeEventListener('mouseup', mouseUp);
-                    }
-                }
-            },
-        },
+        // 鼠标移动事件
+        function mouseMove(event) {
+          if (el.dragging) {
+            const left = event.clientX - el.startX + el.left;
+            const top = event.clientY - el.startY + el.top;
+
+            // 仅更新 left 和 top，避免影响宽度和高度
+            el.style.left = `${left}px`;
+            el.style.top = `${top}px`;
+          }
+        }
+
+        // 鼠标松开事件
+        function mouseUp() {
+          if (el.dragging) {
+            el.dragging = false;
+            // 移除事件监听
+            document.removeEventListener("mousemove", mouseMove);
+            document.removeEventListener("mouseup", mouseUp);
+          }
+        }
+      },
+    },
     },
     data () {
         var validateproject = (rule, value, callback) => {
@@ -705,6 +828,13 @@ export default {
             }
         };
         return {
+            loopAssetsListSetInterval: null,
+            setDialogWth: "500px",
+            outputWs: null,
+            logFilterText: "",
+            logDate: "",
+            logSelected: "/var/log/auth.log",
+            systemLogVisible: false,
             cmdIPListKey: "cmd-ip-list",
             refreshAssetsStatusInterval: 30000,
             ipList: [],
@@ -800,7 +930,14 @@ export default {
                     { validator: validateCmd, trigger: 'blur' }
                 ],
             },
-
+            systemLogList: [
+                {id: 1, log: "/var/log/cron", label: "cron日志", desc: "如果系统中有定时任务需要检查，或者任务执行失败时，查看该日志文件"},
+                {id: 2, log: "/var/log/syslog", label: "syslog日志", desc: "包含系统中几乎所有的日志信息，包括启动过程、应用程序日志和其他系统事件"},
+                {id: 3, log: "/var/log/auth.log", label: "auth日志", desc: "对于用户行为审计和安全分析至关重要"},
+                {id: 4, log: "/var/log/kern.log", label: "kern日志", desc: "对于内核崩溃、硬件故障及与内核相关的问题，kern.log 是诊断的关键"},
+                {id: 5, log: "/var/log/secure", label: "secure日志", desc: "对于用户行为审计和安全分析至关重要"},
+                {id: 6, log: "/var/log/boot.log", label: "boot日志", desc:"用于分析系统启动过程中出现的问题，检查启动过程中某些服务是否没有成功启动"},
+            ],
             programList: [],
             programName: {},
             pages: {
@@ -831,7 +968,67 @@ export default {
         // VueDraggableResizable
     },
     methods: {
-        clearIplist() {
+        getRouterPathMth(name, routes) {
+            // console.log(this.permissionList);
+            for (const route of routes) {
+                if (route.name === name) {
+                    return route.path;
+                }
+                if (route.children && route.children.length) {
+                    const childPath = this.getRouterPathMth(name, route.children);
+                    if (childPath) {
+                        return childPath;
+                    }
+                }
+            }
+            return null;
+        },
+        getCurrentWindowsResizeMth() {
+            const browserWidth = document.documentElement.clientWidth;
+            const halfWidth = browserWidth / 2;
+            this.setDialogWth = Math.round(halfWidth)+"px";
+        },
+        listenWindowsResizeMth() {
+            window.addEventListener("resize", () => {
+                const browserWidth = window.innerWidth;
+                const halfWidth = browserWidth / 2;
+                this.setDialogWth = Math.round(halfWidth)+"px";
+            });
+        },
+        stopWsOutputMth() {
+            this.outputWs.close();
+        },
+        formatDateStringMth(dateString) {
+            // 定义月份的缩写
+            const monthNames = [
+                'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+            ];
+            const [month, day] = dateString.split('-');
+            const monthIndex = parseInt(month, 10) - 1;
+            const monthName = monthNames[monthIndex];
+            return `${monthName} ${day}`;
+        },
+        filterSystemLogMth() {
+            this.getLinuxCmdOutputLoading = true;
+            let data = {
+                ip: this.ipList.map(item => item.ip),
+                name: "runLinuxCmd",
+                uuid: "",
+                cmd: this.formatCmdMth(),
+            };
+            var path = this.getRouterPathMth('view-system-log', this.permissionList);
+            this.multiContentOutputMth(path, data, false);
+        },
+        formatCmdMth() {
+            if (this.logDate.length > 1) {
+                var start = this.formatDateStringMth(this.logDate[0]);
+                var end = this.formatDateStringMth(this.logDate[1]);
+                return `more ${this.logSelected} |grep '${this.logFilterText}'|sed -n '/^${start}/,/^${end}/p'`;
+            }
+            return `more ${this.logSelected} |grep '${this.logFilterText}'`
+        },
+        clearIplistMth() {
             this.delstrogage(this.cmdIPListKey);
         },
         delstrogage(key) {
@@ -843,7 +1040,7 @@ export default {
         getDataStroage(key) {
             return JSON.parse(sessionStorage.getItem(key));
         },
-        clearLinuxCmdOutput() {
+        clearOutputMth() {
             this.content = [];
         },
         runLinuxCmdMth() {
@@ -855,17 +1052,28 @@ export default {
                 uuid: "",
                 cmd: this.ruleForm.cmd,
             };
-            this.multiContentOutputMth(data, false);
+            var path = this.getRouterPathMth('run-linux-cmd', this.permissionList);
+            this.multiContentOutputMth(path, data, false);
         },
-        openLinuxCmdMth() {
+        openDialogMth(name, data) {
             this.content = [];
             var ipList = [];
-            if (this.multipleSelection.length === 0) {
-                return Message.error("请选择服务器");
+    
+            if (name === "cmd") {
+                if (this.multipleSelection.length === 0) {
+                    return Message.error("请选择服务器");
+                }
+                this.setDataStroage(this.cmdIPListKey, this.multipleSelection);
+                this.ipList = this.getDataStroage(this.cmdIPListKey);
+                this.runLinuxCmdVisible = true;
+            } else if (name === "log") {
+                this.setDataStroage(this.cmdIPListKey, [data]);
+                this.ipList = this.getDataStroage(this.cmdIPListKey);
+                this.systemLogVisible = true;
             }
-            this.setDataStroage(this.cmdIPListKey, this.multipleSelection);
-            this.ipList = this.getDataStroage(this.cmdIPListKey);
-            this.runLinuxCmdVisible = true;
+            
+            // this.setDataStroage(this.cmdIPListKey, this.multipleSelection);
+            
         },
         updateRealTimeRefreshMth() {
             this.realTimeInterval = setInterval(() => {
@@ -874,9 +1082,6 @@ export default {
                     this.realTimeRefreshBot = ''; 
                 }
             }, 500);
-        },
-        saveInStroage(key, value) {
-            
         },
         handleCreateProgramOpMth() {
             this.addOpDialogVisible = true;
@@ -1076,7 +1281,8 @@ export default {
 
         },
         uploadUrl() {
-            return `${baseUrl}/assets/upload`
+            var path = this.getRouterPathMth('uploadFile', this.permissionList);
+            return `${baseUrl}${path}`;
         },
         // 显示文件MD5码
         showFileMd5() {
@@ -1118,10 +1324,13 @@ export default {
             if (this.$refs.upload.uploadFiles.length === 0) {
                 return Message.error('请选取文件')
             }
-
+            
             if (this.multipleSelection.length === 0) {
                 return Message.error('请选勾选服务器')
             }
+
+            this.setDataStroage(this.cmdIPListKey, this.multipleSelection);
+            this.ipList = this.getDataStroage(this.cmdIPListKey);
 
             this.uploadLoading = true;
 
@@ -1308,11 +1517,12 @@ export default {
         },
         // 是否需要在新的页面打开，实时查看更新脚本的输出内容
         async runningJumpOrNot(data_list) {
+            var path = this.getRouterPathMth('assetsUpdate', this.permissionList);
             for (let i = 0;i < data_list.length;i++) {
                 // 在新的页面执行
                 if (this.isJump) {
                     let routeData = this.$router.resolve(
-                        { path: `/assets/update/${data_list[i].project}/${data_list[i].ip}/${this.programName[data_list[i].update_name]}/${data_list[i].uuid}` }
+                        { path: `${path}/${data_list[i].project}/${data_list[i].ip}/${this.programName[data_list[i].update_name]}/${data_list[i].uuid}` }
                     );
                     window.open(routeData.href, '_blank');
                 } else {
@@ -1471,28 +1681,29 @@ export default {
             this.pages2.curPage = val;
             this.getUpdateList('page', this.updatestatus, 200, true);
         },
-        multiContentOutputMth(data, loading) {
-            var ws = new WebSocket(wssUrl+"/assets/ws?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"));
-            ws.onopen = () => {
+        multiContentOutputMth(ws, data, loading) {
+            this.outputWs = new WebSocket(`${wssUrl}${ws}?user=${sessionStorage.getItem("user")}&token=${sessionStorage.getItem("token")}`);
+            this.outputWs.onopen = () => {
                 console.log('WebSocket连接已打开');
-                ws.send(JSON.stringify(data));
+                this.outputWs.send(JSON.stringify(data));
             };
-            ws.onmessage = (event) => {
+            this.outputWs.onmessage = (event) => {
                 this.getLinuxCmdOutputLoading = loading;
                 this.content.push(event.data);
                 let div = document.querySelector(".result-data");
                 div.scrollTop = div.scrollHeight - div.clientHeight;
             };
-            ws.onclose = () => {
+            this.outputWs.onclose = () => {
                 this.getLinuxCmdOutputLoading = loading;
                 console.log('WebSocket连接已关闭');
             };
-            ws.onerror = (error) => {
+            this.outputWs.onerror = (error) => {
                 this.getLinuxCmdOutputLoading = loading;
                 Message.error('WebSocket连接失败:', error);
             };
         },
         contentOutput(val) {
+            var path = this.getRouterPathMth('assetsWs', this.permissionList);
             this.logLoading = true;
             var ipList = [];
             ipList.push(val.ip);
@@ -1502,7 +1713,7 @@ export default {
                 uuid: val.uuid,
                 cmd: val.cmd ? val.cmd : "",
             };
-            this.ws = new WebSocket(wssUrl+"/assets/ws?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"));
+            this.ws = new WebSocket(`${wssUrl}${path}?user=${sessionStorage.getItem("user")}&token=${sessionStorage.getItem("token")}`);
             this.ws.onopen = () => {
                 console.log('WebSocket连接已打开');
                 this.ws.send(JSON.stringify(data));
@@ -1519,18 +1730,19 @@ export default {
             };
             this.ws.onerror = (error) => {
                 this.logLoading = false;
-                Message.error('WebSocket连接出错:', error);
+                Message.error('WebSocket操作失败:', error);
             };
         },
         // 分发文件并返回分发完毕后的文件md5码
         syncFileOutput() {
+            var path = this.getRouterPathMth('syncFileWs', this.permissionList);
             this.logLoading = true;
             this.syncFileLoading = true;
             let data = {
                 ip: this.multipleSelection.map(item => item.ip),
                 file: this.fileList.map(file => file.name)
             }
-            this.ws = new WebSocket(wssUrl+"/assets/file/ws?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"));
+            this.ws = new WebSocket(`${wssUrl}${path}?user=${sessionStorage.getItem("user")}&token=${sessionStorage.getItem("token")}`);
             this.ws.onopen = () => {
                 this.logLoading = false;
                 console.log('WebSocket连接成功');
@@ -1553,12 +1765,8 @@ export default {
                 this.syncFileLoading = false;
             };
         },
-        wsConnectObj(addr) {
-            var ws = new WebSocket(addr);
-            return ws;
-        },
         loopGetAssetsList() {
-            setInterval(() => {
+            this.loopAssetsListSetInterval = setInterval(() => {
                 this.getAssetsList("page");
             }, this.refreshAssetsStatusInterval);
         },
@@ -1566,15 +1774,15 @@ export default {
         isHidden(path, routers=[]) {
             if (routers !== null){
                 for (var i=0; i<routers.length; i++) {
-                if (routers[i].path === path) {
-                    return  routers[i].hidden;
-                }
-                if (routers[i].children != undefined && routers[i].children.length > 0) {
-                    let hidden = this.isHidden(path, routers[i].children);
-                    if (hidden) {
-                        return  hidden
+                    if (routers[i].path === path) {
+                        return  routers[i].hidden;
                     }
-                }
+                    if (routers[i].children != undefined && routers[i].children.length > 0) {
+                        let hidden = this.isHidden(path, routers[i].children);
+                        if (hidden) {
+                            return  hidden
+                        }
+                    }
                 }
             }
         },
@@ -1585,7 +1793,15 @@ export default {
         this.loopGetAssetsList();
         this.getProgramListMth();
         this.updateRealTimeRefreshMth();
+        this.getCurrentWindowsResizeMth();
+        this.listenWindowsResizeMth();
     },
+    // destroyed() {
+    //     clearInterval(this.loopAssetsListSetInterval);
+    //     if (this.loopAssetsListSetInterval) {
+    //         this.loopAssetsListSetInterval = null;
+    //     }
+    // },
     filters: {
         formatDate(date) {
             var d = date ? new Date(date) : new Date();
@@ -1621,7 +1837,7 @@ export default {
 <style lang="scss" scoped>
 .box {
     // padding: 15px;
-    // padding: 20px;
+    padding: 20px;
     overflow-y: auto;
     height: 96%;
     // background-color: #f5f5f5;
@@ -1651,7 +1867,7 @@ export default {
 .format-code {
     height: 533px;
     text-align: justify;
-    font-size: 17px;
+    font-size: 14px;
     overflow: auto;
     color: #c3c3c3;
     background-color: #292828;
@@ -1660,6 +1876,7 @@ export default {
     width: auto;
     margin-top: 10px;
     white-space: pre-wrap;
+    border-radius: 3px;
 }
 .c1 {
     padding-top: 5px;
@@ -1769,6 +1986,22 @@ export default {
 }
 .server-col {
     padding: 10px!important;
+}
+.raido-el {
+    margin-top: 10px;
+    margin-left: 1px!important;
+}
+.log-filter {
+    margin-top: 33px;
+}
+.pop-btn {
+    margin-left: 8px!important;
+}
+.pop-btn2 {
+    margin-left: 0!important;
+}
+.el-col-111 {
+    padding-top: 10px;
 }
 </style>
 

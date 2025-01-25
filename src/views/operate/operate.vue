@@ -153,6 +153,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.box {
+    padding: 20px;
+}
 .table{
     margin-top: 30px;
     margin-bottom: 15px;

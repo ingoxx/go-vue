@@ -320,12 +320,13 @@ export default {
 
 <style lang="scss" scoped>
 .box{
-    margin: 10px auto;
+    // margin: 10px auto;
+    padding: 20px;
 }
 .box .operate {
     height: 42px;
     line-height: 42px;
-    margin: 10px auto 10px auto;
+    // margin: 10px auto 10px auto;
 }
 .box .table{
     margin-bottom: 15px;
