@@ -22,7 +22,7 @@
                         <span slot="title">首页</span>
                     </el-menu-item> -->
                     <!-- 菜单 -->
-                    <el-submenu v-for="(item1, index1) in permissionList" :key="index1" :index="item1.path">
+                    <el-submenu v-if="item1.hidden" v-for="(item1, index1) in permissionList" :key="index1" :index="item1.path">
                         <template slot="title">
                             <i :class="item1.meta.icon"></i>
                             <span slot="title">{{ item1.meta.name }}</span>
@@ -60,7 +60,7 @@
                         </span>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item icon="el-icon-user" @click.native="userCenterActive('user')">个人中心</el-dropdown-item>
-                            <el-dropdown-item icon="el-icon-key" @click.native="userCenterActive('pwd')">密码修改</el-dropdown-item>
+                            <el-dropdown-item icon="el-icon-key" @click.native="userCenterActive('pwd')" v-if="isHidden(getRouterPath('userUpdatePwd', permissionList), permissionList)">密码修改</el-dropdown-item>
                             <el-dropdown-item icon="el-icon-lock" @click.native="logout()">退出</el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
@@ -111,6 +111,8 @@ import { mapState } from 'vuex'
 import store from '../../store/index'
 import  userCenter  from '../user/userCenter'
 import { Message } from 'element-ui'
+import { resetRouter } from '../../router/index'
+import { isHidden, getRouterPath } from '@/utils/utils';
 
 export default {
     name:"home",
@@ -186,6 +188,8 @@ export default {
         },
     },
     methods: {
+        isHidden,
+        getRouterPath,
         async logout() {
             var params = new URLSearchParams();
             params.append('user', this.user);
@@ -197,6 +201,7 @@ export default {
             sessionStorage.clear();
             store.commit('CLEAR_PERMISSION', null);
             // location.reload();
+            resetRouter();
             this.$router.replace('/login').catch((err) => err);
         },
         addTabs (title, path) {

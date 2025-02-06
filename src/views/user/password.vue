@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { updateUsers } from '../../api'
+import { updateUsers, userUpdatePwd } from '../../api'
 import { mapState } from 'vuex'
 import { Message } from 'element-ui'
 
@@ -77,7 +77,7 @@ export default {
     methods: {
         async UpdateUser() {
             this.updateLoad = true;
-            const resp = await updateUsers({
+            const resp = await userUpdatePwd({
                 name: this.userdetail.name,
                 uid: this.userdetail.ID,
                 rid: this.userdetail.roles[0].ID,

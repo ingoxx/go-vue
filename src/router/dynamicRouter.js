@@ -1,4 +1,6 @@
 
+ //hidden: false：隐藏, true：不隐藏
+
 const usersList = () => import('../views/user/user');
 const permsList = () => import('../views/perms/perms');
 const roleList = () => import('../views/roles/roles');
@@ -11,6 +13,7 @@ const dynamicRoutes = [
     path: '/perms',
     name: 'permsManage',
     redirect: '/perms/list',
+    hidden: false,
     component: layOut,
     meta: {name:'权限管理', icon: 'el-icon-key'},
     children:[
@@ -25,13 +28,13 @@ const dynamicRoutes = [
             path:'/perms/create',
             name: 'permsCreate',
             meta: { name: '权限创建'},
-            hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+            hidden: false,
           },
           {
             path:'/perms/delete',
             name: 'permsDel',
             meta: { name: '权限删除'},
-            hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+            hidden: false,
           },
         ],
       },
@@ -46,49 +49,49 @@ const dynamicRoutes = [
             path:'/role/create',
             name: 'roleCreate',
             meta: { name: '角色创建'},
-            hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+            hidden: false,
           },
           {
             path:'/role/delete',
             name: 'roleDel',
             meta: { name: '角色删除'},
-            hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+            hidden: false,
           },
           {
             path:'/role/allotperms',
             name: 'roleAllotPerms',
             meta: { name: '分配权限'},
-            hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+            hidden: false,
           },
           {
             path:'/role/rmperms',
             name: 'roleRmPerms',
             meta: { name: '移除权限'},
-            hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+            hidden: false,
           },
           {
             path:'/role/userperms',
             name: 'userPerms',
             meta: { name: '用户权限'},
-            hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+            hidden: false,
           },
           {
             path:'/role/pmenu',
             name: 'rolePmenu',
             meta: { name: '菜单列表'},
-            hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+            hidden: false,
           },
           {
             path:'/role/rolesname',
             name: 'roleDetail',
             meta: { name: '角色详情'},
-            hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+            hidden: false,
           },
           {
             path:'/role/roleperms',
             name: 'rolePerms',
             meta: { name: '角色权限'},
-            hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+            hidden: false,
           },
         ],
       },
@@ -113,7 +116,7 @@ const dynamicRoutes = [
             path:'/user/add',
             name: 'userAdd',
             meta: { name: '用户添加'},
-            hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+            hidden: false,
           },
           {
             path:'/user/del',
@@ -125,6 +128,12 @@ const dynamicRoutes = [
             path:'/user/update',
             name: 'userUpdate',
             meta: { name: '用户更新'},
+            hidden: false,
+          },
+          {
+            path:'/user/update-pwd',
+            name: 'userUpdatePwd',
+            meta: { name: '密码更新'},
             hidden: false,
           },
           {
@@ -156,19 +165,19 @@ const dynamicRoutes = [
                       path:'/log/get-login-num',
                       name: 'loginCount',
                       meta: { name: '登录日志统计'},
-                      hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+                      hidden: false,
                   },
                   {
                     path:'/log/get-run-linux-cmd-num',
                     name: 'runLinuxCmdCount',
                     meta: { name: 'linux命令执行统计'},
-                    hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+                    hidden: false,
                   },
                   {
                     path:'/log/get-user-login-num',
                     name: 'userLoginCount',
                     meta: { name: '用户登录统计'},
-                    hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+                    hidden: false,
                   },
             ],
         },
@@ -193,7 +202,7 @@ const dynamicRoutes = [
             path:'/assets/add',
             name: 'assetsAdd',
             meta: { name: '服务器添加'},
-            hidden: false, //按钮级别的权限隐藏,false：不隐藏，true：隐藏
+            hidden: false,
           },
           {
             path:'/assets/del',
@@ -234,7 +243,7 @@ const dynamicRoutes = [
           {
             path:'/assets/ws',
             name: 'assetsWs',
-            meta: { name: 'websocket连接'},
+            meta: { name: '更新程序2'},
             hidden: false,
           },
           {
@@ -288,7 +297,7 @@ const dynamicRoutes = [
           {
             path:'/assets/run-linux-cmd',
             name: 'run-linux-cmd',
-            meta: { name: '执行linux命令'},
+            meta: { name: '批量ansible作业'},
             hidden: false,
           },
         ],

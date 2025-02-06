@@ -29,10 +29,10 @@
                     </el-col>
                 </el-row>
                 <el-row :gutter="10" class="operate">
-                    <el-col :span="2.5" v-if="!isHidden('/user/add', this.$router.options.routes)">
-                        <el-button size="small" type="primary" icon="el-icon-document-add" @click="clearData" v-if="isHidden('/user/add', permissionList)">添加用户</el-button>
+                    <el-col :span="2.5" v-if="!isHidden(getRouterPath('userAdd', permissionList), this.$router.options.routes)">
+                        <el-button size="small" type="primary" icon="el-icon-document-add" @click="clearData">添加用户</el-button>
                     </el-col>
-                    <el-col :span="1.9">
+                    <el-col :span="1.9" v-if="isHidden(getRouterPath('userDel', permissionList), permissionList)">
                         <el-popconfirm :title="'确定删除id为【 '+multipleSelection.map(item=>item.ID)+' 】吗?'"
                                 icon="el-icon-info"
                                 icon-color="red"
@@ -40,7 +40,7 @@
                                 @confirm="handleMutilDelete()"
                                 ref="fs"
                             >
-                                <el-button size="small" type="danger" slot="reference" icon="el-icon-delete-solid" v-if="isHidden('/user/del', permissionList)">批量删除</el-button>
+                                <el-button size="small" type="danger" slot="reference" icon="el-icon-delete-solid">批量删除</el-button>
                         </el-popconfirm>
                     </el-col>
                 </el-row>
@@ -83,14 +83,14 @@
                     </el-table-column>
                     <el-table-column prop="operate" label="operate" width="200">
                         <template slot-scope="scope">
-                            <el-button size="mini" @click="editUserData(scope.row)" icon="el-icon-edit" v-if="isHidden('/user/update', permissionList)">编辑</el-button>
+                            <el-button size="mini" @click="editUserData(scope.row)" icon="el-icon-edit" v-if="isHidden(getRouterPath('userUpdate', permissionList), permissionList)">编辑</el-button>
                             <el-popconfirm :title="'确定删除'+scope.row.name+'吗?'"
                                 icon="el-icon-info"
                                 icon-color="red"
                                 confirm-button-text='删除'
                                 @confirm="handleDelete(scope.row)"
                             >
-                                <el-button size="mini" type="danger" slot="reference" icon="el-icon-delete-solid" plain v-if="isHidden('/user/del', permissionList)">删除</el-button>
+                                <el-button size="mini" type="danger" slot="reference" icon="el-icon-delete-solid" plain v-if="isHidden(getRouterPath('userDel', permissionList), permissionList)">删除</el-button>
                             </el-popconfirm>
                         </template>
                     </el-table-column>
@@ -242,9 +242,10 @@
 </template>
 
 <script>
-import { Message } from 'element-ui'
-import { addUsers, delUsers, updateUsers, getUserList, getRolesName } from '../../api'
-import { mapState } from 'vuex'
+import { Message } from 'element-ui';
+import { addUsers, delUsers, updateUsers, getUserList, getRolesName } from '../../api';
+import { mapState } from 'vuex';
+import { isHidden, getRouterPath } from '@/utils/utils';
 
 export default {
     name: "user",
@@ -433,6 +434,8 @@ export default {
         })
     },
     methods:{
+        isHidden, 
+        getRouterPath,
         tableRowClick(row, column, event) {
             this.$refs.multipleTable.toggleRowSelection(row);
         },
@@ -622,21 +625,21 @@ export default {
             this.pages.curPage = val;
             this.ListUser("page");
         },
-        isHidden(path, routers=[]) {
-            if (routers !== null){
-                for (var i=0; i<routers.length; i++) {
-                if (routers[i].path === path) {
-                    return  routers[i].hidden;
-                }
-                if (routers[i].children != undefined && routers[i].children.length > 0) {
-                    let hidden = this.isHidden(path, routers[i].children);
-                    if (hidden) {
-                        return  hidden
-                    }
-                }
-                }
-            }
-        },
+        // isHidden(path, routers=[]) {
+        //     if (routers !== null){
+        //         for (var i=0; i<routers.length; i++) {
+        //         if (routers[i].path === path) {
+        //             return  routers[i].hidden;
+        //         }
+        //         if (routers[i].children != undefined && routers[i].children.length > 0) {
+        //             let hidden = this.isHidden(path, routers[i].children);
+        //             if (hidden) {
+        //                 return  hidden
+        //             }
+        //         }
+        //         }
+        //     }
+        // },
         callMethod() {},
     },
     mounted() {

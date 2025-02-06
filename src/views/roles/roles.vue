@@ -16,7 +16,7 @@
             <div  class="operate">
                 <el-row :gutter="10">
                     <el-col :span="2.5">
-                        <el-button size="small" type="primary" icon="el-icon-document-add" @click="clearData" v-if="isHidden('/role/create', permissionList)">添加角色</el-button>
+                        <el-button size="small" type="primary" icon="el-icon-document-add" @click="clearData" v-if="isHidden(getRouterPath('roleCreate', permissionList), permissionList)">添加角色</el-button>
                     </el-col>
                 </el-row>
             </div>
@@ -56,8 +56,8 @@
                 <el-table-column prop="rolename" label="rolename"></el-table-column>
                 <el-table-column prop="operate" label="operate" width="226">
                     <template slot-scope="scope">
-                        <el-button size="mini" type="primary" icon="el-icon-edit" plain @click="showAllotPerms(scope.row)" v-if="isHidden('/role/allotperms', permissionList)">权限分配</el-button>
-                        <el-button size="mini" type="danger" slot="reference" icon="el-icon-delete-solid" @click="handleDeleteRoles(scope.row)" plain v-if="isHidden('/role/delete', permissionList)">删除</el-button>
+                        <el-button size="mini" type="primary" icon="el-icon-edit" plain @click="showAllotPerms(scope.row)" v-if="isHidden(getRouterPath('roleAllotPerms', permissionList), permissionList)">权限分配</el-button>
+                        <el-button size="mini" type="danger" slot="reference" icon="el-icon-delete-solid" @click="handleDeleteRoles(scope.row)" plain v-if="isHidden(getRouterPath('roleDel', permissionList), permissionList)">删除</el-button>
                     </template>
                 </el-table-column>
                 </el-table>
@@ -147,6 +147,7 @@ import { getRolesList, removePerms, getPermsTree, allotPerms, getRolePerms, crea
 import { mapState } from 'vuex'
 import { Message } from 'element-ui'
 import { MessageBox } from 'element-ui';
+import { isHidden, getRouterPath } from '@/utils/utils';
 
 export default {
     name: "roles",
@@ -246,6 +247,8 @@ export default {
         })
     },
     methods:{
+        isHidden, 
+        getRouterPath,
         tableRowClick(row, column, event) {
             this.$refs.multipleTable.toggleRowSelection(row);
         },
@@ -428,21 +431,21 @@ export default {
             this.pages.curPage = val;
             this.RolesList();
         },
-        isHidden(path, routers=[]) {
-            if (routers !== null){
-                for (var i=0; i<routers.length; i++) {
-                if (routers[i].path === path) {
-                    return  routers[i].hidden;
-                }
-                if (routers[i].children != undefined && routers[i].children.length > 0) {
-                    let hidden = this.isHidden(path, routers[i].children);
-                    if (hidden) {
-                        return  hidden
-                    }
-                }
-                }
-            }
-        },
+        // isHidden(path, routers=[]) {
+        //     if (routers !== null){
+        //         for (var i=0; i<routers.length; i++) {
+        //         if (routers[i].path === path) {
+        //             return  routers[i].hidden;
+        //         }
+        //         if (routers[i].children != undefined && routers[i].children.length > 0) {
+        //             let hidden = this.isHidden(path, routers[i].children);
+        //             if (hidden) {
+        //                 return  hidden
+        //             }
+        //         }
+        //         }
+        //     }
+        // },
         callMethod() {},
     },
     mounted() {

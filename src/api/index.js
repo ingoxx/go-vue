@@ -20,6 +20,7 @@ export const editServer = (params, method) => post("/assets/update?user="+ sessi
 export const delServer = (params, method) => post("/assets/del?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 export const runProgram = (params, method) => post("/assets/api?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 export const ProgramAdd = (params, method) => post("/assets/program/add?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
+export const userUpdatePwd = (params, method) => post("/user/update-pwd?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 // get
 export const getProgramList = (params) => get("/assets/program/list?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params);
 export const getUserList = (params) => get("/user/list?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params);
@@ -36,4 +37,4 @@ export const getProcessStatus = (params) => get("/assets/program/status?user=" +
 export const getUpdateList = (params) => get("/assets/program/update/list?user=" + sessionStorage.getItem("user") + "&token=" + sessionStorage.getItem("token"), params);
 export const getLoginNum = (params) => get("/log/get-login-num?user="+ sessionStorage.getItem("user") +"&token="+ sessionStorage.getItem("token"), params);
 export const getRunLinuxCmdNum = (params) => get("/log/get-run-linux-cmd-num?user="+ sessionStorage.getItem("user") +"&token="+ sessionStorage.getItem("token"), params);
-
+export const getUserLoginNum = (params) => get("/log/get-user-login-num?user="+ sessionStorage.getItem("user") +"&token="+ sessionStorage.getItem("token"), params);

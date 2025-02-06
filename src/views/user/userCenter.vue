@@ -4,16 +4,18 @@
             <el-tab-pane label="个人信息" name="user">
                 <userDetailInfo></userDetailInfo>
             </el-tab-pane>
-            <el-tab-pane label="密码修改" name="pwd">
-                <password></password>
+            <el-tab-pane label="密码修改" name="pwd" v-if="isHidden(getRouterPath('userUpdatePwd', permissionList), permissionList)">
+                <password ></password>
             </el-tab-pane>
         </el-tabs>
     </div>
 </template>
 
 <script>
-import password from './password'
-import userDetailInfo from './userDetail'
+import password from './password';
+import userDetailInfo from './userDetail';
+import { mapState } from 'vuex';
+import { isHidden, getRouterPath } from '@/utils/utils';
 
 export default {
     name:"userCenter",
@@ -27,7 +29,18 @@ export default {
         password,
         userDetailInfo,
     },
-
+    computed: {
+        ...mapState({
+            'permissionList': state => state.addRouters.permissionList,
+        })
+    },
+    methods: {
+        isHidden,
+        getRouterPath,
+    },
+    mounted() {
+        console.log(getRouterPath); 
+    },
 }
 </script>
 

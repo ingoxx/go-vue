@@ -2,7 +2,8 @@ import { getUserPerms } from '../../api'
 import router, { showDynamicRoutes } from '../../router/index'
 import dynamicRouter from '../../router/dynamicRouter'
 import clearRoutes from '../../router/clearUserRoutes'
-import { getRouter } from '../../utils/getRouter'
+// import { getRouter } from '../../utils/getRouter'
+import { getRouter } from '../../utils/genRouter'
 import { Message } from 'element-ui'
 import createPersistedState from 'vuex-persistedstate'
 
@@ -27,13 +28,13 @@ const addRouters = {
     },
     actions:{
         async getUserPerms(state) {
-            const permissionList = await getUserPerms({"uid": sessionStorage.getItem("uid")})
-            if (permissionList == null || permissionList.data.data.lenght === 0) {
-                return Message.error(permissionList.data.message);
+            const resp = await getUserPerms({uid: sessionStorage.getItem("uid")})
+            if (!resp.data || resp.data.code !== 10000 || resp.data.data.lenght === 0) {
+                return Message.error(resp.data.message);
             }
-            
+            var permData = resp.data.data;
             state.commit('CHANGE_PERM_LOAD', false);
-            let showRoutes = getRouter(permissionList.data.data, dynamicRouter);
+            let showRoutes = getRouter(permData, dynamicRouter);
             // 获取首页路由,首页默认所有已经登录的用户都可以访问
             let main = showDynamicRoutes.find(v => v.path === '/');
             // 获取首页下的子路由

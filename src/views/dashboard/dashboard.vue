@@ -9,17 +9,18 @@
         </div>
         <div class="box-card">
             <el-card >
-                <VeBar :data="chartData" class="v-chart" />
+                <span class="ve-title"><i class="el-icon-s-help title-icon"></i> 用户登录平台次数占比</span>
+                <VeBar :data="userLoginData" class="v-chart v-chart-3" :extend="loginExtend" />
             </el-card>
         </div>
         <div class="box-card">
             <el-card >
-                <VeLine :data="loginData" :settings="chartSettings"/>
+                <VeLine :data="loginData" :settings="chartSettings" :extend="chartExtend"/>
             </el-card>
         </div>
         <div class="box-card">
             <el-card >
-                <VeHistogram :data="linuxCmdData" />
+                <VeHistogram :data="linuxCmdData" :settings="chartSettings" :extend="chartExtend"/>
             </el-card>
         </div>
     </div>
@@ -33,7 +34,7 @@ import VeCandle from 'v-charts/lib/candle.common'; // 引入K线图组件
 import VeGauge from 'v-charts/lib/gauge.common'; // 引入仪表盘组件
 import VeHistogram from 'v-charts/lib/histogram.common'; // 引入直方图组件
 import VeRing from 'v-charts/lib/ring.common';
-import { getLoginNum, getRunLinuxCmdNum } from '../../api';
+import { getLoginNum, getRunLinuxCmdNum, getUserLoginNum } from '../../api';
 import { Message, MessageBox } from 'element-ui';
   
 export default {
@@ -49,8 +50,36 @@ components: {
 },
 data() {
     return {
+        loginExtend: {
+            title: {
+          show: true, // 确保标题显示
+          text: '用户登录次数占比', // 主标题
+          subtext: '统计前五名用户', // 副标题（可选）
+          left: 'center', // 标题居中
+          top: '10px',
+          textStyle: {
+            fontSize: 18, // 标题字体大小
+            fontWeight: 'bold',
+            color: '#333', // 颜色
+          },
+          subtextStyle: {
+            fontSize: 14,
+            color: '#666',
+          },
+        },
+        },
+        chartExtend: {
+            xAxis: {
+                type: 'category',
+                axisLabel: {
+                    interval: 0, // 强制显示所有刻度
+                    rotate: 30, // 旋转以防重叠
+                },
+            },
+        },
         chartSettings: {
             smooth: true, // 开启平滑曲线
+            xAxisType: 'category',
         },
         loginData: {
             columns: ['日期', '登录次数'],
@@ -74,15 +103,13 @@ data() {
                 { '日期': '1月6日', 'linux命令执行次数': 7123 },
             ],
         },
-        chartData: {
-            columns: ['状态码', '次数'],
+        userLoginData: {
+            columns: ['用户名', '总的平台登陆次数'],
             rows: [
-                    { '状态码': 200, '次数': 10 },
-                    { '状态码': 502, '次数': 1 },
-                    { '状态码': 403, '次数': 23 },
-                    { '状态码': 500, '次数': 5 },
+                    { '用户名': 'admin', '总的平台登陆次数': 10 },
+                    { '用户名': '二毛', '总的平台登陆次数': 10 },
                 ]
-        },
+        }
     }
     },
     methods: {
@@ -103,10 +130,20 @@ data() {
                 this.linuxCmdData = resp.data.data;
             }
         },
+        async getUserLoginNumMth() {
+            const resp = await getUserLoginNum();
+            if (resp.data.code !== 10000) {
+                return Message.error(resp.data.message)
+            }
+            if (Object.keys(resp.data.data).length) {
+                this.userLoginData = resp.data.data;
+            }
+        },
     },
     mounted() {
         this.getLoginNumMth();
         this.getRunLinuxCmdNumMth();
+        this.getUserLoginNumMth();
     },
 };
 </script>
@@ -137,5 +174,24 @@ data() {
     display: flex;
     justify-content: flex-start;
     align-items: center;
+}
+.v-chart-2 {
+    width: 100%;
+  height: 400px;
+}
+.ve-title {
+    font-size: 12px;
+    color: #414141;
+}.v-chart-3 {
+    width: auto;
+    height: 382px!important;
+    position: relative;
+    top: 16px;
+}
+.title-icon {
+    position: relative;
+    top: 2px;
+    font-size: 17px;
+    color: #19d4ae;
 }
 </style>

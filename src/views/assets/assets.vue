@@ -1,7 +1,7 @@
 <template>
     <div class="box">
         <!-- 分发文件 -->
-        <div class="section-4" v-if="isHidden('/assets/upload', permissionList)">
+        <div class="section-4" v-if="isHidden(getRouterPath('uploadFile', permissionList), permissionList)">
             <el-card>
                 <el-divider><i class="el-icon-upload"></i>文件分发</el-divider>
                 <div class="upload">
@@ -30,7 +30,7 @@
             </el-card>
         </div>
         <!-- 程序操作 -->
-        <div class="section-2" v-if="isHidden('/assets/api', permissionList)">
+        <div class="section-2" v-if="isHidden(getRouterPath('updateProgram', permissionList), permissionList)">
             <el-card>
                 <el-divider><i class="el-icon-s-tools"></i>程序操作</el-divider>
                 <div class="operate">
@@ -42,7 +42,7 @@
                                 </el-col>
                             </template>
                         </template>
-                        <el-col :span="1.9" v-if="isHidden('/assets/program/add', permissionList)"><el-button  type="info" size="mini" icon="el-icon-document-add" @click="handleCreateProgramOpMth">添加操作</el-button></el-col>
+                        <el-col :span="1.9" v-if="isHidden(getRouterPath('program-add', permissionList), permissionList)"><el-button  type="info" size="mini" icon="el-icon-document-add" @click="handleCreateProgramOpMth">添加操作</el-button></el-col>
                     </el-row>
                 </div>
             </el-card>
@@ -77,7 +77,7 @@
                             </el-select>
                         </el-col>
                         <el-col :span="3.9">
-                            <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openCreateDialog()" v-if="isHidden('/assets/add', permissionList)">新建服务器</el-button>
+                            <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openCreateDialog()" v-if="isHidden(getRouterPath('assetsAdd', permissionList), permissionList)">新建服务器</el-button>
                         </el-col>
                         <!-- <el-col :span="3.9">
                             <el-button type="primary" icon="el-icon-mouse" size="mini" @click="runProcess('mul', '')" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">更新程序</el-button>
@@ -93,10 +93,10 @@
                     <div class="linux-op">
                         <el-row :gutter=10>
                             <el-col :span="3.9">
-                                <el-button type="primary" icon="el-icon-mouse" size="mini" @click="runProcess('mul', '')" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">更新程序</el-button>
+                                <el-button type="danger" icon="el-icon-mouse" size="mini" @click="runProcess('mul', '')" v-if="isHidden(getRouterPath('updateProgram', permissionList), permissionList)" :loading="submitLoading">批量更新程序</el-button>
                             </el-col>
                             <el-col :span="3.9">
-                                <el-button type="primary" icon="el-icon-mouse" size="mini" @click="openDialogMth('cmd', null)" v-if="isHidden('/assets/run-linux-cmd', permissionList)" :loading="submitLoading">执行linux命令</el-button>
+                                <el-button type="danger" icon="el-icon-mouse" size="mini" @click="openDialogMth('cmd', null)" v-if="isHidden(getRouterPath('run-linux-cmd', permissionList), permissionList)" :loading="submitLoading">批量ansible作业</el-button>
                             </el-col>
                             <!-- <el-col :span="3.9">
                                 <el-button type="primary" icon="el-icon-mouse" size="mini" @click="openDialogMth()" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">查看服务器系统日志</el-button>
@@ -186,15 +186,15 @@
                     </el-table-column>
                     <el-table-column prop="operate" label="操作" width="350">
                         <template slot-scope="scope">
-                            <el-button size="mini" type="primary" plain icon="el-icon-view" @click="openDialogMth('log', scope.row)" v-if="isHidden('/assets/view-system-log', permissionList)">查看系统日志</el-button>
-                            <el-button size="mini" icon="el-icon-edit" v-if="isHidden('/assets/update', permissionList)" @click="openEditDialog(scope.row)">编辑</el-button>
+                            <el-button size="mini" type="primary" plain icon="el-icon-view" @click="openDialogMth('log', scope.row)" v-if="isHidden(getRouterPath('view-system-log', permissionList), permissionList)">查看系统日志</el-button>
+                            <el-button size="mini" icon="el-icon-edit" v-if="isHidden(getRouterPath('assetsUpdate', permissionList), permissionList)" @click="openEditDialog(scope.row)">编辑</el-button>
                             <el-popconfirm :title="'确定删除'+scope.row.ip+'吗?'"
                                 icon="el-icon-info"
                                 icon-color="red"
                                 confirm-button-text='删除'
                                 @confirm="handleDelete(scope.row)"
                             >
-                                <el-button class="pop-btn" size="mini" type="danger" slot="reference" icon="el-icon-delete-solid" plain v-if="isHidden('/assets/del', permissionList)">删除</el-button>
+                                <el-button class="pop-btn" size="mini" type="danger" slot="reference" icon="el-icon-delete-solid" plain v-if="isHidden(getRouterPath('assetsDel', permissionList), permissionList)">删除</el-button>
                             </el-popconfirm>
                         </template>
                     </el-table-column>
@@ -215,7 +215,7 @@
             </el-card>
         </div>
         <!-- 更新记录 -->
-        <div class="section-5" v-if="isHidden('/assets/program/update/list', permissionList)">
+        <div class="section-5" v-if="isHidden(getRouterPath('updateList', permissionList), permissionList)">
             <el-card>
                 <el-divider><i class="el-icon-s-help"></i>更新记录</el-divider>
                 <!-- 状态查询 -->
@@ -350,8 +350,8 @@
                         <p class="op-name">
                             <el-row :gutter="10">
                                 <template v-for="(data, index) in ipList">
-                                    <el-col :span="1.9" :key="data.id">
-                                        <el-tag effect="plain"  type="success">{{ data.ip }}</el-tag>
+                                    <el-col :span="1.9">
+                                        <el-tag :key="data.id" effect="plain"  type="success">{{ data.ip }}</el-tag>
                                     </el-col>
                                 </template>
                             </el-row>
@@ -441,7 +441,7 @@
         <!-- 执行linux命令 -->
         <div class="create">
             <el-dialog
-                title="执行linux命令"
+                title="批量ansible作业"
                 :visible.sync="runLinuxCmdVisible"
                 :close-on-click-modal="true"
                 center
@@ -455,8 +455,8 @@
                         <p class="op-name server-op">
                             <el-row :gutter="10">
                                 <template v-for="(data, index) in ipList">
-                                    <el-col :span="1.9" :key="data.id" class="server-col">
-                                        <el-tag effect="plain"  type="success">{{ data.ip }}</el-tag>
+                                    <el-col :span="1.9"  class="server-col">
+                                        <el-tag :key="data.id" effect="plain"  type="success">{{ data.ip }}</el-tag>
                                     </el-col>
                                 </template>
                             </el-row>
@@ -704,9 +704,9 @@
 </template>
 
 <script>
-import { Message, MessageBox } from 'element-ui'
-import { mapState } from 'vuex'
-import { getAssetsList, getProcessStatus, createProgramUpdateRecord, runProgram, getUpdateList, assetsUpload, createServer, delServer, editServer, ProgramAdd, getProgramList } from '../../api'
+import { Message, MessageBox } from 'element-ui';
+import { mapState } from 'vuex';
+import { getAssetsList, getProcessStatus, createProgramUpdateRecord, runProgram, getUpdateList, assetsUpload, createServer, delServer, editServer, ProgramAdd, getProgramList } from '../../api';
 import { v4 as uuidv4 } from 'uuid';
 import CryptoJS from 'crypto-js';
 import baseUrl from "../../utils/baseUrl";
@@ -714,6 +714,8 @@ import wssUrl from "../../utils/wssUrl";
 import 'vue-draggable-resizable/dist/VueDraggableResizable.css';
 import SparkMD5 from 'spark-md5';
 import md5 from 'blueimp-md5';
+import { isHidden, getRouterPath } from '@/utils/utils';
+
 // import draggable from 'vuedraggable'
 // import { VueDraggableResizable } from 'vue-draggable-resizable'
 
@@ -968,6 +970,8 @@ export default {
         // VueDraggableResizable
     },
     methods: {
+        isHidden, 
+        getRouterPath,
         getRouterPathMth(name, routes) {
             // console.log(this.permissionList);
             for (const route of routes) {
@@ -997,6 +1001,7 @@ export default {
         },
         stopWsOutputMth() {
             this.outputWs.close();
+            this.outputWs = null;
         },
         formatDateStringMth(dateString) {
             // 定义月份的缩写
@@ -1004,10 +1009,18 @@ export default {
                 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
             ];
+            
+            // 拆分日期字符串
             const [month, day] = dateString.split('-');
+            
+            // 解析月份和日期
             const monthIndex = parseInt(month, 10) - 1;
+            const dayWithoutLeadingZero = parseInt(day, 10); // 去掉前导 0
+            
+            // 获取缩写的月份名
             const monthName = monthNames[monthIndex];
-            return `${monthName} ${day}`;
+            
+            return `${monthName} \\+${dayWithoutLeadingZero}`;
         },
         filterSystemLogMth() {
             this.getLinuxCmdOutputLoading = true;
@@ -1771,21 +1784,21 @@ export default {
             }, this.refreshAssetsStatusInterval);
         },
         callMethod() {},
-        isHidden(path, routers=[]) {
-            if (routers !== null){
-                for (var i=0; i<routers.length; i++) {
-                    if (routers[i].path === path) {
-                        return  routers[i].hidden;
-                    }
-                    if (routers[i].children != undefined && routers[i].children.length > 0) {
-                        let hidden = this.isHidden(path, routers[i].children);
-                        if (hidden) {
-                            return  hidden
-                        }
-                    }
-                }
-            }
-        },
+        // isHidden(path, routers=[]) {
+        //     if (routers !== null){
+        //         for (var i=0; i<routers.length; i++) {
+        //             if (routers[i].path === path) {
+        //                 return  routers[i].hidden;
+        //             }
+        //             if (routers[i].children != undefined && routers[i].children.length > 0) {
+        //                 let hidden = this.isHidden(path, routers[i].children);
+        //                 if (hidden) {
+        //                     return  hidden
+        //                 }
+        //             }
+        //         }
+        //     }
+        // },
     },
     mounted () {
         this.getUpdateList("page", '', 200);

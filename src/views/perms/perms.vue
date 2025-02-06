@@ -4,7 +4,7 @@
             <div class="operate">
                 <el-row :gutter="10">
                     <el-col :span="2.5">
-                        <el-button size="small" type="primary" icon="el-icon-document-add" @click="clearData" v-if="isHidden('/perms/create', permissionList)">创建菜单</el-button>
+                        <el-button size="small" type="primary" icon="el-icon-document-add" @click="clearData" v-if="isHidden(getRouterPath('permsCreate', permissionList), permissionList)">创建菜单</el-button>
                     </el-col>
                     <el-col :span="1.9">
                         <el-popconfirm :title="'确定删除id为【 '+multipleSelection.map(item=>item.ID)+' 】吗?'"
@@ -14,7 +14,7 @@
                                 @confirm="handleMutilDelete()"
                                 ref="fs"
                             >
-                            <el-button v-if="isHidden('/perms/delete', permissionList)" size="small" type="danger" slot="reference" :loading="delLoad" icon="el-icon-delete-solid" @click="permsCheck()" >删除</el-button>
+                            <el-button v-if="isHidden(getRouterPath('permsDel', permissionList), permissionList)" size="small" type="danger" slot="reference" :loading="delLoad" icon="el-icon-delete-solid" @click="permsCheck()" >删除</el-button>
                         </el-popconfirm>
                     </el-col>
                 </el-row>
@@ -86,9 +86,10 @@
 </template>
 
 <script>
-import { Message } from 'element-ui'
-import { getPermsList, createPerms, delPerms } from '../../api'
-import { mapState } from 'vuex'
+import { Message } from 'element-ui';
+import { getPermsList, createPerms, delPerms } from '../../api';
+import { mapState } from 'vuex';
+import { isHidden, getRouterPath } from '@/utils/utils';
 
 export default {
     name:"permsList",
@@ -195,6 +196,8 @@ export default {
         })
     },
     methods:{
+        isHidden, 
+        getRouterPath,
         tableRowClick(row, column, event) {
             this.$refs.multipleTable.toggleRowSelection(row);
         },
@@ -292,21 +295,21 @@ export default {
             this.ruleForm.title = "";
             this.ruleForm.level = "";
         },
-        isHidden(path, routers=[]) {
-            if (routers !== null){
-                for (var i=0; i<routers.length; i++) {
-                if (routers[i].path === path) {
-                    return  routers[i].hidden;
-                }
-                if (routers[i].children != undefined && routers[i].children.length > 0) {
-                    let hidden = this.isHidden(path, routers[i].children);
-                    if (hidden) {
-                        return  hidden
-                    }
-                }
-                }
-            }
-        },
+        // isHidden(path, routers=[]) {
+        //     if (routers !== null){
+        //         for (var i=0; i<routers.length; i++) {
+        //         if (routers[i].path === path) {
+        //             return  routers[i].hidden;
+        //         }
+        //         if (routers[i].children != undefined && routers[i].children.length > 0) {
+        //             let hidden = this.isHidden(path, routers[i].children);
+        //             if (hidden) {
+        //                 return  hidden
+        //             }
+        //         }
+        //         }
+        //     }
+        // },
     },
     mounted () {
         this.PermsList();
