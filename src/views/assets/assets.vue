@@ -875,7 +875,6 @@
                             </el-row>
                         </div> -->
                         <div class="format-code format-code-terminal">
-                            <!-- <div id="terminal"></div> -->
                             <terminal v-if="frameVisible" :ws-url="wsUrl"></terminal>
                         </div>
                     </el-card>
@@ -1352,14 +1351,8 @@ export default {
                 this.openEditDialog(data);
                 
             } else if (name === "add-assets") {
-                // this.setDataStroage(this.cmdIPListKey, [data]);
-                // this.ipList = this.getDataStroage(this.cmdIPListKey);
                 this.createVisible = true;
-            
             }
-            
-            // this.setDataStroage(this.cmdIPListKey, this.multipleSelection);
-            
         },
         updateRealTimeRefreshMth() {
             this.realTimeInterval = setInterval(() => {
