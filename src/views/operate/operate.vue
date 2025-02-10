@@ -39,10 +39,10 @@
                     >
                     <el-table-column prop="ID" label="id"></el-table-column>
                     <el-table-column prop="operator" label="operator" ></el-table-column>
-                    <el-table-column prop="ip" label="ip" ></el-table-column>
-                    <el-table-column prop="url" label="url" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="ip" label="remoteIP" ></el-table-column>
+                    <el-table-column prop="url" label="event" show-overflow-tooltip></el-table-column>
                     <!-- <el-table-column prop="CreatedAt" label="visit_time" ></el-table-column> -->
-                    <el-table-column prop="CreatedAt" label="visit_time" >
+                    <el-table-column prop="CreatedAt" label="event_time" >
                         <template slot-scope="scope">
                             <el-tag size="small" type="success">{{ scope.row.CreatedAt | formatDate}}</el-tag>
                         </template>

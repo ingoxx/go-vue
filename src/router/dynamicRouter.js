@@ -300,6 +300,18 @@ const dynamicRoutes = [
             meta: { name: '批量ansible作业'},
             hidden: false,
           },
+          {
+            path:'/assets/terminal',
+            name: 'web-terminal',
+            meta: { name: '连接终端'},
+            hidden: false,
+          },
+          {
+            path:'/assets/terminal2',
+            name: 'web-terminal2',
+            meta: { name: '连接终端2'},
+            hidden: false,
+          },
         ],
       },
     ],

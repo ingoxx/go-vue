@@ -38,3 +38,4 @@ export const getUpdateList = (params) => get("/assets/program/update/list?user="
 export const getLoginNum = (params) => get("/log/get-login-num?user="+ sessionStorage.getItem("user") +"&token="+ sessionStorage.getItem("token"), params);
 export const getRunLinuxCmdNum = (params) => get("/log/get-run-linux-cmd-num?user="+ sessionStorage.getItem("user") +"&token="+ sessionStorage.getItem("token"), params);
 export const getUserLoginNum = (params) => get("/log/get-user-login-num?user="+ sessionStorage.getItem("user") +"&token="+ sessionStorage.getItem("token"), params);
+export const webTerminal = (params) => get("/assets/terminal?user="+ sessionStorage.getItem("user") +"&token="+ sessionStorage.getItem("token"), params);

@@ -77,7 +77,7 @@
                             </el-select>
                         </el-col>
                         <el-col :span="3.9">
-                            <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openCreateDialog()" v-if="isHidden(getRouterPath('assetsAdd', permissionList), permissionList)">新建服务器</el-button>
+                            <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openDialogMth('add-assets', null)" v-if="isHidden(getRouterPath('assetsAdd', permissionList), permissionList)">新建服务器</el-button>
                         </el-col>
                         <!-- <el-col :span="3.9">
                             <el-button type="primary" icon="el-icon-mouse" size="mini" @click="runProcess('mul', '')" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">更新程序</el-button>
@@ -93,7 +93,7 @@
                     <div class="linux-op">
                         <el-row :gutter=10>
                             <el-col :span="3.9">
-                                <el-button type="danger" icon="el-icon-mouse" size="mini" @click="runProcess('mul', '')" v-if="isHidden(getRouterPath('updateProgram', permissionList), permissionList)" :loading="submitLoading">批量更新程序</el-button>
+                                <el-button type="danger" icon="el-icon-mouse" size="mini" @click="runProcess('mul', null)" v-if="isHidden(getRouterPath('updateProgram', permissionList), permissionList)" :loading="submitLoading">批量更新程序</el-button>
                             </el-col>
                             <el-col :span="3.9">
                                 <el-button type="danger" icon="el-icon-mouse" size="mini" @click="openDialogMth('cmd', null)" v-if="isHidden(getRouterPath('run-linux-cmd', permissionList), permissionList)" :loading="submitLoading">批量ansible作业</el-button>
@@ -184,10 +184,11 @@
                             <span style="margin-left: 10px">{{ scope.row.start | formatDate }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="operate" label="操作" width="350">
+                    <el-table-column prop="operate" label="操作" width="450">
                         <template slot-scope="scope">
+                            <el-button size="mini" type="warning" plain icon="el-icon-connection" @click="openDialogMth('term2', scope.row)" v-if="isHidden(getRouterPath('web-terminal', permissionList), permissionList)">终端连接</el-button>
                             <el-button size="mini" type="primary" plain icon="el-icon-view" @click="openDialogMth('log', scope.row)" v-if="isHidden(getRouterPath('view-system-log', permissionList), permissionList)">查看系统日志</el-button>
-                            <el-button size="mini" icon="el-icon-edit" v-if="isHidden(getRouterPath('assetsUpdate', permissionList), permissionList)" @click="openEditDialog(scope.row)">编辑</el-button>
+                            <el-button size="mini" icon="el-icon-edit" v-if="isHidden(getRouterPath('assetsUpdate', permissionList), permissionList)" @click="openDialogMth('update-assets', scope.row)">编辑</el-button>
                             <el-popconfirm :title="'确定删除'+scope.row.ip+'吗?'"
                                 icon="el-icon-info"
                                 icon-color="red"
@@ -516,7 +517,8 @@
                 :visible.sync="createVisible"
                 :close-on-click-modal="false"
                 center
-                width="600px" 
+                width="600px"
+                :destroy-on-close="true" 
                 v-draggable
                 >
                 <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm fix-form-css">
@@ -524,7 +526,39 @@
                         <el-input  type="text" v-model="ruleForm.project" autocomplete="off" clearable></el-input>
                     </el-form-item>
                     <el-form-item label="ip" prop="ip">
-                        <el-input type="textarea" :rows="10" v-model="ruleForm.ip" autocomplete="off" placeholder="批量添加ip, 请换行输入" clearable></el-input>
+                        <el-input  type="text" v-model="ruleForm.ip" autocomplete="off" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="用户名" prop="user">
+                        <el-input  type="text" v-model="ruleForm.user" autocomplete="off" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="密码" prop="password">
+                        <el-input  type="password" v-model="ruleForm.password" autocomplete="off" show-password clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="秘钥" prop="key">
+                        <div class="upload key">
+                            <el-row :gutter="10">
+                                <el-upload
+                                    class="upload-demo"
+                                    ref="upload"
+                                    :action="uploadUrl()"
+                                    :on-preview="handlePreview"
+                                    :on-remove="handleRemove"
+                                    :limit="10"
+                                    :on-success="handleSuccess"
+                                    :on-change="handleChange"
+                                    :on-error="handleError"
+                                    :on-exceed="handleExceed"
+                                    :file-list="keyFiles"
+                                    :before-upload="fileList"
+                                    multiple
+                                    :auto-upload="false">
+                                    <el-button slot="trigger" size="mini" type="info" icon="el-icon-s-finance">选取文件</el-button>
+                                </el-upload>
+                            </el-row>
+                        </div>
+                    </el-form-item>
+                    <el-form-item label="端口" prop="port">
+                        <el-input  type="text" v-model="ruleForm.port" autocomplete="off" clearable></el-input>
                     </el-form-item>
                 </el-form>
                 <span slot="footer" class="dialog-footer">
@@ -533,17 +567,17 @@
                                     icon="el-icon-info"
                                     icon-color="red"
                                     confirm-button-text='确定'
-                                    @confirm="submitForm('ruleForm', createServer)"
+                                    @confirm="submitForm('ruleForm', createServerMth)"
                                 >
                         <el-button type="primary" :loading="createLoad" slot="reference">确 定</el-button>
                     </el-popconfirm>
                 </span>
             </el-dialog>
         </div>
-        <!-- 修改服务器 -->
+        <!-- 更新服务器 -->
         <div class="edit">
             <el-dialog
-                title="修改服务器"
+                title="更新服务器"
                 :close-on-click-modal="false"
                 :visible.sync="editVisible"
                 center
@@ -558,7 +592,39 @@
                         <el-input  type="text" v-model="ruleForm.project" autocomplete="off" clearable></el-input>
                     </el-form-item>
                     <el-form-item label="ip" prop="ip">
-                        <el-input :rows="10" v-model="ruleForm.ip" autocomplete="off" placeholder="批量添加ip, 请换行输入" clearable></el-input>
+                        <el-input  type="text" v-model="ruleForm.ip" autocomplete="off" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="用户名" prop="user">
+                        <el-input  type="text" v-model="ruleForm.user" autocomplete="off" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="密码" prop="password">
+                        <el-input  type="password" v-model="ruleForm.password" autocomplete="off" clearable show-password></el-input>
+                    </el-form-item>
+                    <el-form-item label="秘钥" prop="key">
+                        <div class="upload key">
+                            <el-row :gutter="10">
+                                <el-upload
+                                class="upload-demo"
+                                    ref="upload"
+                                    :action="uploadUrl()"
+                                    :on-preview="handlePreview"
+                                    :on-remove="handleRemove"
+                                    :limit="10"
+                                    :on-success="handleSuccess"
+                                    :on-change="handleChange"
+                                    :on-error="handleError"
+                                    :on-exceed="handleExceed"
+                                    :file-list="keyFiles"
+                                    :before-upload="fileList"
+                                    multiple
+                                    :auto-upload="false">
+                                    <el-button slot="trigger" size="mini" type="info" icon="el-icon-s-finance">选取文件</el-button>
+                                </el-upload>
+                            </el-row>
+                        </div>
+                    </el-form-item>
+                    <el-form-item label="端口" prop="port">
+                        <el-input  type="text" v-model="ruleForm.port" autocomplete="off" clearable></el-input>
                     </el-form-item>
                 </el-form>
                 <span slot="footer" class="dialog-footer">
@@ -567,7 +633,7 @@
                                     icon="el-icon-info"
                                     icon-color="red"
                                     confirm-button-text='确定'
-                                    @confirm="submitForm('ruleForm', editServer)"
+                                    @confirm="submitForm('ruleForm', editServerMth)"
                                 >
                         <el-button type="primary" :loading="editLoad" slot="reference">确 定</el-button>
                     </el-popconfirm>
@@ -700,13 +766,129 @@
                 </div>
                 </el-dialog>
         </div>
+        <!-- 连接终端 -->
+        <div class="result">
+            <el-dialog
+                title="linux终端"
+                :visible.sync="terminalVisible"
+                v-draggable
+                :close-on-click-modal="false"
+                width="800px"
+                :before-close="beforeCloseDiaMth"
+                @opened="changeFrameCssMth"
+                center
+                >
+                <div class="result-title run-linux-cmd-title">
+                    <el-card>
+                        <el-divider><strong><i class="el-icon-platform-eleme"></i>已选择的服务器</strong></el-divider>
+                        <p class="op-name">
+                            <el-row :gutter="10">
+                                <template v-for="(data, index) in ipList">
+                                    <el-col :span="1.9">
+                                        <el-tag :key="data.id" effect="plain"  type="success">{{ data.project }}</el-tag>
+                                    </el-col>
+                                    <el-col :span="1.9">
+                                        <el-tag :key="data.id" effect="plain"  type="success">{{ data.ip }}</el-tag>
+                                    </el-col>
+                                </template>
+                            </el-row>
+                        </p>
+                    </el-card>
+                </div>
+                <div class="result-data">
+                    <el-card v-loading="terminalLoading"
+                            element-loading-text="正在拼命连接中..."
+                            element-loading-spinner="el-icon-loading">
+                        <el-divider><strong><i class="el-icon-platform-eleme"></i>终端</strong></el-divider>
+                        <div class="copy">
+                            <el-row :gutter="10">
+                                <el-col :span="1.9">
+                                    <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">复制</el-button>
+                                </el-col>
+                                <el-col :span="1.9">
+                                    <el-button type="success" size="mini" plain @click="clearOutputMth()" icon="el-icon-copy-document">清空</el-button>
+                                </el-col>
+                            </el-row>
+                            <!-- <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">复制</el-button> -->
+                        </div>
+                        <div class="format-code format-code-terminal">
+                            <!-- <pre><code>{{ content.join('') }}</code></pre> -->
+                            <iframe 
+                                ref="myIframe"
+                                v-if="frameVisible"
+                                :key="iframeKey"
+                                :src="terminalUrl" 
+                                frameborder="0"
+                                @load="onIframeLoadMth"
+                                title="iframe"
+                                class="terminal-web"
+                                >
+                            </iframe>
+                        </div>
+                    </el-card>
+                </div>
+                </el-dialog>
+        </div>
+        <!-- 连接终端2222 -->
+        <div class="result">
+            <el-dialog
+                title="linux终端"
+                :visible.sync="terminal2Visible"
+                v-draggable
+                :close-on-click-modal="false"
+                width="800px"
+                :before-close="beforeCloseDiaMth"
+                @opened="changeFrameCssMth"
+                center
+                :destroy-on-close="true"
+                >
+                <div class="result-title run-linux-cmd-title">
+                    <el-card>
+                        <el-divider><strong><i class="el-icon-platform-eleme"></i>已选择的服务器</strong></el-divider>
+                        <p class="op-name">
+                            <el-row :gutter="10">
+                                <template v-for="(data, index) in ipList">
+                                    <el-col :span="1.9">
+                                        <el-tag :key="data.id" effect="plain"  type="success">{{ data.project }}</el-tag>
+                                    </el-col>
+                                    <el-col :span="1.9">
+                                        <el-tag :key="data.id" effect="plain"  type="success">{{ data.ip }}</el-tag>
+                                    </el-col>
+                                </template>
+                            </el-row>
+                        </p>
+                    </el-card>
+                </div>
+                <div class="result-data">
+                    <el-card v-loading="terminalLoading"
+                            element-loading-text="正在拼命连接中..."
+                            element-loading-spinner="el-icon-loading">
+                        <el-divider><strong><i class="el-icon-platform-eleme"></i>终端</strong></el-divider>
+                        <!-- <div class="copy">
+                            <el-row :gutter="10">
+                                <el-col :span="1.9">
+                                    <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">复制</el-button>
+                                </el-col>
+                                <el-col :span="1.9">
+                                    <el-button type="success" size="mini" plain @click="clearOutputMth()" icon="el-icon-copy-document">清空</el-button>
+                                </el-col>
+                            </el-row>
+                        </div> -->
+                        <div class="format-code format-code-terminal">
+                            <!-- <div id="terminal"></div> -->
+                            <terminal v-if="frameVisible" :ws-url="wsUrl"></terminal>
+                        </div>
+                    </el-card>
+                </div>
+                </el-dialog>
+        </div>
     </div>
 </template>
 
 <script>
 import { Message, MessageBox } from 'element-ui';
 import { mapState } from 'vuex';
-import { getAssetsList, getProcessStatus, createProgramUpdateRecord, runProgram, getUpdateList, assetsUpload, createServer, delServer, editServer, ProgramAdd, getProgramList } from '../../api';
+import { getAssetsList, getProcessStatus, createProgramUpdateRecord, runProgram, getUpdateList, assetsUpload, createServer, delServer, editServer, ProgramAdd, getProgramList, webTerminal } from '../../api';
 import { v4 as uuidv4 } from 'uuid';
 import CryptoJS from 'crypto-js';
 import baseUrl from "../../utils/baseUrl";
@@ -715,6 +897,9 @@ import 'vue-draggable-resizable/dist/VueDraggableResizable.css';
 import SparkMD5 from 'spark-md5';
 import md5 from 'blueimp-md5';
 import { isHidden, getRouterPath } from '@/utils/utils';
+import { Terminal } from "xterm";
+import  terminal  from '../assets/terminal'
+import "xterm/css/xterm.css";
 
 // import draggable from 'vuedraggable'
 // import { VueDraggableResizable } from 'vue-draggable-resizable'
@@ -792,6 +977,17 @@ export default {
         var validateip = (rule, value, callback) => {
             if (!value) {
                 callback(new Error('请输入ip'));
+            }
+            const regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            if (!regex.test(value)) {
+                callback(new Error('ip格式错误'));
+            }  else {
+                callback();
+            }
+        };
+        var validateuser = (rule, value, callback) => {
+            if (!value) {
+                callback(new Error('请输入用户名'));
             } else {
                 callback();
             }
@@ -830,6 +1026,16 @@ export default {
             }
         };
         return {
+            keyFiles: [],
+            wsUrl: "",
+            termWs: null,
+            term: null,
+            terminal2Visible: false,
+            frameVisible: false,
+            iframeKey: 0,
+            terminalUrl: "",
+            terminalLoading: false,
+            terminalVisible: false,
             loopAssetsListSetInterval: null,
             setDialogWth: "500px",
             outputWs: null,
@@ -838,7 +1044,7 @@ export default {
             logSelected: "/var/log/auth.log",
             systemLogVisible: false,
             cmdIPListKey: "cmd-ip-list",
-            refreshAssetsStatusInterval: 30000,
+            refreshAssetsStatusInterval: 3600000,
             ipList: [],
             getLinuxCmdOutputLoading: false,
             runLinuxCmdlogLoading: false,
@@ -907,6 +1113,11 @@ export default {
             ruleForm: {
                 project:'',
                 ip:'',
+                user: '',
+                password: '',
+                key: '',
+                port: 22,
+                key: '',
                 cnname: '',
                 enname: '',
                 path: '',
@@ -918,6 +1129,9 @@ export default {
                 ],
                 ip: [
                     { validator: validateip, trigger: 'blur' }
+                ],
+                user: [
+                    { validator: validateuser, trigger: 'blur' }
                 ],
                 cnname: [
                     { validator: validateOpCNName, trigger: 'blur' }
@@ -968,10 +1182,46 @@ export default {
     },
     components: {
         // VueDraggableResizable
+        terminal,
     },
     methods: {
         isHidden, 
         getRouterPath,
+        changeFrameCssMth() {
+            const iframe = this.$refs.myIframe;
+            iframe.onload = () => {
+                console.log("✅ iframe 已加载完成！");
+            };
+        },
+        createTerminalMth(){
+            
+        },
+        onIframeLoadMth() {
+            window.focus(); // 确保焦点回到父页面
+        },
+        resetIframe() {
+            this.iframeKey++; // 重新渲染 iframe，防止缓存
+        },
+        restoreFocusMth() {
+            this.$nextTick(() => {
+                document.body.focus();
+            });
+        },
+        beforeCloseDiaMth(done) {
+            this.frameVisible = false;
+            done();
+            this.$nextTick(() => {
+                document.body.focus();
+            });
+            // window.focus();
+        },
+        webTerminalMth() {
+            if (this.ipList.length == 0) {
+                return Message.error("请选择服务器");
+            }
+            let id = this.ipList[0].id;
+            return `${baseUrl}${this.getRouterPath('web-terminal', this.permissionList)}?server_id=${id}&user=${sessionStorage.getItem("user")}&token=${sessionStorage.getItem("token")}`;
+        },
         getRouterPathMth(name, routes) {
             // console.log(this.permissionList);
             for (const route of routes) {
@@ -1071,7 +1321,6 @@ export default {
         openDialogMth(name, data) {
             this.content = [];
             var ipList = [];
-    
             if (name === "cmd") {
                 if (this.multipleSelection.length === 0) {
                     return Message.error("请选择服务器");
@@ -1083,6 +1332,30 @@ export default {
                 this.setDataStroage(this.cmdIPListKey, [data]);
                 this.ipList = this.getDataStroage(this.cmdIPListKey);
                 this.systemLogVisible = true;
+            } else if (name === "term") {
+                this.setDataStroage(this.cmdIPListKey, [data]);
+                this.ipList = this.getDataStroage(this.cmdIPListKey);
+                this.terminalVisible = true;
+                this.frameVisible = true;
+                this.terminalUrl = this.webTerminalMth();
+            } else if (name === "term2") {
+                this.setDataStroage(this.cmdIPListKey, [data]);
+                this.ipList = this.getDataStroage(this.cmdIPListKey);
+                this.frameVisible = true;
+                this.terminal2Visible = true;
+                let ip = this.ipList[0].ip;
+                this.wsUrl = `${wssUrl}${this.getRouterPath('web-terminal', this.permissionList)}?ip=${ip}&user=${sessionStorage.getItem("user")}&token=${sessionStorage.getItem("token")}`
+            } else if (name === "update-assets") {
+                this.setDataStroage(this.cmdIPListKey, [data]);
+                this.ipList = this.getDataStroage(this.cmdIPListKey);
+                this.editVisible = true;
+                this.openEditDialog(data);
+                
+            } else if (name === "add-assets") {
+                // this.setDataStroage(this.cmdIPListKey, [data]);
+                // this.ipList = this.getDataStroage(this.cmdIPListKey);
+                this.createVisible = true;
+            
             }
             
             // this.setDataStroage(this.cmdIPListKey, this.multipleSelection);
@@ -1188,7 +1461,7 @@ export default {
                 }
             });
         },
-        async delServer(action, row) {
+        async delServerMth(action, row) {
             let data = "";
             switch (action) {
                 case 'multi':
@@ -1198,6 +1471,7 @@ export default {
                     data = JSON.stringify({ip: this.multipleSelection.map(item => item.ip)});
                     break
                 case 'sig':
+                    this.tableLoad = true;
                     let dl  = [];
                     dl.push(row.ip)
                     data = JSON.stringify({ips: dl});
@@ -1206,62 +1480,94 @@ export default {
 
             const resp = await delServer(data, this.callMethod)
             if (resp.data.code !== 10000) {
-                Message.error(resp.data.message)
+                Message.error(resp.data.message);
             } else {
                 this.getAssetsList("page");
                 Message.success(resp.data.message)
             }
+            this.this.tableLoad = false;
         },
-        async createServer() {
-            this.createLoad = true;
-            let data = [];
-            const regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-            data = this.ruleForm.ip.split("\n").filter(ip => {
-                return regex.test(ip);
-            });
-
-            if (data.length===0) {
-                return Message.error("格式错误, 只接收ip格式参数")
+        async createServerMth() {
+            if (this.$refs.upload.uploadFiles.length === 0 && this.ruleForm.password == "") {
+                return Message.error('服务器密码或者密钥不能为空, 请选择其中一个');
             }
 
-            let params = JSON.stringify({project: this.ruleForm.project, ip: data});
+            if (this.$refs.upload.uploadFiles.length != 0 && this.ruleForm.password != "") {
+                return Message.error('服务器密码或者密钥不能同时选择, 请选择其中一个');
+            }
 
-            const resp = await createServer(params, this.callMethod);
+            let formData = new FormData();
+            formData.append('project', this.ruleForm.project);
+            formData.append('operator', sessionStorage.getItem('user'));
+            formData.append('ip', this.ruleForm.ip);
+            formData.append('user', this.ruleForm.user);
+            formData.append('password', this.ruleForm.password);
+            formData.append('port', this.ruleForm.port);
+            if (this.$refs.upload.uploadFiles.length === 0) {
+                formData.append('connect_type', 1); // 密码登陆
+            } else { // key登陆
+                let file = this.fileList[0];
+                formData.append('file', file.raw);
+                formData.append('connect_type', 2);
+            }
+            
+            // 操作
+            this.createLoad = true;
+            const resp = await createServer(formData, this.callMethod);
             if (resp.data.code !== 10000) {
                 Message.error(resp.data.message)
             } else {
                 this.getAssetsList("page");
                 Message.success(resp.data.message)
             }
-
+            this.fileList = [];
             this.createLoad = false;
+        },
+        async editServerMth() {
+            if (this.$refs.upload.uploadFiles.length === 0 && this.ruleForm.password == "") {
+                return Message.error('服务器密码或者密钥不能为空, 请选择其中一个');
+            }
+
+            if (this.$refs.upload.uploadFiles.length != 0 && this.ruleForm.password != "") {
+                return Message.error('服务器密码或者密钥不能同时选择, 请选择其中一个');
+            }
+
+            let formData = new FormData();
+            formData.append('id', this.selectId);
+            formData.append('project', this.ruleForm.project);
+            formData.append('operator', sessionStorage.getItem('user'));
+            formData.append('ip', this.ruleForm.ip);
+            formData.append('user', this.ruleForm.user);
+            formData.append('password', this.ruleForm.password);
+            formData.append('port', this.ruleForm.port);
+            if (this.$refs.upload.uploadFiles.length === 0) {
+                formData.append('connect_type', 1); // 密码登陆
+            } else { // key登陆
+                let file = this.fileList[0];
+                formData.append('file', file.raw);
+                formData.append('connect_type', 2);
+            }
+            
+            // 操作
+            this.editLoad = true;
+            const resp = await editServer(formData, this.callMethod);
+            if (resp.data.code !== 10000) {
+                Message.error(resp.data.message)
+            } else {
+                this.getAssetsList("page");
+                Message.success(resp.data.message)
+            }
+            
+            this.fileList = [];
+            this.editLoad = false;
         },
         openCreateDialog() {
             this.ruleForm.project = "";
             this.ruleForm.ip = "";
             this.createVisible = true;
         },
-        async editServer() {
-            this.editLoad = true;
-            const regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-            if (!regex.test(this.ruleForm.ip)) {
-                return Message.error("格式错误, 只接收ip格式参数")
-            }
-
-            let params = {project: this.ruleForm.project, ip: this.ruleForm.ip, id: this.selectId};
-
-            const resp = await editServer(params, this.callMethod);
-            if (resp.data.code !== 10000) {
-                Message.error(resp.data.message)
-            } else {
-                this.getAssetsList("page");
-                Message.success(resp.data.message)
-            }
-
-            this.editLoad = false;
-        },
         openEditDialog(row) {
-            this.editVisible = true;
+            // this.editVisible = true;
             this.selectId = row.id;
             this.ruleForm.project = row.project;
             this.ruleForm.ip = row.ip;
@@ -1674,7 +1980,7 @@ export default {
             this.tableLoad2 = false;
         },
         handleDelete (data) {
-            this.delServer('sig', data);
+            this.delServerMth('sig', data);
         },
         handleSelectionChange(val) {
             this.multipleSelection = val;
@@ -1784,23 +2090,9 @@ export default {
             }, this.refreshAssetsStatusInterval);
         },
         callMethod() {},
-        // isHidden(path, routers=[]) {
-        //     if (routers !== null){
-        //         for (var i=0; i<routers.length; i++) {
-        //             if (routers[i].path === path) {
-        //                 return  routers[i].hidden;
-        //             }
-        //             if (routers[i].children != undefined && routers[i].children.length > 0) {
-        //                 let hidden = this.isHidden(path, routers[i].children);
-        //                 if (hidden) {
-        //                     return  hidden
-        //                 }
-        //             }
-        //         }
-        //     }
-        // },
     },
     mounted () {
+        // this.terminal2Visible = true;
         this.getUpdateList("page", '', 200);
         this.getAssetsList("page");
         this.loopGetAssetsList();
@@ -1808,13 +2100,8 @@ export default {
         this.updateRealTimeRefreshMth();
         this.getCurrentWindowsResizeMth();
         this.listenWindowsResizeMth();
+        this.createTerminalMth();
     },
-    // destroyed() {
-    //     clearInterval(this.loopAssetsListSetInterval);
-    //     if (this.loopAssetsListSetInterval) {
-    //         this.loopAssetsListSetInterval = null;
-    //     }
-    // },
     filters: {
         formatDate(date) {
             var d = date ? new Date(date) : new Date();
@@ -1890,6 +2177,11 @@ export default {
     margin-top: 10px;
     white-space: pre-wrap;
     border-radius: 3px;
+}
+.format-code-terminal {
+    overflow: hidden;
+    background-color: #000000;
+    padding: 0;
 }
 .c1 {
     padding-top: 5px;
@@ -2015,6 +2307,30 @@ export default {
 }
 .el-col-111 {
     padding-top: 10px;
+}
+.terminal-web {
+    height: 100%;
+    width: 100%;
+}
+.xterm .xterm-viewport::-webkit-scrollbar {
+  width: 10px!important; /* 设置滚动条宽度 */
+}
+
+.xterm .xterm-viewport::-webkit-scrollbar-track {
+  background-color: #f3f3f4!important; /* 设置滚动条背景颜色 */
+}
+
+.xterm .xterm-viewport::-webkit-scrollbar-thumb {
+  background-color: #cecece!important; /* 设置滚动条滑块颜色 */
+  border-radius: 5px!important; /* 设置滑块的圆角 */
+}
+
+.xterm .xterm-viewport::-webkit-scrollbar-thumb:hover {
+  background-color: #bdbdbd!important; /* 设置滚动条滑块悬停时的颜色 */
+}
+.key {
+    margin: 0;
+    margin-left: 5px;
 }
 </style>
 
