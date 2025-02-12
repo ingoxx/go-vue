@@ -344,6 +344,7 @@
                 @close="clearIplistMth"
                 v-draggable
                 :width="setDialogWth"
+                :destroy-on-close="true"
                 >
                 <div class="result-title run-linux-cmd-title">
                     <el-card>
@@ -387,8 +388,8 @@
                                         type="daterange"
                                         start-placeholder="开始日期"
                                         end-placeholder="结束日期"
-                                        format="MM 月 dd 日"
-                                        value-format="MM-dd">
+                                        format="yyyy 年 MM 月 dd 日"
+                                        value-format="yyyy-MM-dd">
                                     </el-date-picker>
                                 </el-col>
                                 <el-col :span="3.9" class="el-col-111">
@@ -439,7 +440,7 @@
                 </div>
             </el-dialog>
         </div>
-        <!-- 执行linux命令 -->
+        <!-- ansible作业 -->
         <div class="create">
             <el-dialog
                 title="批量ansible作业"
@@ -470,18 +471,18 @@
                         <div class="run-linux-cmd-input">
                             <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm fix-form-css">
                                 <el-form-item prop="cmd">
-                                    <el-input type="textarea" :rows="10" v-model="ruleForm.cmd" autocomplete="off" placeholder="请输入linux命令如:df -h" clearable></el-input>
+                                    <el-input type="textarea" :rows="5" v-model="ruleForm.cmd" autocomplete="off" placeholder="请输入linux命令如:df -h" clearable></el-input>
                                 </el-form-item>
                             </el-form>
                             <span slot="footer" class="dialog-footer run-linux-cmd-footer">
-                                <el-button @click="resetForm('ruleForm')" size="small">清空</el-button>
+                                <el-button @click="resetForm('ruleForm')" size="small" icon="el-icon-delete-solid">清空</el-button>
                                 <el-popconfirm :title="'确定执行吗?'"
                                                 icon="el-icon-info"
                                                 icon-color="red"
                                                 confirm-button-text='确定'
                                                 @confirm="submitForm('ruleForm', runLinuxCmdMth)"
                                             >
-                                    <el-button type="primary" :loading="runLinuxCmdlogLoading" size="small" slot="reference">确 定</el-button>
+                                    <el-button type="danger" :loading="runLinuxCmdlogLoading" size="small" slot="reference" icon="el-icon-mouse">确 定</el-button>
                                 </el-popconfirm>
                             </span>
                         </div>
@@ -1040,7 +1041,7 @@ export default {
             outputWs: null,
             logFilterText: "",
             logDate: "",
-            logSelected: "/var/log/auth.log",
+            logSelected: "",
             systemLogVisible: false,
             cmdIPListKey: "cmd-ip-list",
             refreshAssetsStatusInterval: 3600000,
@@ -1146,12 +1147,12 @@ export default {
                 ],
             },
             systemLogList: [
-                {id: 1, log: "/var/log/cron", label: "cron日志", desc: "如果系统中有定时任务需要检查，或者任务执行失败时，查看该日志文件"},
-                {id: 2, log: "/var/log/syslog", label: "syslog日志", desc: "包含系统中几乎所有的日志信息，包括启动过程、应用程序日志和其他系统事件"},
-                {id: 3, log: "/var/log/auth.log", label: "auth日志", desc: "对于用户行为审计和安全分析至关重要"},
-                {id: 4, log: "/var/log/kern.log", label: "kern日志", desc: "对于内核崩溃、硬件故障及与内核相关的问题，kern.log 是诊断的关键"},
-                {id: 5, log: "/var/log/secure", label: "secure日志", desc: "对于用户行为审计和安全分析至关重要"},
-                {id: 6, log: "/var/log/boot.log", label: "boot日志", desc:"用于分析系统启动过程中出现的问题，检查启动过程中某些服务是否没有成功启动"},
+                {id: 1, log: "cron", label: "cron日志", desc: "如果系统中有定时任务需要检查，或者任务执行失败时，查看该日志文件"},
+                {id: 2, log: "syslog", label: "syslog日志", desc: "包含系统中几乎所有的日志信息，包括启动过程、应用程序日志和其他系统事件"},
+                {id: 3, log: "auth.log", label: "auth日志", desc: "对于用户行为审计和安全分析至关重要"},
+                {id: 4, log: "kern.log", label: "kern日志", desc: "对于内核崩溃、硬件故障及与内核相关的问题，kern.log 是诊断的关键"},
+                {id: 5, log: "secure", label: "secure日志", desc: "对于用户行为审计和安全分析至关重要"},
+                {id: 6, log: "boot.log", label: "boot日志", desc:"用于分析系统启动过程中出现的问题，检查启动过程中某些服务是否没有成功启动"},
             ],
             programList: [],
             programName: {},
@@ -1272,23 +1273,24 @@ export default {
             return `${monthName} \\+${dayWithoutLeadingZero}`;
         },
         filterSystemLogMth() {
+            if (!this.logSelected) {
+                return Message.error("请选择日志类型");
+            }
+            if (!this.logFilterText) {
+                return Message.error("过滤字段不能为空");
+            }
             this.getLinuxCmdOutputLoading = true;
             let data = {
                 ip: this.ipList.map(item => item.ip),
-                name: "runLinuxCmd",
-                uuid: "",
-                cmd: this.formatCmdMth(),
+                name: "checkSystemLog",
+                log_name: this.logSelected,
+                start: this.logDate[0],
+                end: this.logDate[1],
+                field: this.logFilterText,
             };
+            console.log(data);
             var path = this.getRouterPathMth('view-system-log', this.permissionList);
             this.multiContentOutputMth(path, data, false);
-        },
-        formatCmdMth() {
-            if (this.logDate.length > 1) {
-                var start = this.formatDateStringMth(this.logDate[0]);
-                var end = this.formatDateStringMth(this.logDate[1]);
-                return `more ${this.logSelected} |grep '${this.logFilterText}'|sed -n '/^${start}/,/^${end}/p'`;
-            }
-            return `more ${this.logSelected} |grep '${this.logFilterText}'`
         },
         clearIplistMth() {
             this.delstrogage(this.cmdIPListKey);
