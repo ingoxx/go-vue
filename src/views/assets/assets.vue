@@ -52,44 +52,81 @@
             <el-card>
                 <el-divider><i class="el-icon-s-platform"></i>服务器列表</el-divider>
                 <div class="search">
-                    <el-row :gutter=10>
-                        <el-col :span="3.9">
-                            <el-input v-model="projectSearch" placeholder="请输入项目名" size="mini" clearable @keyup.enter.native="getAssetsList('search')" @clear="getAssetsList('search')"></el-input>
-                        </el-col>
-                        <el-col :span="3.9">
-                            <el-input v-model="serverSearch" placeholder="请输入ip" size="mini" clearable @keyup.enter.native="getAssetsList('search')" @clear="getAssetsList('search')"></el-input>
-                        </el-col>
-                        <div class="mul-op">
-                        <el-col :span="3.9">
-                            <el-select v-model="selectVal" placeholder="更多操作" size="mini" clearable
-                                multiple
-                                filterable
-                                allow-create
-                                default-first-option
-                            >
-                                <el-option
-                                    v-for="item in programList"
-                                    v-if="isHidden(item.path, permissionList)"
-                                    :key="item.cnname"
-                                    :label="item.cnname"
-                                    :value="item.cnname">
-                                </el-option>
-                            </el-select>
-                        </el-col>
-                        <el-col :span="3.9">
-                            <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openDialogMth('add-assets', null)" v-if="isHidden(getRouterPath('assetsAdd', permissionList), permissionList)">新建服务器</el-button>
-                        </el-col>
-                        <!-- <el-col :span="3.9">
-                            <el-button type="primary" icon="el-icon-mouse" size="mini" @click="runProcess('mul', '')" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">更新程序</el-button>
-                        </el-col>
-                        <el-col :span="3.9">
-                            <el-button type="primary" icon="el-icon-mouse" size="mini" @click="openDialogMth()" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">执行linux命令</el-button>
-                        </el-col> -->
-                        <el-col :span="2" class="c3">
-                            <el-link type="primary" @click="updateSetup">{{ detailContent }}<i :class="detailICon"></i> </el-link>
-                        </el-col>
+                    <div class="server-search">
+                        <el-row :gutter=10>
+                            <el-col :span="3.9">
+                                <el-input v-model="projectSearch" placeholder="请输入项目名" size="mini" clearable @keyup.enter.native="getAssetsList('search')" @clear="getAssetsList('search')"></el-input>
+                            </el-col>
+                            <el-col :span="3.9">
+                                <el-input v-model="serverSearch" placeholder="请输入ip" size="mini" clearable @keyup.enter.native="getAssetsList('search')" @clear="getAssetsList('search')"></el-input>
+                            </el-col>
+                            <el-col :span="3.9">
+                                <el-select v-model="clusterSearch" placeholder="选择集群名称" @change="getAssetsList('search')" size="mini" clearable filterable @clear="getAssetsList('search')">
+                                    <el-option
+                                        v-for="item in clusterList"
+                                        :key="item.id"
+                                        :label="item.name"
+                                        :value="item.id">
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                            <el-col :span="1">
+                                <el-tooltip class="item" effect="dark" content="点击搜索" placement="top-start">
+                                    <el-button size="small" type="primary" icon="el-icon-search" circle @click="getAssetsList('search')"></el-button>
+                                </el-tooltip>
+                            </el-col>
+                            <!-- <div class="mul-op">
+                                <el-col :span="3.9">
+                                    <el-select v-model="selectVal" placeholder="更多操作" size="mini" clearable
+                                        multiple
+                                        filterable
+                                        allow-create
+                                        default-first-option
+                                    >
+                                        <el-option
+                                            v-for="item in programList"
+                                            v-if="isHidden(item.path, permissionList)"
+                                            :key="item.cnname"
+                                            :label="item.cnname"
+                                            :value="item.cnname">
+                                        </el-option>
+                                    </el-select>
+                                </el-col>
+                                <el-col :span="3.9">
+                                    <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openDialogMth('add-assets', null)" v-if="isHidden(getRouterPath('assetsAdd', permissionList), permissionList)">新建服务器</el-button>
+                                </el-col>
+                                <el-col :span="2" class="c3">
+                                    <el-link type="primary" @click="updateSetup">{{ detailContent }}<i :class="detailICon"></i> </el-link>
+                                </el-col>
+                            </div> -->
+                        </el-row>
                     </div>
-                    </el-row>
+                    <div class="server-operate">
+                        <el-row :gutter=10>
+                            <el-col :span="3.9">
+                                    <el-select v-model="selectVal" placeholder="更多操作" size="mini" clearable
+                                        multiple
+                                        filterable
+                                        allow-create
+                                        default-first-option
+                                    >
+                                        <el-option
+                                            v-for="item in programList"
+                                            v-if="isHidden(item.path, permissionList)"
+                                            :key="item.cnname"
+                                            :label="item.cnname"
+                                            :value="item.cnname">
+                                        </el-option>
+                                    </el-select>
+                                </el-col>
+                                <el-col :span="3.9">
+                                    <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openDialogMth('add-assets', null)" v-if="isHidden(getRouterPath('assetsAdd', permissionList), permissionList)">新建服务器</el-button>
+                                </el-col>
+                                <el-col :span="2" class="c3">
+                                    <el-link type="primary" @click="updateSetup">{{ detailContent }}<i :class="detailICon"></i> </el-link>
+                                </el-col>
+                        </el-row>
+                    </div>
                     <div class="linux-op">
                         <el-row :gutter=10>
                             <el-col :span="3.9">
@@ -98,9 +135,6 @@
                             <el-col :span="3.9">
                                 <el-button type="danger" icon="el-icon-mouse" size="mini" @click="openDialogMth('cmd', null)" v-if="isHidden(getRouterPath('run-linux-cmd', permissionList), permissionList)" :loading="submitLoading">批量ansible作业</el-button>
                             </el-col>
-                            <!-- <el-col :span="3.9">
-                                <el-button type="primary" icon="el-icon-mouse" size="mini" @click="openDialogMth()" v-if="isHidden('/assets/api', permissionList)" :loading="submitLoading">查看服务器系统日志</el-button>
-                            </el-col> -->
                         </el-row>
                     </div>
                     
@@ -131,13 +165,42 @@
                     <el-table-column prop="id" label="id"></el-table-column>
                     <el-table-column prop="project" label="项目"></el-table-column>
                     <el-table-column prop="ip" label="服务器" width="180"></el-table-column>
-                    <el-table-column prop="status" label="服务器状态">
+                    <el-table-column prop="os_type" label="系统类型">
+                        <template slot-scope="scope">
+                            <el-link  :underline="false"  size="mini" v-if="scope.row.os_type === 1" plain>ubuntu</el-link>
+                            <el-link  :underline="false"  size="mini" v-else-if="scope.row.os_type === 2" plain>centos</el-link>
+                            <el-link  :underline="false"  size="mini" v-else-if="scope.row.os_type === 3" plain>debian</el-link>
+                            <el-link  :underline="false"  size="mini" v-else plain>linux</el-link>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="cluster" label="所在集群" width="100">
+                        <template slot-scope="scope">
+                            <!-- <el-link  :underline="false"  size="mini" v-if="scope.row.cluster.name != ''" plain>{{scope.row.cluster.name}}</el-link> -->
+                            <el-link type="primary" :underline="false"  size="mini" plain v-if="scope.row.cluster.name != ''" >
+                                <el-popover trigger="hover" placement="top">
+                                    <p>集群ID: {{ scope.row.cluster.cluster_cid }}</p>
+                                    <div slot="reference" class="name-wrapper">
+                                        {{ scope.row.cluster.name }}
+                                    </div>
+                                </el-popover>
+                            </el-link>
+                            <el-link type="danger" :underline="false"  size="mini" v-else plain>未分配集群</el-link>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="node_type" label="节点类型" width="100">
+                        <template slot-scope="scope">
+                            <el-link type="primary" :underline="false"  size="mini" v-if="scope.row.node_type === 1 && scope.row.cluster_id != ''" plain>master节点</el-link>
+                            <el-link type="warning" :underline="false"  size="mini" v-else-if="scope.row.node_type === 2  && scope.row.cluster_id != ''" plain>node节点</el-link>
+                            <el-link type="warning" :underline="false"  size="mini" v-else plain>未知节点类型</el-link>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="status" label="服务器状态" width="130">
                         <template slot-scope="scope">
                             <el-link type="success" :underline="false"  size="mini" v-if="scope.row.status === 200" plain>正常</el-link>
                             <el-link type="danger" :underline="false"  size="mini" v-else-if="scope.row.status === 100" plain>异常</el-link>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="cpu_usage" label="cpu使用率">
+                    <el-table-column prop="cpu_usage" label="cpu使用率" width="130">
                         <template slot-scope="scope">
                             <el-link type="danger" :underline="false"  size="mini" plain v-if="scope.row.cpu_usage >= 50">
                                 <el-popover trigger="hover" placement="top" v-if="scope.row.cpu_usage >= 50">
@@ -151,7 +214,7 @@
                             <el-link type="success" :underline="false"  size="mini" plain v-else>{{ scope.row.cpu_usage }}%</el-link>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="ram_usage" label="内存使用率" width="180">
+                    <el-table-column prop="ram_usage" label="内存使用率" width="130">
                         <template slot-scope="scope">
                             <el-link type="danger" :underline="false"  size="mini" plain v-if="scope.row.ram_usage >= 50">
                                 <el-popover trigger="hover" placement="top" v-if="scope.row.ram_usage >= 50">
@@ -164,7 +227,7 @@
                             <el-link type="success" :underline="false"  size="mini" plain v-else>{{ scope.row.ram_usage }}%</el-link>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="disk_usage" label="根磁盘使用率">
+                    <el-table-column prop="disk_usage" label="根磁盘使用率" width="180">
                         <template slot-scope="scope">
                             <el-link type="danger" :underline="false"  size="mini" plain v-if="scope.row.disk_usage >= 50">
                                 <el-popover trigger="hover" placement="top" v-if="scope.row.disk_usage >= 50">
@@ -521,6 +584,7 @@
                 width="600px"
                 :destroy-on-close="true" 
                 v-draggable
+                :before-close="clearDialogDataMth"
                 >
                 <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm fix-form-css">
                     <el-form-item label="项目名" prop="project">
@@ -561,6 +625,26 @@
                     <el-form-item label="端口" prop="port">
                         <el-input  type="text" v-model="ruleForm.port" autocomplete="off" clearable></el-input>
                     </el-form-item>
+                    <el-form-item label="集群" prop="cluster">
+                        <el-select v-model="ruleForm.cluster" placeholder="请选择集群" clearable>
+                            <el-option
+                                v-for="item in clusterList"
+                                :key="item.id"
+                                :label="item.name"
+                                :value="item.id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="节点类型" prop="node_type">
+                        <el-select v-model="ruleForm.node_type" placeholder="请选择节点类型" clearable>
+                            <el-option
+                                v-for="item in nodeTypeList"
+                                :key="item.id"
+                                :label="item.name"
+                                :value="item.id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
                 </el-form>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="resetForm('ruleForm')">重置</el-button>
@@ -584,6 +668,8 @@
                 center
                 width="600px" 
                 v-draggable
+                :destroy-on-close="true"
+                :before-close="clearDialogDataMth"
                 >
                 <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm fix-form-css">
                     <el-form-item label="id" prop="selectId">
@@ -596,10 +682,10 @@
                         <el-input  type="text" v-model="ruleForm.ip" autocomplete="off" clearable></el-input>
                     </el-form-item>
                     <el-form-item label="用户名" prop="user">
-                        <el-input  type="text" v-model="ruleForm.user" autocomplete="off" clearable></el-input>
+                        <el-input  type="text" v-model="ruleForm.user" autocomplete="off" clearable :key="inputKey"></el-input>
                     </el-form-item>
                     <el-form-item label="密码" prop="password">
-                        <el-input  type="password" v-model="ruleForm.password" autocomplete="off" clearable show-password></el-input>
+                        <el-input  type="password" v-model="ruleForm.password" autocomplete="off" clearable show-password :key="inputKey"></el-input>
                     </el-form-item>
                     <el-form-item label="秘钥" prop="key">
                         <div class="upload key">
@@ -626,6 +712,26 @@
                     </el-form-item>
                     <el-form-item label="端口" prop="port">
                         <el-input  type="text" v-model="ruleForm.port" autocomplete="off" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="集群" prop="cluster">
+                        <el-select v-model="ruleForm.cluster" placeholder="请选择集群" clearable>
+                            <el-option
+                                v-for="item in clusterList"
+                                :key="item.id"
+                                :label="item.name"
+                                :value="item.id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="节点类型" prop="node_type">
+                        <el-select v-model="ruleForm.node_type" placeholder="请选择节点类型" clearable>
+                            <el-option
+                                v-for="item in nodeTypeList"
+                                :key="item.id"
+                                :label="item.name"
+                                :value="item.id">
+                            </el-option>
+                        </el-select>
                     </el-form-item>
                 </el-form>
                 <span slot="footer" class="dialog-footer">
@@ -888,7 +994,7 @@
 <script>
 import { Message, MessageBox } from 'element-ui';
 import { mapState } from 'vuex';
-import { getAssetsList, getProcessStatus, createProgramUpdateRecord, runProgram, getUpdateList, assetsUpload, createServer, delServer, editServer, ProgramAdd, getProgramList, webTerminal } from '../../api';
+import { getClusterList, getAssetsList, getProcessStatus, createProgramUpdateRecord, runProgram, getUpdateList, assetsUpload, createServer, delServer, editServer, ProgramAdd, getProgramList, webTerminal } from '../../api';
 import { v4 as uuidv4 } from 'uuid';
 import CryptoJS from 'crypto-js';
 import baseUrl from "../../utils/baseUrl";
@@ -1026,6 +1132,15 @@ export default {
             }
         };
         return {
+            clusterSearch: "",
+            nodeTypeList: [
+                {id: 1, name: "master节点",},
+                {id: 2, name: "node节点",}
+            ],
+            inputKey: 0,
+            nodeTypeSelected:"",
+            clusterIDSelected: "",
+            clusterList: [],
             keyFiles: [],
             wsUrl: "",
             termWs: null,
@@ -1122,6 +1237,8 @@ export default {
                 enname: '',
                 path: '',
                 cmd: '',
+                cluster: '',
+                node_type: '',
             },
             rules: {
                 project: [
@@ -1187,6 +1304,10 @@ export default {
     methods: {
         isHidden, 
         getRouterPath,
+        clearDialogDataMth(done ) {
+            this.resetForm('ruleForm');
+            done();
+        },
         changeFrameCssMth() {
             const iframe = this.$refs.myIframe;
             iframe.onload = () => {
@@ -1223,7 +1344,6 @@ export default {
             return `${baseUrl}${this.getRouterPath('web-terminal', this.permissionList)}?server_id=${id}&user=${sessionStorage.getItem("user")}&token=${sessionStorage.getItem("token")}`;
         },
         getRouterPathMth(name, routes) {
-            // console.log(this.permissionList);
             for (const route of routes) {
                 if (route.name === name) {
                     return route.path;
@@ -1288,7 +1408,6 @@ export default {
                 end: this.logDate[1],
                 field: this.logFilterText,
             };
-            console.log(data);
             var path = this.getRouterPathMth('view-system-log', this.permissionList);
             this.multiContentOutputMth(path, data, false);
         },
@@ -1428,7 +1547,6 @@ export default {
             const dialogRect = this.$refs.dialog.getBoundingClientRect();  
             const mouseX = event.clientX;  
             const mouseY = event.clientY;  
-            console.log(dialogRect);
                 
             // 计算对话框应该移动到的位置  
             const newLeft = mouseX - (dialogRect.width - this.$refs.dialog.offsetWidth) / 2;  
@@ -1498,6 +1616,8 @@ export default {
             formData.append('user', this.ruleForm.user);
             formData.append('password', this.ruleForm.password);
             formData.append('port', this.ruleForm.port);
+            formData.append('cluster_id', this.ruleForm.cluster);
+            formData.append('node_type', this.ruleForm.node_type);
             if (this.$refs.upload.uploadFiles.length === 0) {
                 formData.append('connect_type', 1); // 密码登陆
             } else { // key登陆
@@ -1535,6 +1655,8 @@ export default {
             formData.append('user', this.ruleForm.user);
             formData.append('password', this.ruleForm.password);
             formData.append('port', this.ruleForm.port);
+            formData.append('cluster_id', this.ruleForm.cluster);
+            formData.append('node_type', this.ruleForm.node_type);
             if (this.$refs.upload.uploadFiles.length === 0) {
                 formData.append('connect_type', 1); // 密码登陆
             } else { // key登陆
@@ -1566,6 +1688,9 @@ export default {
             this.selectId = row.id;
             this.ruleForm.project = row.project;
             this.ruleForm.ip = row.ip;
+            if (row.cluster.id > 0) {
+                this.ruleForm.cluster = row.cluster.id;
+            }
         },
         copy(text) {
             this.$copyText(text).then(() => {
@@ -1606,7 +1731,6 @@ export default {
             fl.forEach((file)=>{
                 let blob = new Blob([file.raw], { type: file.type });
                 let reader = new FileReader();
-                console.log("reader >>> ", reader);
                 reader.onload = (event) => {
                     let arrayBuffer = event.target.result
                     let md5 = SparkMD5.ArrayBuffer.hash(arrayBuffer);
@@ -1631,7 +1755,6 @@ export default {
                 }
                 reader.readAsArrayBuffer(blob);
             })
-            console.log("fileList", this.fileList);
         },
         // 文件上传
         async uploadFile() {
@@ -1877,6 +2000,7 @@ export default {
         async getAssetsList(mode) {
             this.tableLoad = true;
             var pageNum = 0;
+            var data = {};
             switch (mode) {
                 case "page":
                     pageNum = this.pages.curPage;
@@ -1885,12 +2009,22 @@ export default {
                     pageNum = 1;
                     break
             }
-
-            let data = {
-                page: pageNum,
-                ip: this.serverSearch,
-                project: this.projectSearch,
-            };
+            
+            if (this.clusterSearch) {
+                let cluser_id = this.clusterList.find(item => item.id === this.clusterSearch)?.id;
+                data = {
+                    page: pageNum,
+                    ip: this.serverSearch,
+                    project: this.projectSearch,
+                    cluster_id: cluser_id,
+                };
+            } else {
+                data = {
+                    page: pageNum,
+                    ip: this.serverSearch,
+                    project: this.projectSearch,
+                };
+            }
 
             const resp = await getAssetsList(data).catch((err) => {
                 this.tableLoad = false;
@@ -1904,6 +2038,7 @@ export default {
             this.pages.curPage = pageNum;
 
             this.dataList = resp.data.data;
+            this.clusterList = resp.data.clusters;
             this.pages.pageSize = resp.data.pageSize;
             this.total = resp.data.total;
             this.tableLoad = false;
@@ -2326,6 +2461,9 @@ export default {
 .key {
     margin: 0;
     margin-left: 5px;
+}
+.server-operate {
+    margin: 20px 0;
 }
 </style>
 

@@ -7,6 +7,7 @@ const roleList = () => import('../views/roles/roles');
 const logList = () => import('../views/operate/operate');
 const layOut = () => import('../layout/layout');
 const assetsList = () => import('../views/assets/assets')
+const clusterList = () => import('../views/cluster/cluster')
 
 const dynamicRoutes = [
   {
@@ -146,43 +147,74 @@ const dynamicRoutes = [
       },
     ],
   },
-  {
-    path: '/log',
-    name: 'logManage',
-    redirect: '/log/list',
-    hidden: false,
-    component: layOut,
-    meta: {name:'日志管理', icon: 'el-icon-postcard'},
-    children: [
-        {
-            path:'/log/list',
-            name: 'logList',
-            hidden: false,
-            component: logList,
-            meta: { title: ['日志管理', '日志列表'], name: '日志列表',  icon: 'el-icon-menu', keepAlive: true },
-            children: [
-                  {
-                      path:'/log/get-login-num',
-                      name: 'loginCount',
-                      meta: { name: '登录日志统计'},
-                      hidden: false,
-                  },
-                  {
-                    path:'/log/get-run-linux-cmd-num',
-                    name: 'runLinuxCmdCount',
-                    meta: { name: 'linux命令执行统计'},
-                    hidden: false,
-                  },
-                  {
-                    path:'/log/get-user-login-num',
-                    name: 'userLoginCount',
-                    meta: { name: '用户登录统计'},
-                    hidden: false,
-                  },
-            ],
-        },
-    ],
-  },
+    {
+        path: '/log',
+        name: 'logManage',
+        redirect: '/log/list',
+        hidden: false,
+        component: layOut,
+        meta: {name:'日志管理', icon: 'el-icon-postcard'},
+        children: [
+            {
+                path:'/log/list',
+                name: 'logList',
+                hidden: false,
+                component: logList,
+                meta: { title: ['日志管理', '日志列表'], name: '日志列表',  icon: 'el-icon-menu', keepAlive: true },
+                children: [
+                    {
+                        path:'/log/get-login-num',
+                        name: 'loginCount',
+                        meta: { name: '登录日志统计'},
+                        hidden: false,
+                    },
+                    {
+                        path:'/log/get-run-linux-cmd-num',
+                        name: 'runLinuxCmdCount',
+                        meta: { name: 'linux命令执行统计'},
+                        hidden: false,
+                    },
+                    {
+                        path:'/log/get-user-login-num',
+                        name: 'userLoginCount',
+                        meta: { name: '用户登录统计'},
+                        hidden: false,
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        path: '/cluster',
+        name: 'clusterManage',
+        redirect: '/cluster/list',
+        hidden: false,
+        component: layOut,
+        meta: {name:'集群管理', icon: 'el-icon-takeaway-box'},
+        children: [
+            {
+                path:'/cluster/list',
+                name: 'clusterList',
+                hidden: false,
+                component: clusterList,
+                meta: { title: ['集群管理', '集群列表'], name: '集群列表',  icon: 'el-icon-menu', keepAlive: true },
+                children: [
+                    {
+                        path:'/cluste/add',
+                        name: 'clusterAdd',
+                        meta: { name: '集群创建'},
+                        hidden: false,
+                    },
+                    {
+                        path:'/cluste/del',
+                        name: 'clusterDel',
+                        meta: { name: '集群删除'},
+                        hidden: false,
+                    },
+                ],
+            },
+        ],
+    },
   {
     path: '/assets',
     name: 'assetsManage',
