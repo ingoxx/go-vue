@@ -11,6 +11,11 @@
                             <el-button size="small" type="primary" icon="el-icon-search" circle @click="RolesList()"></el-button>
                         </el-tooltip>
                     </el-col>
+                    <el-col :span="1" class="col-last">
+                        <el-tooltip class="item" effect="dark" content="刷新角色列表" placement="top-start">
+                            <el-button size="small" type="info" icon="el-icon-refresh" circle @click="RolesList()"></el-button>
+                        </el-tooltip>
+                    </el-col>
                 </el-row>
             </div>
             <div  class="operate">
@@ -570,5 +575,8 @@ export default {
 }
 :deep .el-table tr {
     cursor: pointer;
+}
+.col-last {
+    float: right;
 }
 </style>

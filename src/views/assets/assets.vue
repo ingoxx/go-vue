@@ -75,30 +75,11 @@
                                     <el-button size="small" type="primary" icon="el-icon-search" circle @click="getAssetsList('search')"></el-button>
                                 </el-tooltip>
                             </el-col>
-                            <!-- <div class="mul-op">
-                                <el-col :span="3.9">
-                                    <el-select v-model="selectVal" placeholder="更多操作" size="mini" clearable
-                                        multiple
-                                        filterable
-                                        allow-create
-                                        default-first-option
-                                    >
-                                        <el-option
-                                            v-for="item in programList"
-                                            v-if="isHidden(item.path, permissionList)"
-                                            :key="item.cnname"
-                                            :label="item.cnname"
-                                            :value="item.cnname">
-                                        </el-option>
-                                    </el-select>
-                                </el-col>
-                                <el-col :span="3.9">
-                                    <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openDialogMth('add-assets', null)" v-if="isHidden(getRouterPath('assetsAdd', permissionList), permissionList)">新建服务器</el-button>
-                                </el-col>
-                                <el-col :span="2" class="c3">
-                                    <el-link type="primary" @click="updateSetup">{{ detailContent }}<i :class="detailICon"></i> </el-link>
-                                </el-col>
-                            </div> -->
+                            <el-col :span="1" class="col-last">
+                                <el-tooltip class="item" effect="dark" content="刷新服务器列表" placement="top-start">
+                                    <el-button size="small" type="info" icon="el-icon-refresh" circle @click="getAssetsList('page')"></el-button>
+                                </el-tooltip>
+                            </el-col>
                         </el-row>
                     </div>
                     <div class="server-operate">
@@ -173,7 +154,7 @@
                             <el-link  :underline="false"  size="mini" v-else plain>linux</el-link>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="cluster" label="所在集群" width="100">
+                    <el-table-column prop="cluster" label="所属集群" width="180">
                         <template slot-scope="scope">
                             <!-- <el-link  :underline="false"  size="mini" v-if="scope.row.cluster.name != ''" plain>{{scope.row.cluster.name}}</el-link> -->
                             <el-link type="primary" :underline="false"  size="mini" plain v-if="scope.row.cluster.name != ''" >
@@ -187,11 +168,11 @@
                             <el-link type="danger" :underline="false"  size="mini" v-else plain>未分配集群</el-link>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="node_type" label="节点类型" width="100">
+                    <el-table-column prop="node_type" label="节点类型" width="150">
                         <template slot-scope="scope">
                             <el-link type="primary" :underline="false"  size="mini" v-if="scope.row.node_type === 1 && scope.row.cluster_id != ''" plain>master节点</el-link>
                             <el-link type="warning" :underline="false"  size="mini" v-else-if="scope.row.node_type === 2  && scope.row.cluster_id != ''" plain>node节点</el-link>
-                            <el-link type="warning" :underline="false"  size="mini" v-else plain>未知节点类型</el-link>
+                            <el-link type="warning" :underline="false"  size="mini" v-else plain>未分配节点</el-link>
                         </template>
                     </el-table-column>
                     <el-table-column prop="status" label="服务器状态" width="130">
@@ -625,7 +606,7 @@
                     <el-form-item label="端口" prop="port">
                         <el-input  type="text" v-model="ruleForm.port" autocomplete="off" clearable></el-input>
                     </el-form-item>
-                    <el-form-item label="集群" prop="cluster">
+                    <!-- <el-form-item label="集群" prop="cluster">
                         <el-select v-model="ruleForm.cluster" placeholder="请选择集群" clearable>
                             <el-option
                                 v-for="item in clusterList"
@@ -644,7 +625,7 @@
                                 :value="item.id">
                             </el-option>
                         </el-select>
-                    </el-form-item>
+                    </el-form-item> -->
                 </el-form>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="resetForm('ruleForm')">重置</el-button>
@@ -713,7 +694,7 @@
                     <el-form-item label="端口" prop="port">
                         <el-input  type="text" v-model="ruleForm.port" autocomplete="off" clearable></el-input>
                     </el-form-item>
-                    <el-form-item label="集群" prop="cluster">
+                    <!-- <el-form-item label="集群" prop="cluster">
                         <el-select v-model="ruleForm.cluster" placeholder="请选择集群" clearable>
                             <el-option
                                 v-for="item in clusterList"
@@ -732,7 +713,7 @@
                                 :value="item.id">
                             </el-option>
                         </el-select>
-                    </el-form-item>
+                    </el-form-item> -->
                 </el-form>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="resetForm('ruleForm')">重置</el-button>
@@ -877,75 +858,12 @@
         <div class="result">
             <el-dialog
                 title="linux终端"
-                :visible.sync="terminalVisible"
-                v-draggable
-                :close-on-click-modal="false"
-                width="800px"
-                :before-close="beforeCloseDiaMth"
-                @opened="changeFrameCssMth"
-                center
-                >
-                <div class="result-title run-linux-cmd-title">
-                    <el-card>
-                        <el-divider><strong><i class="el-icon-platform-eleme"></i>已选择的服务器</strong></el-divider>
-                        <p class="op-name">
-                            <el-row :gutter="10">
-                                <template v-for="(data, index) in ipList">
-                                    <el-col :span="1.9">
-                                        <el-tag :key="data.id" effect="plain"  type="success">{{ data.project }}</el-tag>
-                                    </el-col>
-                                    <el-col :span="1.9">
-                                        <el-tag :key="data.id" effect="plain"  type="success">{{ data.ip }}</el-tag>
-                                    </el-col>
-                                </template>
-                            </el-row>
-                        </p>
-                    </el-card>
-                </div>
-                <div class="result-data">
-                    <el-card v-loading="terminalLoading"
-                            element-loading-text="正在拼命连接中..."
-                            element-loading-spinner="el-icon-loading">
-                        <el-divider><strong><i class="el-icon-platform-eleme"></i>终端</strong></el-divider>
-                        <div class="copy">
-                            <el-row :gutter="10">
-                                <el-col :span="1.9">
-                                    <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">复制</el-button>
-                                </el-col>
-                                <el-col :span="1.9">
-                                    <el-button type="success" size="mini" plain @click="clearOutputMth()" icon="el-icon-copy-document">清空</el-button>
-                                </el-col>
-                            </el-row>
-                            <!-- <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">复制</el-button> -->
-                        </div>
-                        <div class="format-code format-code-terminal">
-                            <!-- <pre><code>{{ content.join('') }}</code></pre> -->
-                            <iframe 
-                                ref="myIframe"
-                                v-if="frameVisible"
-                                :key="iframeKey"
-                                :src="terminalUrl" 
-                                frameborder="0"
-                                @load="onIframeLoadMth"
-                                title="iframe"
-                                class="terminal-web"
-                                >
-                            </iframe>
-                        </div>
-                    </el-card>
-                </div>
-                </el-dialog>
-        </div>
-        <!-- 连接终端2222 -->
-        <div class="result">
-            <el-dialog
-                title="linux终端"
                 :visible.sync="terminal2Visible"
                 v-draggable
                 :close-on-click-modal="false"
                 width="800px"
-                :before-close="beforeCloseDiaMth"
-                @opened="changeFrameCssMth"
+                @opened="handleTerminalOpenMth"
+                @closed="handleTerminalClosedMth"
                 center
                 :destroy-on-close="true"
                 >
@@ -966,23 +884,18 @@
                         </p>
                     </el-card>
                 </div>
+                
                 <div class="result-data">
+                    
                     <el-card v-loading="terminalLoading"
                             element-loading-text="正在拼命连接中..."
                             element-loading-spinner="el-icon-loading">
                         <el-divider><strong><i class="el-icon-platform-eleme"></i>终端</strong></el-divider>
-                        <!-- <div class="copy">
-                            <el-row :gutter="10">
-                                <el-col :span="1.9">
-                                    <el-button type="success" size="mini" plain @click="copy(content.join(''))" icon="el-icon-copy-document">复制</el-button>
-                                </el-col>
-                                <el-col :span="1.9">
-                                    <el-button type="success" size="mini" plain @click="clearOutputMth()" icon="el-icon-copy-document">清空</el-button>
-                                </el-col>
-                            </el-row>
-                        </div> -->
+                        <div class="copy">
+                            <el-button type="warning" size="mini" plain @click="reConnectMth" icon="el-icon-connection">重新连接</el-button>
+                        </div>
                         <div class="format-code format-code-terminal">
-                            <terminal v-if="frameVisible" :ws-url="wsUrl"></terminal>
+                            <terminal ref="terminalComponent" v-if="terminal2Visible" :key="terminalKey" :ws-url="wsUrl"></terminal>
                         </div>
                     </el-card>
                 </div>
@@ -1003,9 +916,9 @@ import 'vue-draggable-resizable/dist/VueDraggableResizable.css';
 import SparkMD5 from 'spark-md5';
 import md5 from 'blueimp-md5';
 import { isHidden, getRouterPath } from '@/utils/utils';
-import { Terminal } from "xterm";
 import  terminal  from '../assets/terminal'
-import "xterm/css/xterm.css";
+// import 'xterm/css/xterm.css';
+// import { Terminal } from "xterm";
 
 // import draggable from 'vuedraggable'
 // import { VueDraggableResizable } from 'vue-draggable-resizable'
@@ -1132,6 +1045,7 @@ export default {
             }
         };
         return {
+            terminalKey:0,
             clusterSearch: "",
             nodeTypeList: [
                 {id: 1, name: "master节点",},
@@ -1298,43 +1212,44 @@ export default {
         }),
     },
     components: {
-        // VueDraggableResizable
         terminal,
     },
     methods: {
         isHidden, 
         getRouterPath,
+        reConnectMth() {
+            this.$refs.terminalComponent.clearTerminal();
+            // this.handleTerminalOpenMth();
+        },
         clearDialogDataMth(done ) {
             this.resetForm('ruleForm');
             done();
         },
-        changeFrameCssMth() {
-            const iframe = this.$refs.myIframe;
-            iframe.onload = () => {
-                console.log("✅ iframe 已加载完成！");
-            };
+        handleTerminalClosedMth() {
+            if (this.$refs.terminalComponent) {
+                this.$refs.terminalComponent.disconnect();
+                this.terminalKey++;
+            }
         },
-        createTerminalMth(){
-            
-        },
-        onIframeLoadMth() {
-            window.focus(); // 确保焦点回到父页面
-        },
-        resetIframe() {
-            this.iframeKey++; // 重新渲染 iframe，防止缓存
-        },
-        restoreFocusMth() {
+        handleTerminalOpenMth() {
             this.$nextTick(() => {
-                document.body.focus();
-            });
+            // 延迟确保DOM更新完成
+            setTimeout(() => {
+                if (this.$refs.terminalComponent) {
+                    // 调用子组件初始化方法
+                    this.$refs.terminalComponent.initConnection();
+                    // 强制刷新组件解决缓存问题
+
+                }
+                }, 300)
+            })
         },
         beforeCloseDiaMth(done) {
-            this.frameVisible = false;
+            this.terminal2Visible = false;
             done();
             this.$nextTick(() => {
                 document.body.focus();
             });
-            // window.focus();
         },
         webTerminalMth() {
             if (this.ipList.length == 0) {
@@ -1616,8 +1531,8 @@ export default {
             formData.append('user', this.ruleForm.user);
             formData.append('password', this.ruleForm.password);
             formData.append('port', this.ruleForm.port);
-            formData.append('cluster_id', this.ruleForm.cluster);
-            formData.append('node_type', this.ruleForm.node_type);
+            // formData.append('cluster_id', this.ruleForm.cluster);
+            // formData.append('node_type', this.ruleForm.node_type);
             if (this.$refs.upload.uploadFiles.length === 0) {
                 formData.append('connect_type', 1); // 密码登陆
             } else { // key登陆
@@ -1655,8 +1570,8 @@ export default {
             formData.append('user', this.ruleForm.user);
             formData.append('password', this.ruleForm.password);
             formData.append('port', this.ruleForm.port);
-            formData.append('cluster_id', this.ruleForm.cluster);
-            formData.append('node_type', this.ruleForm.node_type);
+            // formData.append('cluster_id', this.ruleForm.cluster);
+            // formData.append('node_type', this.ruleForm.node_type);
             if (this.$refs.upload.uploadFiles.length === 0) {
                 formData.append('connect_type', 1); // 密码登陆
             } else { // key登陆
@@ -2230,7 +2145,6 @@ export default {
         this.updateRealTimeRefreshMth();
         this.getCurrentWindowsResizeMth();
         this.listenWindowsResizeMth();
-        this.createTerminalMth();
     },
     filters: {
         formatDate(date) {
@@ -2438,32 +2352,18 @@ export default {
 .el-col-111 {
     padding-top: 10px;
 }
-.terminal-web {
-    height: 100%;
-    width: 100%;
-}
-.xterm .xterm-viewport::-webkit-scrollbar {
-  width: 10px!important; /* 设置滚动条宽度 */
-}
-
-.xterm .xterm-viewport::-webkit-scrollbar-track {
-  background-color: #f3f3f4!important; /* 设置滚动条背景颜色 */
-}
-
-.xterm .xterm-viewport::-webkit-scrollbar-thumb {
-  background-color: #cecece!important; /* 设置滚动条滑块颜色 */
-  border-radius: 5px!important; /* 设置滑块的圆角 */
-}
-
-.xterm .xterm-viewport::-webkit-scrollbar-thumb:hover {
-  background-color: #bdbdbd!important; /* 设置滚动条滑块悬停时的颜色 */
-}
 .key {
     margin: 0;
     margin-left: 5px;
 }
 .server-operate {
     margin: 20px 0;
+}
+.col-last {
+    float: right;
+}
+.col-last {
+    float: right;
 }
 </style>
 

@@ -17,6 +17,11 @@
                             <el-button v-if="isHidden(getRouterPath('permsDel', permissionList), permissionList)" size="small" type="danger" slot="reference" :loading="delLoad" icon="el-icon-delete-solid" @click="permsCheck()" >删除</el-button>
                         </el-popconfirm>
                     </el-col>
+                    <el-col :span="1" class="col-last">
+                        <el-tooltip class="item" effect="dark" content="刷新权限菜单" placement="top-start">
+                            <el-button size="small" type="info" icon="el-icon-refresh" circle @click="PermsList()"></el-button>
+                        </el-tooltip>
+                    </el-col>
                 </el-row>
             </div>
             <div class="table">
@@ -366,5 +371,8 @@ export default {
 }
 :deep .el-table tr {
     cursor: pointer;
+}
+.col-last {
+    float: right;
 }
 </style>

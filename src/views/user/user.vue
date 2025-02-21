@@ -27,6 +27,11 @@
                             <el-button size="small" type="primary" icon="el-icon-search" circle @click="ListUser('search')"></el-button>
                         </el-tooltip>
                     </el-col>
+                    <el-col :span="1" class="col-last">
+                        <el-tooltip class="item" effect="dark" content="刷新用户列表" placement="top-start">
+                            <el-button size="small" type="info" icon="el-icon-refresh" circle @click="ListUser('page')"></el-button>
+                        </el-tooltip>
+                    </el-col>
                 </el-row>
                 <el-row :gutter="10" class="operate">
                     <el-col :span="2.5" v-if="!isHidden(getRouterPath('userAdd', permissionList), this.$router.options.routes)">
@@ -731,5 +736,8 @@ export default {
 }
 :deep .el-table tr {
     cursor: pointer;
+}
+.col-last {
+    float: right;
 }
 </style>

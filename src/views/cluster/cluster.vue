@@ -12,9 +12,17 @@
                     <el-col :span="4">
                         <el-input clearable size="small" @keyup.enter.native="getClusterListMth('search')" @clear="getClusterListMth('search')" placeholder="集群区域" suffix-icon="el-icon-date" v-model="clusterRegion"></el-input>
                     </el-col>
+                    <el-col :span="4">
+                        <el-input clearable size="small" @keyup.enter.native="getClusterListMth('search')" @clear="getClusterListMth('search')" placeholder="集群类型" suffix-icon="el-icon-date" v-model="clusterType"></el-input>
+                    </el-col>
                     <el-col :span="1" class="col-el">
                         <el-tooltip class="item" effect="dark" content="点击搜索" placement="top-start">
                             <el-button size="small" type="primary" icon="el-icon-search" circle @click="getClusterListMth('search')"></el-button>
+                        </el-tooltip>
+                    </el-col>
+                    <el-col :span="1" class="col-last">
+                        <el-tooltip class="item" effect="dark" content="刷新集群列表" placement="top-start">
+                            <el-button size="small" type="info" icon="el-icon-refresh" circle @click="getClusterListMth('page')"></el-button>
                         </el-tooltip>
                     </el-col>
                 </el-row>
@@ -22,7 +30,7 @@
             <div class="operate">
                 <el-row :gutter="10">
                     <el-col :span="1"  class="col-1">
-                        <el-button size="small" type="primary" icon="el-icon-document-add" @click="openDialog('add')" v-if="isHidden(getRouterPath('clusterAdd', permissionList), permissionList)">创建集群</el-button>
+                        <el-button size="small" type="primary" icon="el-icon-document-add" @click="openDialog('add')" v-if="isHidden(getRouterPath('clusterAdd', permissionList), permissionList)">添加集群</el-button>
                     </el-col>
                     <el-col :span="2" class="col-2">
                         <el-button size="small" type="danger" icon="el-icon-delete" v-if="isHidden(getRouterPath('clusterDel', permissionList), permissionList)" @click="handleDeleteCluster(null, 'mul')">批量删除集群</el-button>
@@ -37,7 +45,8 @@
                     <el-table-column type="selection" width="55"></el-table-column>
                     <el-table-column prop="id" label="id"></el-table-column>
                     <el-table-column prop="name" label="name" ></el-table-column>
-                    <el-table-column prop="cluster_cid" label="cluster_id" width="210"></el-table-column>
+                    <el-table-column prop="cluster_cid" label="cluster_id" width="250"></el-table-column>
+                    <el-table-column prop="master_ip" label="master_ip" width="210"></el-table-column>
                     <el-table-column prop="region" label="region" ></el-table-column>
                     <el-table-column prop="status" label="status" >
                         <template slot-scope="scope">
@@ -51,18 +60,16 @@
                             <el-tag size="small" type="success">{{ scope.row.date | formatDate}}</el-tag>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="operate" label="operate" width="200">
+                    <el-table-column prop="operate" label="operate" width="450">
                         <template slot-scope="scope">
-                            <!-- <el-button size="mini" @click="editUserData(scope.row)" icon="el-icon-edit" v-if="isHidden(getRouterPath('userUpdate', permissionList), permissionList)">编辑</el-button>
-                            <el-popconfirm :title="'确定删除'+scope.row.name+'吗?'"
-                                icon="el-icon-info"
-                                icon-color="red"
-                                confirm-button-text='删除'
-                                @confirm="handleDelete(scope.row)"
-                            > -->
-                                
-                            <!-- </el-popconfirm> -->
-                            <el-button size="mini" type="danger" slot="reference" icon="el-icon-delete-solid" plain v-if="isHidden(getRouterPath('userDel', permissionList), permissionList)" @click="handleDeleteCluster(scope.row, 'sig')">删除</el-button>
+                            <el-button size="mini" type="danger" slot="reference" icon="el-icon-delete-solid" plain v-if="isHidden(getRouterPath('clusterDel', permissionList), permissionList)" @click="handleDeleteCluster(scope.row, 'sig')">删除</el-button>
+                            <el-button size="mini" type="info" slot="reference" icon="el-icon-edit" plain v-if="isHidden(getRouterPath('clusterUpdate', permissionList), permissionList)" @click="renderDialogInput(scope.row, 'update')">更新</el-button>
+                            <el-button size="mini" type="primary" slot="reference" icon="el-icon-top" plain 
+                            v-if="isHidden(getRouterPath('clusterJoinWork', permissionList), permissionList) || isHidden(getRouterPath('clusterJoinManager', permissionList), permissionList)" 
+                            @click="renderDialogInput(scope.row, 'expand')">扩容</el-button>
+                            <el-button size="mini" type="warning" slot="reference" icon="el-icon-bottom" plain 
+                            v-if="isHidden(getRouterPath('clusterLeave', permissionList), permissionList)" 
+                            @click="renderDialogInput(scope.row, 'shrink')">缩容</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -93,11 +100,43 @@
                 <el-form-item label="集群名称" prop="name">
                     <el-input type="name" v-model="ruleForm.name" autocomplete="off" clearable></el-input>
                 </el-form-item>
-                <el-form-item label="集群ID" prop="name">
-                    <el-input type="name" v-model="ruleForm.cluster_cid" autocomplete="off" clearable></el-input>
+                <el-form-item label="集群类型" prop="name">
+                    <el-input type="name" v-model="ruleForm.cluster_type" autocomplete="off" clearable></el-input>
                 </el-form-item>
                 <el-form-item label="集群区域" prop="region">
                     <el-input type="name" v-model="ruleForm.region" autocomplete="off" clearable></el-input>
+                </el-form-item>
+                <el-form-item label="主节点" prop="master_ip">
+                    <el-select v-model="ruleForm.master_ip" placeholder="请选择主节点" clearable>
+                        <el-option
+                            v-for="item in clusterServers"
+                            :key="item.id"
+                            :label="item.ip"
+                            :value="item.ip"
+                            :disabled="item.disabled"
+                            >
+                            <span style="color: #8492a6; font-size: 13px">{{item.name}}|{{ item.ip }}|{{ item.node_type|showNodeTypeName() }}</span>
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="工作节点" prop="work_ip">
+                    <el-select v-model="ruleForm.work_ip" placeholder="请选择工作节点" clearable
+                                        multiple
+                                        filterable
+                                        allow-create
+                                        default-first-option
+                    >
+                        <el-option
+                            v-for="item in clusterServers"
+                            :key="item.id"
+                            :label="item.ip"
+                            :value="item.ip"
+                            v-if="ruleForm.master_ip != item.ip"
+                            :disabled="item.disabled"
+                            >
+                            <span style="color: #8492a6; font-size: 13px">{{item.name}}|{{ item.ip }}|{{ item.node_type|showNodeTypeName() }}</span>
+                        </el-option>
+                    </el-select>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -113,11 +152,161 @@
             </span>
         </el-dialog>
     </div>
+    <!-- 更新集群 -->
+    <div>
+        <el-dialog
+            title="更新集群"
+            :visible.sync="updateClusterDialogVisible"
+            width="500px"
+            :close-on-click-modal="false"
+            v-draggable
+            center
+            >
+            <el-form :model="ruleForm" status-icon label-position="right" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+                <el-form-item label="集群ID" prop="id">
+                    <el-input type="name" v-model="ruleForm.id" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="集群名称" prop="name">
+                    <el-input type="name" v-model="ruleForm.name" autocomplete="off" clearable></el-input>
+                </el-form-item>
+                <el-form-item label="集群类型" prop="name">
+                    <el-input type="name" v-model="ruleForm.cluster_type" autocomplete="off" clearable></el-input>
+                </el-form-item>
+                <el-form-item label="集群区域" prop="region">
+                    <el-input type="name" v-model="ruleForm.region" autocomplete="off" clearable></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="resetForm('ruleForm')">重置</el-button>
+                <el-popconfirm :title="'确定更新【'+ruleForm.name+'】吗?'"
+                                icon="el-icon-info"
+                                icon-color="red"
+                                confirm-button-text='确定'
+                                @confirm="submitForm('ruleForm', updateClusterMth)"
+                            >
+                    <el-button type="primary" :loading="updateClusterLoading" slot="reference">确 定</el-button>
+                </el-popconfirm>
+            </span>
+        </el-dialog>
+    </div>
+    <!-- 集群扩容 -->
+    <div>
+        <el-dialog
+            title="集群扩容"
+            :visible.sync="expandClusterDialogVisible"
+            width="500px"
+            :close-on-click-modal="false"
+            v-draggable
+            @closed="handleClosedMth"
+            center
+            >
+            <el-form :model="ruleForm" status-icon label-position="right" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+                <el-form-item label="集群ID" prop="id">
+                    <el-input type="name" v-model="ruleForm.id" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="集群名称" prop="name">
+                    <el-input type="name" v-model="ruleForm.name" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="扩容节点" prop="name">
+                    <el-radio-group v-model="selectNode">
+                        <el-radio :label="1">管理节点</el-radio>
+                        <el-radio :label="2">工作节点</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="选择服务器" prop="work_ip">
+                    <el-select v-model="ruleForm.work_ip" placeholder="选择服务器" clearable
+                                        multiple
+                                        filterable
+                                        allow-create
+                                        default-first-option
+                    >
+                        <el-option
+                            v-for="item in clusterServers"
+                            :key="item.id"
+                            :label="item.ip"
+                            :value="item.ip"
+                            :disabled="item.disabled"
+                            >
+                            <span style="color: #8492a6; font-size: 13px">{{item.name}}|{{ item.ip }}|{{ item.node_type|showNodeTypeName() }}</span>
+                        </el-option>
+                    </el-select>
+                    <el-button class="refresh" size="small" :loading="tableLoad" type="info" icon="el-icon-refresh" circle @click="getClusterListMth('page')"></el-button>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="resetForm('ruleForm')">重置</el-button>
+                <el-popconfirm :title="'确定扩容吗?'"
+                                icon="el-icon-info"
+                                icon-color="red"
+                                confirm-button-text='确定'
+                                @confirm="submitForm('ruleForm', expandClusterMth)"
+                            >
+                    <el-button type="primary" :loading="expandClusterLoading" slot="reference">确 定</el-button>
+                </el-popconfirm>
+            </span>
+        </el-dialog>
+    </div>
+    <!-- 集群缩容 -->
+    <div>
+        <el-dialog
+            title="集群缩容"
+            :visible.sync="shrinkClusterDialogVisible"
+            width="500px"
+            :close-on-click-modal="false"
+            v-draggable
+            @closed="handleClosedMth"
+            center
+            >
+            <el-form :model="ruleForm" status-icon label-position="right" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+                <el-form-item label="集群ID" prop="id">
+                    <el-input type="name" v-model="ruleForm.id" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="集群名称" prop="name">
+                    <el-input type="name" v-model="ruleForm.name" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="缩容节点" prop="name">
+                    <el-radio-group v-model="selectNode" @change="filterSeversMth">
+                        <el-radio :label="1">管理节点</el-radio>
+                        <el-radio :label="2">工作节点</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="选择服务器" prop="work_ip">
+                    <el-select v-model="ruleForm.work_ip" placeholder="选择服务器" clearable
+                                        multiple
+                                        filterable
+                                        allow-create
+                                        default-first-option
+                    >
+                        <el-option
+                            v-for="item in clusterServers"
+                            :key="item.id"
+                            :label="item.ip"
+                            :value="item.ip"
+                            >
+                            <span style="color: #8492a6; font-size: 13px">{{ruleForm.name}}|{{ item.ip }}|{{ item.node_type|showNodeTypeName() }}</span>
+                        </el-option>
+                    </el-select>
+                    <el-button class="refresh" size="small" :loading="tableLoad" type="info" icon="el-icon-refresh" circle @click="getClusterListMth('page')"></el-button>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="resetForm('ruleForm')">重置</el-button>
+                <el-popconfirm :title="'确定将选择的服务器从集群移除吗?'"
+                                icon="el-icon-info"
+                                icon-color="red"
+                                confirm-button-text='确定'
+                                @confirm="submitForm('ruleForm', leaveClusterMth)"
+                            >
+                    <el-button type="primary" :loading="shrinkClusterLoading" slot="reference">确 定</el-button>
+                </el-popconfirm>
+            </span>
+        </el-dialog>
+    </div>
     </div>
 </template>
 
 <script>
-import { createCluster, getClusterList, delCluster } from '../../api';
+import { createCluster, getClusterList, delCluster,joinMasterCluster,joinWorkCluster,leaveCluster,updateCluster } from '../../api';
 import { Message } from 'element-ui';
 import { isHidden, getRouterPath } from '@/utils/utils';
 import { mapState } from 'vuex';
@@ -125,6 +314,66 @@ import { MessageBox } from 'element-ui';
 
 export default {
     name:"cluster",
+    // 弹窗可拖拽
+    directives: {
+        draggable: {
+      bind(el) {
+        // 设置弹窗的基础样式，确保宽度固定
+        const computedStyle = window.getComputedStyle(el);
+        el.style.position = "fixed";
+        el.style.zIndex = 1000;
+
+        // 锁定宽度和高度
+        el.style.width = computedStyle.width;
+        el.style.height = computedStyle.height;
+
+        // 初始化拖动参数
+        el.dragging = false;
+        el.startX = 0;
+        el.startY = 0;
+        el.left = 0;
+        el.top = 0;
+
+        // 鼠标按下事件
+        el.addEventListener("mousedown", function (event) {
+          el.dragging = true;
+          el.startX = event.clientX;
+          el.startY = event.clientY;
+
+          // 获取弹窗的初始位置
+          const rect = el.getBoundingClientRect();
+          el.left = rect.left;
+          el.top = rect.top;
+
+          // 添加鼠标移动和松开事件
+          document.addEventListener("mousemove", mouseMove);
+          document.addEventListener("mouseup", mouseUp);
+        });
+
+        // 鼠标移动事件
+        function mouseMove(event) {
+          if (el.dragging) {
+            const left = event.clientX - el.startX + el.left;
+            const top = event.clientY - el.startY + el.top;
+
+            // 仅更新 left 和 top，避免影响宽度和高度
+            el.style.left = `${left}px`;
+            el.style.top = `${top}px`;
+          }
+        }
+
+        // 鼠标松开事件
+        function mouseUp() {
+          if (el.dragging) {
+            el.dragging = false;
+            // 移除事件监听
+            document.removeEventListener("mousemove", mouseMove);
+            document.removeEventListener("mouseup", mouseUp);
+          }
+        }
+      },
+    },
+    },
     data() {
         var validatename = (rule, value, callback) => {
             if (!value) {
@@ -147,7 +396,30 @@ export default {
                 callback();
             }
         };
+        var validatemasterip= (rule, value, callback) => {
+            if (!value) {
+                callback(new Error('主节点不能为空'));
+            } else {
+                callback();
+            }
+        };
+        var validateworkip= (rule, value, callback) => {
+            if (!value) {
+                callback(new Error('工作节点不能为空'));
+            } else {
+                callback();
+            }
+        };
         return {
+            updateClusterDialogVisible: false,
+            updateClusterLoading: false,
+            clusterServers: [],
+            shrinkClusterLoading: false,
+            shrinkClusterDialogVisible: false,
+            expandClusterLoading: false,
+            expandClusterDialogVisible: false,
+            selectNode:2,
+            servers: [],
             multipleSelection: [],
             createClusterLoading: false,
             createClusterDialogVisible: false,
@@ -156,6 +428,7 @@ export default {
             clusterName:"",
             clusterCid:"",
             clusterRegion:"",
+            clusterType:"",
             tableLoad: true,
             pages: {
                 curPage:1,
@@ -163,9 +436,13 @@ export default {
             },
             total:0,
             ruleForm:{
+                id: "",
                 name:"",
                 region:"",
                 cluster_cid:"",
+                cluster_type:"",
+                master_ip: [],
+                work_ip: [],
             },
             rules: {
                 name:[
@@ -188,6 +465,61 @@ export default {
     methods: {
         isHidden,
         getRouterPath,
+        handleClosedMth() {
+            this.clusterServers = [];
+            this.ruleForm.work_ip = [];
+            this.resetForm('ruleForm');
+        },
+        formatServersMth(row) {
+            let selectedServer = [];
+            let isAdd = false;
+            this.servers.forEach(item1 => {
+                this.clusterServers.forEach(item2 => {
+                    if (item1 == item2.ip) {
+                        const f1 = {node_type: item2.node_type, ip: item2.ip, name: this.ruleForm.name, disabled: true};
+                        selectedServer.push(f1);
+                        isAdd = true;
+                    }
+                });
+                if (!isAdd) {
+                    const f2 = {node_type: 3, ip: item1, name: "未加入集群", disabled: false};
+                    selectedServer.push(f2);
+                };
+                isAdd = false;
+            });
+            this.clusterServers = selectedServer;
+        },
+        async filterSeversMth(row) {
+            await this.clusterListData.forEach(item => {
+                if (item.id == this.ruleForm.id && item.servers.length > 0) {
+                    this.clusterServers = item.servers.filter(item => item.node_type == this.selectNode);
+                    return;
+                }
+            });
+            return true;
+        },
+        renderDialogInput(row, name) {
+            this.ruleForm.id = row.id;
+            this.ruleForm.name = row.name;
+            this.ruleForm.master_ip = row.master_ip;
+            this.ruleForm.region = row.region;
+            this.ruleForm.cluster_type = row.cluster_type;
+            this.clusterListData.forEach(item => {
+                if (item.id == row.id && item.servers.length > 0) {
+                    this.clusterServers = item.servers;
+                    return;
+                }
+            });
+            if (name == 'expand') {
+                this.expandClusterDialogVisible = true;
+                this.formatServersMth(row);
+            } else if (name == 'shrink') {
+                this.shrinkClusterDialogVisible = true;
+                this.filterSeversMth(row);
+            } else if (name == 'update') {
+                this.updateClusterDialogVisible = true;
+            }
+        },
         handleSelectionChange(val) {
             this.multipleSelection = val;
         },
@@ -219,27 +551,149 @@ export default {
             }
             
         },
-        deleteClusterMth(cids) {
+        async deleteClusterMth(cids) {
+            let servers = [];
+            const bdata = {ip: this.ruleForm.master_ip, node_type: 1};
+            servers.push(bdata);
+            this.ruleForm.work_ip.forEach(item => {
+                const idata = {ip: item, node_type: 2};
+                servers.push(idata);
+            });
 
+            let data = {
+                id: cids,
+            };
+            this.tableLoad = true;
+            const resp = await delCluster(JSON.stringify(data), this.methodCall);
+            if (resp.data && resp.data.code !== 10000) {
+                Message.error(resp.data.message);
+            } else {
+                Message.success(resp.data.message);
+            }
+
+            this.getClusterListMth("page");
+        },
+        async expandClusterMth() {
+            let servers = [];
+            const bdata = {ip: this.ruleForm.master_ip, node_type: 1};
+            servers.push(bdata);
+            this.expandClusterLoading = true;
+            if (this.selectNode == '1') {
+                servers = [];
+                this.ruleForm.work_ip.forEach(item => {
+                    const idata = {ip: item, node_type: 1};
+                    servers.push(idata);
+                });
+                let data = {
+                    id: this.ruleForm.id, 
+                    master_ip: this.ruleForm.master_ip,
+                    servers: servers,
+                };
+                const resp = await joinMasterCluster(JSON.stringify(data), this.methodCall);
+                if (resp.data && resp.data.code !== 10000) {
+                    Message.error(resp.data.message);
+                } else {
+                    Message.success(resp.data.message);
+                }
+                
+            } else if (this.selectNode == '2') {
+                this.ruleForm.work_ip.forEach(item => {
+                    const idata = {ip: item, node_type: 2};
+                    servers.push(idata);
+                });
+                let data = {
+                    id: this.ruleForm.id, 
+                    master_ip: this.ruleForm.master_ip,
+                    servers: servers,
+                };
+                const resp = await joinWorkCluster(JSON.stringify(data), this.methodCall);
+                if (resp.data && resp.data.code !== 10000) {
+                    Message.error(resp.data.message);
+                } else {
+                    Message.success(resp.data.message);
+                }
+            }
+
+            this.expandClusterLoading = false;
+            this.expandClusterDialogVisible = false;
+            
+        },
+        async leaveClusterMth() {
+            let servers = [];
+            // const bdata = {ip: this.ruleForm.master_ip, node_type: 1};
+            // servers.push(bdata);
+            this.ruleForm.work_ip.forEach(item => {
+                const idata = {ip: item, node_type: 2};
+                servers.push(idata);
+            });
+            let data = {
+                id: this.ruleForm.id, 
+                master_ip: this.ruleForm.master_ip,
+                servers: servers,
+            };
+
+            this.shrinkClusterLoading = true;
+            const resp = await leaveCluster(JSON.stringify(data), this.methodCall);
+            if (resp.data && resp.data.code !== 10000) {
+                Message.error(resp.data.message);
+            } else {
+                Message.success(resp.data.message);
+            }
+            
+            this.shrinkClusterLoading = false;
+            this.shrinkClusterDialogVisible = false;
         },
         async createClusterMth() {
             this.createClusterLoading = true;
-            const resp = await createCluster({
+            let servers = [];
+            const bdata = {ip: this.ruleForm.master_ip, node_type: 1};
+            servers.push(bdata);
+            this.ruleForm.work_ip.forEach(item => {
+                const idata = {ip: item, node_type: 2};
+                servers.push(idata);
+            });
+
+            let data = {
                 name: this.ruleForm.name, 
                 region: this.ruleForm.region, 
-                cluster_cid: this.ruleForm.cluster_cid}, 
-                this.methodCall);
+                master_ip: this.ruleForm.master_ip,
+                servers: servers,
+                cluster_type: this.ruleForm.cluster_type,
+            };
+            const resp = await createCluster(JSON.stringify(data), this.methodCall);
             if (resp.data && resp.data.code !== 10000) {
-                this.createClusterLoading = false;
-                this.createClusterDialogVisible = true;
-                return Message.error(resp.data.message);
+                Message.error(resp.data.message);
+            } else {
+                Message.success(resp.data.message);
             }
-            this.getClusterListMth("page");
-            this.createClusterDialogVisible = true;
-            this.createClusterLoading = false;
 
+            this.getClusterListMth("page");
+            this.createClusterLoading = false;
+            this.createClusterDialogVisible = false;
+        },
+        async updateClusterMth() {
+            let data = {
+                id: this.ruleForm.id,
+                name: this.ruleForm.name, 
+                region: this.ruleForm.region, 
+                master_ip: this.ruleForm.master_ip,
+                cluster_type: this.ruleForm.cluster_type,
+            };
+            this.updateClusterLoading = true;
+            const resp = await updateCluster(data, this.methodCall);
+            if (resp.data && resp.data.code !== 10000) {
+                Message.error(resp.data.message);
+            } else {
+                Message.success(resp.data.message);
+            }
+
+            this.getClusterListMth("page");
+            this.updateClusterLoading = false;
+            this.updateClusterDialogVisible = false;
         },
         async getClusterListMth(mode) {
+            this.clusterServers = [];
+            this.servers = [];
             this.tableLoad = true;
             var pageNum = 0;
             switch (mode) {
@@ -256,17 +710,32 @@ export default {
                 name: this.clusterName,
                 cluster_cid: this.clusterCid,
                 region: this.clusterRegion,
+                cluster_type: this.clusterType,
             }).catch(err => this.tableLoad = false); 
             if (resp.data && resp.data.code !== 10000) {
                 this.tableLoad = false;
                 return Message.error(resp.data.message)
             }
 
+            
             this.pages.curPage = pageNum;
             this.clusterListData = resp.data.data;
             this.total = resp.data.total;
             this.pages.pageSize = resp.data.pageSize;
             this.tableLoad = false;
+            this.servers = resp.data.servers;
+            // this.filterSeversMth();
+            // this.formatServersMth();
+            const isFinished = this.filterSeversMth();
+            if (isFinished) {
+                this.clusterListData.forEach(item => {
+                    if (item.id == this.ruleForm.id && item.servers.length > 0) {
+                        this.clusterServers = item.servers;
+                        return;
+                    }
+                });
+                this.formatServersMth();
+            }
         },
         openDialog(name) {
             if (name == "add") {
@@ -314,6 +783,15 @@ export default {
             if (min < 10) min = '0' + min;
             if (seconds < 10) seconds = '0' + seconds;
             return (year + '-' + month + '-' + day + ' ' + hours + ':' + min + ':' + seconds);
+        },
+        showNodeTypeName(data) {
+            if (data == 1) {
+                return "master节点";
+            } else if (data ==2 ) {
+                return "work节点";
+            }  else {
+                return "未分配节点";
+            } 
         },
     },
 }
@@ -367,8 +845,19 @@ export default {
 :deep .el-dialog--center .el-dialog__footer {
     background-color: #f9f9f9;
 }
+.el-message-box__message p {
+    overflow-wrap: break-word;
+    height: 96px;
+    overflow-y: auto;
+}
 .col-el {
     position: relative;
     bottom: 2px;
+}
+.refresh {
+    margin-left: 20px;
+}
+.col-last {
+    float: right;
 }
 </style>

@@ -7,7 +7,7 @@
                         <el-input clearable size="small" @clear="OperateLogList('search')" placeholder="请输入操作者搜索" suffix-icon="el-icon-date" v-model="operator"></el-input>
                     </el-col>
                     <el-col :span="4">
-                        <el-input clearable size="small" @clear="OperateLogList('search')" placeholder="请输入url搜索" suffix-icon="el-icon-date" v-model="url"></el-input>
+                        <el-input clearable size="small" @clear="OperateLogList('search')" placeholder="请输入事件搜索" suffix-icon="el-icon-date" v-model="url"></el-input>
                     </el-col>
                     <el-col :span="4">
                         <el-input clearable size="small" @clear="OperateLogList('search')" placeholder="请输入ip搜索" suffix-icon="el-icon-date" v-model="ip"></el-input>
@@ -31,6 +31,11 @@
                             <el-button size="small" type="primary" icon="el-icon-search" circle @click="OperateLogList('search')"></el-button>
                         </el-tooltip>
                     </el-col>
+                    <el-col :span="1" class="col-last">
+                        <el-tooltip class="item" effect="dark" content="刷新日志列表" placement="top-start">
+                            <el-button size="small" type="info" icon="el-icon-refresh" circle @click="OperateLogList('page')"></el-button>
+                        </el-tooltip>
+                    </el-col>
                 </el-row>
             </div>
             <div class="table">
@@ -42,9 +47,9 @@
                     <el-table-column prop="ip" label="remoteIP" ></el-table-column>
                     <el-table-column prop="url" label="event" show-overflow-tooltip></el-table-column>
                     <!-- <el-table-column prop="CreatedAt" label="visit_time" ></el-table-column> -->
-                    <el-table-column prop="CreatedAt" label="event_time" >
+                    <el-table-column prop="Start" label="event_time" >
                         <template slot-scope="scope">
-                            <el-tag size="small" type="success">{{ scope.row.CreatedAt | formatDate}}</el-tag>
+                            <el-tag size="small" type="success">{{ scope.row.Start | formatDate}}</el-tag>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -160,5 +165,7 @@ export default {
     margin-top: 30px;
     margin-bottom: 15px;
 }
-
+.col-last {
+    float: right;
+}
 </style>

@@ -20,108 +20,130 @@ export default {
             terminal: null,
             fitAddon: new FitAddon(),
             socket: null,
-            isInputLock: false, // 防止在服务器响应期间输入
-            inputBuffer: '',
+            resizeObserver: null,
+            isConnected: false,
+            hasConnected: false,
+            decoder: new TextDecoder('utf-8', { fatal: false }),
         };
     },
     mounted() {
-        this.initTerminal();
-        this.connectWebSocket();
+        this.initConnection();
     },
     beforeDestroy() {
-        if (this.socket) {
-            this.socket.close();
-            this.socket = null;
-        }
-        if (this.terminal) {
-            this.terminal.dispose();
-        }
+        this.disconnect();
     },
     methods: {
-        initTerminal() {
-            this.terminal = new Terminal({
-                cursorBlink: true,
-                fontSize: 14,
-                convertEol: true,
-                disableStdin: false,
-            });
-
-            this.terminal.loadAddon(this.fitAddon);
-            this.terminal.open(this.$refs.terminalContainer);
-            this.fitAddon.fit();
-
-            this.terminal.onKey(e => {
-                const { key, domEvent } = e;
-                const command = this.handleKeyEvent(domEvent);
-                if (command !== null && this.socket.readyState === WebSocket.OPEN) {
-                    this.socket.send(command);
-                }
-            });
-        },
-        handleKeyEvent(event) {
-        if (this.isInputLock) return null;
-            switch(event.key) {
-                case 'Enter':
-                    const command = this.inputBuffer;
-                    this.inputBuffer = '';
-                    this.socket.send('\r');
-                    // this.logCommand(command); // 可选：前端记录命令
-                    return '\r';
-                case 'Backspace':
-                    this.inputBuffer = this.inputBuffer.slice(0, -1);
-                    return '\x08';
-                case 'Tab':
-                    event.preventDefault();
-                    this.inputBuffer += '\t';
-                    return '\t';
-                default:
-                    if (event.key.length === 1) {
-                        this.inputBuffer += event.key;
-                        return event.key;
-                    }
-                    return null;
+        initConnection() {
+            if (!this.hasConnected) {
+                this.hasConnected = true;
+                this.initTerminal();
             }
         },
-        logCommand(cmd) {
-            console.log('[CMD]', cmd.replace(/\t/g, 'TAB'));
+        initTerminal() {
+            this.$nextTick(() => {
+                this.setupTerminal();
+                this.connectWebSocket();
+                this.setupResizeObserver();
+            });
         },
-        // handleKeyEvent(event) {
-        //     // 处理特殊按键
-        //     if (event.key === 'Enter') {
-        //         return '\r';
-        //     }
-        //     if (event.key === 'Backspace') {
-        //         return '\x08';
-        //     }
-        //     if (event.key === 'Tab') {  // 新增Tab键处理
-        //         event.preventDefault(); // 阻止默认跳转行为
-        //         return '\t'; 
-        //     }
-        //     // 发送可打印字符
-        //     if (event.key.length === 1) {
-        //         return event.key;
-        //     }
-        //     return null;
-        // },
         connectWebSocket() {
+            if (this.socket) return; // 避免重复创建 WebSocket
+
             this.socket = new WebSocket(this.wsUrl);
+            this.socket.binaryType = 'arraybuffer'; // 允许接收二进制数据
 
             this.socket.onopen = () => {
-                this.terminal.write('WebSocket 连接成功\r\n');
+                this.isConnected = true;
+                // this.terminal.writeln('\x1b[32mWebSocket 连接成功\x1b[0m');
+                setTimeout(() => this.sendSize(), 100); // 连接成功后，延迟发送窗口大小
             };
 
             this.socket.onmessage = (event) => {
-                this.terminal.write(event.data);
+                let data = event.data instanceof ArrayBuffer ? new Uint8Array(event.data) : event.data;
+                // 直接将二进制数据写入终端
+                this.terminal.write(data);
             };
 
             this.socket.onerror = (error) => {
                 console.error('WebSocket 错误:', error);
-                this.terminal.write('连接发生错误，请检查控制台\r\n');
+                this.terminal.write('\x1b[31m连接发生错误，请检查控制台\x1b[0m');
             };
 
             this.socket.onclose = (event) => {
-                this.terminal.write(`连接关闭，状态码: ${event.code}\r\n`);
+                this.isConnected = false;
+                this.socket = null;
+                this.terminal.write(`\x1b[33m连接关闭，状态码: ${event.code}\x1b[0m`);
             };
+        },
+        setupTerminal() {
+            if (this.terminal) return;
+            this.terminal = new Terminal({
+                cursorBlink: true,
+                fontSize: 14,
+                fontFamily: 'Consolas, monospace',
+                convertEol: true,  // 允许终端自动处理行尾符号
+                scrollback: 10000,
+                disableStdin: false,
+                screenKeys: true,  // 启用屏幕键
+                macOptionIsMeta: true,
+                allowProposedApi: true,
+                termType: 'xterm-256color', // 设置终端类型
+            });
+
+            this.terminal.loadAddon(this.fitAddon);
+            this.terminal.open(this.$refs.terminalContainer);
+            this.terminal.focus();
+            this.fitAddon.fit();
+
+            // 监听终端输入并发送给服务器
+            this.terminal.onData(data => {
+                if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                    this.socket.send(data);
+                }
+            });
+        },
+        setupResizeObserver() {
+            this.resizeObserver = new ResizeObserver(() => {
+                this.handleResize();
+            });
+            this.resizeObserver.observe(this.$refs.terminalContainer);
+        },
+        sendSize() {
+            if (!this.isConnected || !this.socket || this.socket.readyState !== WebSocket.OPEN) return;
+            const dims = this.fitAddon.proposeDimensions();
+            if (!dims || dims.cols < 10 || dims.rows < 5) return;
+            this.socket.send(JSON.stringify({
+                type: 'resize',
+                rows: dims.rows,
+                cols: dims.cols,
+            }));
+        },
+        handleResize() {
+            if (!this.terminal || !this.socket || !this.isConnected) return;
+            this.fitAddon.fit();
+            this.sendSize();
+        },
+        clearTerminal() {
+            this.terminal.reset();
+            this.disconnect();
+            setTimeout(() => {
+                this.initConnection();
+            }, 1000);
+        },
+        disconnect() {
+            this.isConnected = false;
+            this.hasConnected = false;
+            if (this.socket) {
+                this.socket.close();
+                this.socket = null;
+            }
+            if (this.resizeObserver) {
+                this.resizeObserver.disconnect();
+            }
+            if (this.terminal) {
+                this.terminal.dispose();
+                this.terminal = null;
+            }
         },
     },
 };
@@ -129,27 +151,17 @@ export default {
 
 <style scoped>
 .terminal-container {
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    background: #000;
-    border-radius: 4px;
+    width: 708px !important;
+    height: 533px !important;
+    padding: 0 !important;
+    background: #000 !important;
+    border-radius: 4px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    font-family: "Consolas", monospace !important;
 }
-.xterm {
-    height: 100%;
-}
-
-.xterm .xterm-viewport::-webkit-scrollbar {
-    width: 10px!important; /* 设置滚动条宽度 */
-}
-.xterm .xterm-viewport::-webkit-scrollbar-track {
-    background-color: #f3f3f4!important; /* 设置滚动条背景颜色 */
-}
-.xterm .xterm-viewport::-webkit-scrollbar-thumb {
-    background-color: #cecece!important; /* 设置滚动条滑块颜色 */
-    border-radius: 5px; /* 设置滑块的圆角 */
-}
-.xterm .xterm-viewport::-webkit-scrollbar-thumb:hover {
-    background-color: #bdbdbd!important; /* 设置滚动条滑块悬停时的颜色 */
+::v-deep .xterm-rows {
+  font-family: inherit !important;
+  font-size: 14px !important;
 }
 </style>
