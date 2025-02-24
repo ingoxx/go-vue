@@ -235,6 +235,12 @@ const dynamicRoutes = [
                     meta: { name: '集群缩容'},
                     hidden: false,
                   },
+                  {
+                    path:'/cluster/health-check',
+                    name: 'clusterHealthCheck',
+                    meta: { name: '集群健康检测'},
+                    hidden: false,
+                  },
                 ],
             },
         ],

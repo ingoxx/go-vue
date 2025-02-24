@@ -256,45 +256,64 @@ export default {
     name: "user",
     directives: {
         draggable: {
-            bind(el, binding, vnode) {
-                el.style.position = 'fixed';
-                el.style.zIndex = 1000;
+            bind(el) {
+            // 设置弹窗的基础样式，确保宽度固定
+            const computedStyle = window.getComputedStyle(el);
+            el.style.position = "fixed";
+            el.style.zIndex = 1000;
 
-                el.dragging = false;
-                el.startX = 0;
-                el.startY = 0;
-                el.left = 0;
-                el.top = 0;
+            // 锁定宽度和高度
+            el.style.width = computedStyle.width;
+            el.style.height = computedStyle.height;
 
-                el.addEventListener('mousedown', function (event) {
-                    el.dragging = true;
-                    el.startX = event.clientX;
-                    el.startY = event.clientY;
+            // 初始化拖动参数
+            el.dragging = false;
+            el.startX = 0;
+            el.startY = 0;
+            el.left = 0;
+            el.top = 0;
 
-                    const rect = el.getBoundingClientRect();
-                    el.left = rect.left;
-                    el.top = rect.top;
+            // 监听弹窗头部的鼠标按下事件
+            const header = el.querySelector('.el-dialog__header');
+            header.addEventListener("mousedown", function (event) {
+                // 判断右键点击
+                if (event.button === 2) return;  // 阻止右键触发拖动
+                
+                el.dragging = true;
+                el.startX = event.clientX;
+                el.startY = event.clientY;
 
-                    document.addEventListener('mousemove', mouseMove);
-                    document.addEventListener('mouseup', mouseUp);
-                });
+                // 获取弹窗的初始位置
+                const rect = el.getBoundingClientRect();
+                el.left = rect.left;
+                el.top = rect.top;
 
-                function mouseMove(event) {
-                    if (el.dragging) {
-                        const left = event.clientX - el.startX + el.left;
-                        const top = event.clientY - el.startY + el.top;
-                        el.style.left = `${left}px`;
-                        el.style.top = `${top}px`;
-                    }
+                // 添加鼠标移动和松开事件
+                document.addEventListener("mousemove", mouseMove);
+                document.addEventListener("mouseup", mouseUp);
+            });
+
+            // 鼠标移动事件
+            function mouseMove(event) {
+                if (el.dragging) {
+                    const left = event.clientX - el.startX + el.left;
+                    const top = event.clientY - el.startY + el.top;
+
+                    // 仅更新 left 和 top，避免影响宽度和高度
+                    el.style.left = `${left}px`;
+                    el.style.top = `${top}px`;
                 }
+            }
 
-                function mouseUp() {
-                    if (el.dragging) {
-                        el.dragging = false;
-                        document.removeEventListener('mousemove', mouseMove);
-                        document.removeEventListener('mouseup', mouseUp);
-                    }
+            // 鼠标松开事件
+            function mouseUp() {
+                if (el.dragging) {
+                    el.dragging = false;
+                    // 移除事件监听
+                    document.removeEventListener("mousemove", mouseMove);
+                    document.removeEventListener("mouseup", mouseUp);
                 }
+            }
             },
         },
     },
@@ -713,6 +732,7 @@ export default {
 :deep .el-dialog__header {
     background-color: #1f211f;
     padding: 16px 20px 16px;
+    cursor: move!important;
 }
 :deep .el-dialog__title {
     color: #fff;
@@ -727,9 +747,10 @@ export default {
 :deep .el-dialog__body {
     // height: 351px !important;
     background-color: #f9f9f9;
+    cursor: default;
 }
 :deep .el-dialog--center {
-    cursor: move;
+    cursor: default;
 }
 :deep .el-dialog--center .el-dialog__footer {
     background-color: #f9f9f9;

@@ -55,13 +55,58 @@
                     <div class="server-search">
                         <el-row :gutter=10>
                             <el-col :span="3.9">
-                                <el-input v-model="projectSearch" placeholder="请输入项目名" size="mini" clearable @keyup.enter.native="getAssetsList('search')" @clear="getAssetsList('search')"></el-input>
+                                <el-input v-model="projectSearch" placeholder="请输入项目名查询" size="mini" clearable @keyup.enter.native="getAssetsList('search')" @clear="getAssetsList('search')"></el-input>
                             </el-col>
                             <el-col :span="3.9">
-                                <el-input v-model="serverSearch" placeholder="请输入ip" size="mini" clearable @keyup.enter.native="getAssetsList('search')" @clear="getAssetsList('search')"></el-input>
+                                <el-input v-model="serverSearch" placeholder="请输入ip查询" size="mini" clearable @keyup.enter.native="getAssetsList('search')" @clear="getAssetsList('search')"></el-input>
                             </el-col>
                             <el-col :span="3.9">
-                                <el-select v-model="clusterSearch" placeholder="选择集群名称" @change="getAssetsList('search')" size="mini" clearable filterable @clear="getAssetsList('search')">
+                                <el-select v-model="serverOsTypeSearch" placeholder="请输入系统类型查询" @change="getAssetsList('search')" size="mini" clearable filterable @clear="getAssetsList('search')">
+                                    <el-option
+                                        v-for="item in osList"
+                                        v-if="item.id != 300"
+                                        :key="item.id"
+                                        :label="item.name"
+                                        :value="item.id">
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                            <el-col :span="3.9">
+                                <!-- <el-input v-model="serverStatusSearch" placeholder="请输入服务器状态查询" size="mini" clearable @keyup.enter.native="getAssetsList('search')" @clear="getAssetsList('search')"></el-input> -->
+                                <el-select v-model="serverStatusSearch" placeholder="请输入服务器状态查询" @change="getAssetsList('search')" size="mini" clearable filterable @clear="getAssetsList('search')">
+                                    <el-option
+                                        v-for="item in statusList"
+                                        v-if="item.id != 300"
+                                        :key="item.id"
+                                        :label="item.name"
+                                        :value="item.id">
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                            <el-col :span="3.9">
+                                <!-- <el-input v-model="serverNodeTypeSearch" placeholder="请输入节点类型查询" size="mini" clearable @keyup.enter.native="getAssetsList('search')" @clear="getAssetsList('search')"></el-input> -->
+                                <el-select v-model="serverNodeTypeSearch" placeholder="请输入节点类型查询" @change="getAssetsList('search')" size="mini" clearable filterable @clear="getAssetsList('search')">
+                                    <el-option
+                                        v-for="item in nodeTypeList"
+                                        :key="item.id"
+                                        :label="item.name"
+                                        :value="item.id">
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                            <el-col :span="3.9">
+                                <!-- <el-input v-model="serverNodeStatusSearch" placeholder="请输入节点状态查询" size="mini" clearable @keyup.enter.native="getAssetsList('search')" @clear="getAssetsList('search')"></el-input> -->
+                                <el-select v-model="serverNodeStatusSearch" placeholder="请输入节点状态查询" @change="getAssetsList('search')" size="mini" clearable filterable @clear="getAssetsList('search')">
+                                    <el-option
+                                        v-for="item in statusList"
+                                        :key="item.id"
+                                        :label="item.name"
+                                        :value="item.id">
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                            <el-col :span="3.9">
+                                <el-select v-model="clusterSearch" placeholder="选择集群名称查询" @change="getAssetsList('search')" size="mini" clearable filterable @clear="getAssetsList('search')">
                                     <el-option
                                         v-for="item in clusterList"
                                         :key="item.id"
@@ -101,8 +146,14 @@
                                     </el-select>
                                 </el-col>
                                 <el-col :span="3.9">
+                                <el-button type="danger" icon="el-icon-mouse" size="mini" @click="runProcess('mul', null)" v-if="isHidden(getRouterPath('updateProgram', permissionList), permissionList)" :loading="submitLoading">批量更新程序</el-button>
+                            </el-col>
+                            <el-col :span="3.9">
+                                <el-button type="danger" icon="el-icon-mouse" size="mini" @click="openDialogMth('cmd', null)" v-if="isHidden(getRouterPath('run-linux-cmd', permissionList), permissionList)" :loading="submitLoading">批量ansible作业</el-button>
+                            </el-col>
+                                <!-- <el-col :span="3.9">
                                     <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openDialogMth('add-assets', null)" v-if="isHidden(getRouterPath('assetsAdd', permissionList), permissionList)">新建服务器</el-button>
-                                </el-col>
+                                </el-col> -->
                                 <el-col :span="2" class="c3">
                                     <el-link type="primary" @click="updateSetup">{{ detailContent }}<i :class="detailICon"></i> </el-link>
                                 </el-col>
@@ -111,14 +162,16 @@
                     <div class="linux-op">
                         <el-row :gutter=10>
                             <el-col :span="3.9">
+                                <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openDialogMth('add-assets', null)" v-if="isHidden(getRouterPath('assetsAdd', permissionList), permissionList)">新建服务器</el-button>
+                            </el-col>
+                            <!-- <el-col :span="3.9">
                                 <el-button type="danger" icon="el-icon-mouse" size="mini" @click="runProcess('mul', null)" v-if="isHidden(getRouterPath('updateProgram', permissionList), permissionList)" :loading="submitLoading">批量更新程序</el-button>
                             </el-col>
                             <el-col :span="3.9">
                                 <el-button type="danger" icon="el-icon-mouse" size="mini" @click="openDialogMth('cmd', null)" v-if="isHidden(getRouterPath('run-linux-cmd', permissionList), permissionList)" :loading="submitLoading">批量ansible作业</el-button>
-                            </el-col>
+                            </el-col> -->
                         </el-row>
                     </div>
-                    
                 </div>
                 <div class="table">
                     <transition name="el-zoom-in-center">
@@ -170,9 +223,16 @@
                     </el-table-column>
                     <el-table-column prop="node_type" label="节点类型" width="150">
                         <template slot-scope="scope">
-                            <el-link type="primary" :underline="false"  size="mini" v-if="scope.row.node_type === 1 && scope.row.cluster_id != ''" plain>master节点</el-link>
-                            <el-link type="warning" :underline="false"  size="mini" v-else-if="scope.row.node_type === 2  && scope.row.cluster_id != ''" plain>node节点</el-link>
-                            <el-link type="warning" :underline="false"  size="mini" v-else plain>未分配节点</el-link>
+                            <el-link type="primary" :underline="false"  size="mini" v-if="scope.row.node_type === 1 && scope.row.cluster_id != ''" plain>主管理节点</el-link>
+                            <el-link type="primary" :underline="false"  size="mini" v-else-if="scope.row.node_type === 2  && scope.row.cluster_id != ''" plain>工作节点</el-link>
+                            <el-link type="danger" :underline="false"  size="mini" v-else plain>未分配节点类型</el-link>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="node_status" label="节点状态" width="150">
+                        <template slot-scope="scope">
+                            <el-link type="danger" :underline="false"  size="mini" v-if="scope.row.node_status === 100 && scope.row.cluster_id != ''" plain>异常</el-link>
+                            <el-link type="primary" :underline="false"  size="mini" v-else-if="scope.row.node_status === 200  && scope.row.cluster_id != ''" plain>正常</el-link>
+                            <el-link type="danger" :underline="false"  size="mini" v-else plain>未知节点状态</el-link>
                         </template>
                     </el-table-column>
                     <el-table-column prop="status" label="服务器状态" width="130">
@@ -222,7 +282,7 @@
                             <el-link type="success" :underline="false"  size="mini" plain v-else>{{ scope.row.disk_usage }}%</el-link>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="start" label="添加/修改时间" width="180">
+                    <el-table-column prop="start" label="更新时间" width="180">
                         <template slot-scope="scope">
                             <i class="el-icon-time"></i>
                             <span style="margin-left: 10px">{{ scope.row.start | formatDate }}</span>
@@ -388,7 +448,6 @@
                 @close="clearIplistMth"
                 v-draggable
                 :width="setDialogWth"
-                :destroy-on-close="true"
                 >
                 <div class="result-title run-linux-cmd-title">
                     <el-card>
@@ -563,7 +622,6 @@
                 :close-on-click-modal="false"
                 center
                 width="600px"
-                :destroy-on-close="true" 
                 v-draggable
                 :before-close="clearDialogDataMth"
                 >
@@ -606,30 +664,10 @@
                     <el-form-item label="端口" prop="port">
                         <el-input  type="text" v-model="ruleForm.port" autocomplete="off" clearable></el-input>
                     </el-form-item>
-                    <!-- <el-form-item label="集群" prop="cluster">
-                        <el-select v-model="ruleForm.cluster" placeholder="请选择集群" clearable>
-                            <el-option
-                                v-for="item in clusterList"
-                                :key="item.id"
-                                :label="item.name"
-                                :value="item.id">
-                            </el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="节点类型" prop="node_type">
-                        <el-select v-model="ruleForm.node_type" placeholder="请选择节点类型" clearable>
-                            <el-option
-                                v-for="item in nodeTypeList"
-                                :key="item.id"
-                                :label="item.name"
-                                :value="item.id">
-                            </el-option>
-                        </el-select>
-                    </el-form-item> -->
                 </el-form>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="resetForm('ruleForm')">重置</el-button>
-                    <el-popconfirm :title="'确定添加吗?'"
+                    <el-popconfirm :title="`确定创建${ruleForm.ip}服务器吗?`"
                                     icon="el-icon-info"
                                     icon-color="red"
                                     confirm-button-text='确定'
@@ -644,13 +682,12 @@
         <div class="edit">
             <el-dialog
                 title="更新服务器"
-                :close-on-click-modal="false"
+                :close-on-click-modal="true"
                 :visible.sync="editVisible"
                 center
                 width="600px" 
-                v-draggable
-                :destroy-on-close="true"
                 :before-close="clearDialogDataMth"
+                v-draggable
                 >
                 <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm fix-form-css">
                     <el-form-item label="id" prop="selectId">
@@ -865,7 +902,6 @@
                 @opened="handleTerminalOpenMth"
                 @closed="handleTerminalClosedMth"
                 center
-                :destroy-on-close="true"
                 >
                 <div class="result-title run-linux-cmd-title">
                     <el-card>
@@ -928,62 +964,66 @@ export default {
     // 弹窗可拖拽
     directives: {
         draggable: {
-      bind(el) {
-        // 设置弹窗的基础样式，确保宽度固定
-        const computedStyle = window.getComputedStyle(el);
-        el.style.position = "fixed";
-        el.style.zIndex = 1000;
+            bind(el) {
+            // 设置弹窗的基础样式，确保宽度固定
+            const computedStyle = window.getComputedStyle(el);
+            el.style.position = "fixed";
+            el.style.zIndex = 1000;
 
-        // 锁定宽度和高度
-        el.style.width = computedStyle.width;
-        el.style.height = computedStyle.height;
+            // 锁定宽度和高度
+            el.style.width = computedStyle.width;
+            el.style.height = computedStyle.height;
 
-        // 初始化拖动参数
-        el.dragging = false;
-        el.startX = 0;
-        el.startY = 0;
-        el.left = 0;
-        el.top = 0;
-
-        // 鼠标按下事件
-        el.addEventListener("mousedown", function (event) {
-          el.dragging = true;
-          el.startX = event.clientX;
-          el.startY = event.clientY;
-
-          // 获取弹窗的初始位置
-          const rect = el.getBoundingClientRect();
-          el.left = rect.left;
-          el.top = rect.top;
-
-          // 添加鼠标移动和松开事件
-          document.addEventListener("mousemove", mouseMove);
-          document.addEventListener("mouseup", mouseUp);
-        });
-
-        // 鼠标移动事件
-        function mouseMove(event) {
-          if (el.dragging) {
-            const left = event.clientX - el.startX + el.left;
-            const top = event.clientY - el.startY + el.top;
-
-            // 仅更新 left 和 top，避免影响宽度和高度
-            el.style.left = `${left}px`;
-            el.style.top = `${top}px`;
-          }
-        }
-
-        // 鼠标松开事件
-        function mouseUp() {
-          if (el.dragging) {
+            // 初始化拖动参数
             el.dragging = false;
-            // 移除事件监听
-            document.removeEventListener("mousemove", mouseMove);
-            document.removeEventListener("mouseup", mouseUp);
-          }
-        }
-      },
-    },
+            el.startX = 0;
+            el.startY = 0;
+            el.left = 0;
+            el.top = 0;
+
+            // 监听弹窗头部的鼠标按下事件
+            const header = el.querySelector('.el-dialog__header');
+            header.addEventListener("mousedown", function (event) {
+                // 判断右键点击
+                if (event.button === 2) return;  // 阻止右键触发拖动
+                
+                el.dragging = true;
+                el.startX = event.clientX;
+                el.startY = event.clientY;
+
+                // 获取弹窗的初始位置
+                const rect = el.getBoundingClientRect();
+                el.left = rect.left;
+                el.top = rect.top;
+
+                // 添加鼠标移动和松开事件
+                document.addEventListener("mousemove", mouseMove);
+                document.addEventListener("mouseup", mouseUp);
+            });
+
+            // 鼠标移动事件
+            function mouseMove(event) {
+                if (el.dragging) {
+                    const left = event.clientX - el.startX + el.left;
+                    const top = event.clientY - el.startY + el.top;
+
+                    // 仅更新 left 和 top，避免影响宽度和高度
+                    el.style.left = `${left}px`;
+                    el.style.top = `${top}px`;
+                }
+            }
+
+            // 鼠标松开事件
+            function mouseUp() {
+                if (el.dragging) {
+                    el.dragging = false;
+                    // 移除事件监听
+                    document.removeEventListener("mousemove", mouseMove);
+                    document.removeEventListener("mouseup", mouseUp);
+                }
+            }
+            },
+        },
     },
     data () {
         var validateproject = (rule, value, callback) => {
@@ -1045,11 +1085,26 @@ export default {
             }
         };
         return {
+            serverOsTypeSearch: "",
+            serverNodeStatusSearch: "",
+            serverNodeTypeSearch: "",
+            serverStatusSearch: "",
             terminalKey:0,
             clusterSearch: "",
             nodeTypeList: [
-                {id: 1, name: "master节点",},
-                {id: 2, name: "node节点",}
+                {id: 1, name: "主管理节点",},
+                {id: 2, name: "工作节点",},
+                {id: 3, name: "未分配节点类型",},
+            ],
+            statusList: [
+                {id: 100, name: "异常",},
+                {id: 200, name: "正常",},
+                {id: 300, name: "未知节点状态",},
+            ],
+            osList: [
+                {id: 1, name: "ubuntu",},
+                {id: 2, name: "centos",},
+                {id: 3, name: "debain",},
             ],
             inputKey: 0,
             nodeTypeSelected:"",
@@ -1932,12 +1987,20 @@ export default {
                     ip: this.serverSearch,
                     project: this.projectSearch,
                     cluster_id: cluser_id,
+                    status: this.serverStatusSearch,
+                    node_status: this.serverNodeStatusSearch,
+                    node_type: this.serverNodeTypeSearch,
+                    os_type:"",
                 };
             } else {
                 data = {
                     page: pageNum,
                     ip: this.serverSearch,
                     project: this.projectSearch,
+                    status: this.serverStatusSearch,
+                    node_status: this.serverNodeStatusSearch,
+                    node_type: this.serverNodeTypeSearch,
+                    os_type:"",
                 };
             }
 
@@ -2273,13 +2336,15 @@ export default {
 :deep .el-dialog__body {
     // height: 50px !important;
     background-color: #f9f9f9;
+    cursor: default!important;
 }
 :deep .el-dialog__header {
     background-color: #1f211f;
     padding: 16px 20px 16px;
+    cursor: move!important;
 }
 :deep .el-dialog--center {
-    cursor: move;
+    cursor: default!important;
 }
 :deep .el-dialog--center .el-dialog__footer {
     background-color: #f9f9f9;
