@@ -502,7 +502,7 @@
                                             confirm-button-text='确定'
                                             @confirm="filterSystemLogMth()"
                                         >
-                                        <el-button class="pop-btn2" type="primary" size="mini" slot="reference" plain icon="el-icon-search">查 询</el-button>
+                                        <el-button class="pop-btn2" type="primary" :loading="filterSystemLogLoading" size="mini" slot="reference" plain icon="el-icon-search">查 询</el-button>
                                     </el-popconfirm>
                                 </el-col>
                                 <el-col :span="3.9" class="el-col-111">
@@ -1085,6 +1085,7 @@ export default {
             }
         };
         return {
+            filterSystemLogLoading: false,
             serverOsTypeSearch: "",
             serverNodeStatusSearch: "",
             serverNodeTypeSearch: "",
@@ -1369,6 +1370,7 @@ export default {
             if (!this.logFilterText) {
                 return Message.error("过滤字段不能为空");
             }
+            this.filterSystemLogLoading = true;
             this.getLinuxCmdOutputLoading = true;
             let data = {
                 ip: this.ipList.map(item => item.ip),
@@ -1379,7 +1381,7 @@ export default {
                 field: this.logFilterText,
             };
             var path = this.getRouterPathMth('view-system-log', this.permissionList);
-            this.multiContentOutputMth(path, data, false);
+            this.multiContentOutputMth(path, data, false, 'filter-system-log');
         },
         clearIplistMth() {
             this.delstrogage(this.cmdIPListKey);
@@ -1397,6 +1399,7 @@ export default {
             this.content = [];
         },
         runLinuxCmdMth() {
+            this.runLinuxCmdlogLoading = true;
             this.getLinuxCmdOutputLoading = true;
             this.ipList = this.getDataStroage(this.cmdIPListKey);
             let data = {
@@ -1406,7 +1409,7 @@ export default {
                 cmd: this.ruleForm.cmd,
             };
             var path = this.getRouterPathMth('run-linux-cmd', this.permissionList);
-            this.multiContentOutputMth(path, data, false);
+            this.multiContentOutputMth(path, data, false, 'run-cmd');
         },
         openDialogMth(name, data) {
             this.content = [];
@@ -2108,7 +2111,7 @@ export default {
             this.pages2.curPage = val;
             this.getUpdateList('page', this.updatestatus, 200, true);
         },
-        multiContentOutputMth(ws, data, loading) {
+        multiContentOutputMth(ws, data, loading, operate_type) {
             this.outputWs = new WebSocket(`${wssUrl}${ws}?user=${sessionStorage.getItem("user")}&token=${sessionStorage.getItem("token")}`);
             this.outputWs.onopen = () => {
                 console.log('WebSocket连接已打开');
@@ -2121,10 +2124,22 @@ export default {
                 div.scrollTop = div.scrollHeight - div.clientHeight;
             };
             this.outputWs.onclose = () => {
+                if (operate_type=='run-cmd') {
+                    this.runLinuxCmdlogLoading = false;
+                }
+                if (operate_type=='filter-system-log') {
+                    this.filterSystemLogLoading = false;
+                }
                 this.getLinuxCmdOutputLoading = loading;
                 console.log('WebSocket连接已关闭');
             };
             this.outputWs.onerror = (error) => {
+                if (operate_type=='run-cmd') {
+                    this.runLinuxCmdlogLoading = false;
+                }
+                if (operate_type=='filter-system-log') {
+                    this.filterSystemLogLoading = false;
+                }
                 this.getLinuxCmdOutputLoading = loading;
                 Message.error('WebSocket连接失败:', error);
             };
