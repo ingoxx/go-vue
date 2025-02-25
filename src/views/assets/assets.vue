@@ -1731,7 +1731,9 @@ export default {
         },
         // 文件上传
         async uploadFile() {
+            
             if (this.$refs.upload.uploadFiles.length === 0) {
+                console.log("this.$refs.upload.uploadFiles.length 111 >>> ", this.$refs.upload.uploadFiles.length);
                 return Message.error('请选取文件')
             }
             
@@ -1993,7 +1995,7 @@ export default {
                     status: this.serverStatusSearch,
                     node_status: this.serverNodeStatusSearch,
                     node_type: this.serverNodeTypeSearch,
-                    os_type:"",
+                    os_type: this.serverOsTypeSearch,
                 };
             } else {
                 data = {
@@ -2003,7 +2005,7 @@ export default {
                     status: this.serverStatusSearch,
                     node_status: this.serverNodeStatusSearch,
                     node_type: this.serverNodeTypeSearch,
-                    os_type:"",
+                    os_type: this.serverOsTypeSearch,
                 };
             }
 
