@@ -119,7 +119,7 @@
             title="添加用户"
             :visible.sync="centerDialogVisible"
             width="500px"
-            :close-on-click-modal="false"
+            :close-on-click-modal="true"
             v-draggable
             center
             >
@@ -181,7 +181,7 @@
             title="修改用户"
             :visible.sync="editDialogVisible"
             width="500px"
-            :close-on-click-modal="false"
+            :close-on-click-modal="true"
             v-draggable
             center
             >

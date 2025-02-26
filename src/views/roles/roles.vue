@@ -85,7 +85,7 @@
             title="添加角色"
             :visible.sync="centerDialogVisible"
             width="600px"
-            :close-on-click-modal="false"
+            :close-on-click-modal="true"
             v-draggable
             center
             >
@@ -111,7 +111,7 @@
             title="分配权限"
             :visible.sync="allotDialogVisible"
             width="600px"
-            :close-on-click-modal="false"
+            :close-on-click-modal="true"
             v-draggable
             center
             >

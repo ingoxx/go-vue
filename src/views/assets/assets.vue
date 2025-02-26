@@ -619,7 +619,6 @@
             <el-dialog
                 title="添加服务器"
                 :visible.sync="createVisible"
-                :close-on-click-modal="false"
                 center
                 width="600px"
                 v-draggable
@@ -682,7 +681,6 @@
         <div class="edit">
             <el-dialog
                 title="更新服务器"
-                :close-on-click-modal="true"
                 :visible.sync="editVisible"
                 center
                 width="600px" 

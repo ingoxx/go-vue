@@ -57,7 +57,7 @@
             title="添加菜单"
             :visible.sync="centerDialogVisible"
             width="500px"
-            :close-on-click-modal="false"
+            :close-on-click-modal="true"
             v-draggable
             center
             >

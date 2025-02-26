@@ -66,13 +66,13 @@ export default {
 
             this.socket.onerror = (error) => {
                 console.error('WebSocket 错误:', error);
-                this.terminal.write('\x1b[31m连接发生错误，请检查控制台\x1b[0m');
+                this.terminal.write('\x1b[31m连接发生错误，请检查控制台\x1b[0m\n');
             };
 
             this.socket.onclose = (event) => {
                 this.isConnected = false;
                 this.socket = null;
-                this.terminal.write(`\x1b[33m连接关闭，状态码: ${event.code}\x1b[0m`);
+                this.terminal.write(`\x1b[33m连接关闭，状态码: ${event.code}\x1b[0m\n`);
             };
         },
         setupTerminal() {

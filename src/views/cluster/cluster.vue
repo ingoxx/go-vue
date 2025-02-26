@@ -100,7 +100,6 @@
             title="创建集群"
             :visible.sync="createClusterDialogVisible"
             width="500px"
-            :close-on-click-modal="false"
             v-draggable
             center
             >
@@ -167,7 +166,6 @@
             title="更新集群"
             :visible.sync="updateClusterDialogVisible"
             width="500px"
-            :close-on-click-modal="false"
             v-draggable
             center
             >
@@ -204,7 +202,6 @@
             title="集群扩容"
             :visible.sync="expandClusterDialogVisible"
             width="500px"
-            :close-on-click-modal="false"
             v-draggable
             @closed="handleClosedMth"
             center
@@ -261,7 +258,6 @@
             title="集群缩容"
             :visible.sync="shrinkClusterDialogVisible"
             width="500px"
-            :close-on-click-modal="true"
             v-draggable
             @closed="handleClosedMth"
             center
