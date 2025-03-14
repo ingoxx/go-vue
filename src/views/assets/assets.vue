@@ -880,7 +880,7 @@
                             element-loading-spinner="el-icon-loading">
                         <el-divider><strong><i class="el-icon-platform-eleme"></i>分发到服务器返回的文件MD5</strong></el-divider>
                         <div class="copy">
-                            <el-button type="success" size="mini" plain @click="copy(syncFileContent.join(''))">复制</el-button>
+                            <el-button type="success" size="mini" plain @click="copy(syncFileContent.join(''))"  icon="el-icon-copy-document">复制</el-button>
                         </div>
                         <div class="format-code">
                             <pre><code>{{ syncFileContent.join('') }}</code></pre>
