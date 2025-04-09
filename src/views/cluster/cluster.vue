@@ -52,6 +52,7 @@
                     <el-table-column prop="master_ip" label="manager_ip" width="210">
                         <template slot-scope="scope">
                             <el-link type="warning" :underline="false"  size="mini" plain v-if="scope.row.master_ip == ''" :loading="true"><i class="el-icon-loading"></i>集群正在重新选举leader</el-link>
+                            <el-link type="success" :underline="false"  size="mini" plain v-else>{{ scope.row.master_ip }}</el-link>
                         </template>
                     </el-table-column>
                     <el-table-column prop="region" label="region" ></el-table-column>
