@@ -30,7 +30,7 @@
             <div class="operate">
                 <el-row :gutter="10">
                     <el-col :span="1"  class="col-1">
-                        <el-button size="small" type="primary" icon="el-icon-document-add" @click="renderDialogInput(null, 'add')" v-if="isHidden(getRouterPath('clusterAdd', permissionList), permissionList)">添加集群</el-button>
+                        <el-button size="small" type="primary" icon="el-icon-document-add" @click="renderDialogInputMth(null, 'add')" v-if="isHidden(getRouterPath('clusterAdd', permissionList), permissionList)">添加集群</el-button>
                     </el-col>
                     <!-- <el-col :span="1" class="col-2">
                         <el-button size="small" type="primary" icon="el-icon-switch-button" v-if="isHidden(getRouterPath('clusterHealthCheck', permissionList), permissionList)" @click="handleStartHealthCheckMth()">启动健康检测</el-button>
@@ -42,7 +42,7 @@
             </div>
             <!-- 集群列表 -->
             <div class="table">
-                <el-table v-loading="tableLoad" stripe  :data="clusterListData" @selection-change="handleSelectionChange"
+                <el-table v-loading="tableLoad" stripe  :data="clusterListData" @selection-change="handleSelectionChangeMth"
                         element-loading-text="拼命加载中"
                     >
                     <el-table-column type="selection" width="55"></el-table-column>
@@ -72,13 +72,13 @@
                     <el-table-column prop="operate" label="operate" width="450">
                         <template slot-scope="scope">
                             <el-button size="mini" type="danger" slot="reference" icon="el-icon-delete-solid" plain v-if="isHidden(getRouterPath('clusterDel', permissionList), permissionList)" @click="handleDeleteClusterMth(scope.row, 'sig')">删除</el-button>
-                            <el-button size="mini" type="info" slot="reference" icon="el-icon-edit" plain v-if="isHidden(getRouterPath('clusterUpdate', permissionList), permissionList)" @click="renderDialogInput(scope.row, 'update')">更新</el-button>
+                            <el-button size="mini" type="info" slot="reference" icon="el-icon-edit" plain v-if="isHidden(getRouterPath('clusterUpdate', permissionList), permissionList)" @click="renderDialogInputMth(scope.row, 'update')">更新</el-button>
                             <el-button size="mini" type="primary" slot="reference" icon="el-icon-top" plain 
                             v-if="isHidden(getRouterPath('clusterJoinWork', permissionList), permissionList) || isHidden(getRouterPath('clusterJoinManager', permissionList), permissionList)" 
-                            @click="renderDialogInput(scope.row, 'expand')">扩容</el-button>
+                            @click="renderDialogInputMth(scope.row, 'expand')">扩容</el-button>
                             <el-button size="mini" type="warning" slot="reference" icon="el-icon-bottom" plain 
                             v-if="isHidden(getRouterPath('clusterLeave', permissionList), permissionList)" 
-                            @click="renderDialogInput(scope.row, 'shrink')">缩容</el-button>
+                            @click="renderDialogInputMth(scope.row, 'shrink')">缩容</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -485,7 +485,7 @@ export default {
             this.ruleForm.work_ip = [];
             this.resetForm('ruleForm');
         },
-        formatServersWhenCreateCluster() {
+        formatServersWhenCreateClusterMth() {
             let servers = [];
             let isAdd = false;
             this.servers.forEach(item1 => {
@@ -546,10 +546,10 @@ export default {
             return true;
         },
         // 打开所有的dialog
-        renderDialogInput(row, name) {
+        renderDialogInputMth(row, name) {
             if (name == 'add') {
                 this.createClusterDialogVisible = true;
-                this.formatServersWhenCreateCluster();
+                this.formatServersWhenCreateClusterMth();
                 return;
             };
 
@@ -575,7 +575,7 @@ export default {
                 this.updateClusterDialogVisible = true;
             }
         },
-        handleSelectionChange(val) {
+        handleSelectionChangeMth(val) {
             this.multipleSelection = val;
         },
         handleDeleteClusterMth(data, model) {
