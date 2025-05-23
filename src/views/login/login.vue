@@ -129,7 +129,7 @@ export default {
             } else {
                 sessionStorage.setItem("token", resp.data.data.token);
                 sessionStorage.setItem("user", resp.data.data.name);
-                sessionStorage.setItem("uid", resp.data.data.uid);
+                sessionStorage.setItem("uid", resp.data.data.id);
                 this.$router.replace('/').catch((err) => err);
             }
             
