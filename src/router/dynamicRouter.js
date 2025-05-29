@@ -333,6 +333,18 @@ const dynamicRoutes = [
             hidden: false,
           },
           {
+            path:'/assets/rpcupdate',
+            name: 'rpcupdate',
+            meta: { name: '更新rpc'},
+            hidden: false,
+          },
+          {
+            path:'/assets/rpcboot',
+            name: 'rpcboot',
+            meta: { name: '重启rpc'},
+            hidden: false,
+          },
+          {
             path:'/assets/javareboot',
             name: 'javareboot',
             meta: { name: '重启java'},

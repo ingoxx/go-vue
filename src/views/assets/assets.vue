@@ -2218,7 +2218,7 @@ export default {
         // this.terminal2Visible = true;
         this.getUpdateList("page", '', 200);
         this.getAssetsList("page");
-        this.loopGetAssetsList();
+        // this.loopGetAssetsList();
         this.getProgramListMth();
         this.updateRealTimeRefreshMth();
         this.getCurrentWindowsResizeMth();
