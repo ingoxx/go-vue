@@ -38,7 +38,7 @@
                         <el-button size="small" type="primary" icon="el-icon-document-add" @click="clearData">添加用户</el-button>
                     </el-col>
                     <el-col :span="1.9" v-if="isHidden(getRouterPath('userDel', permissionList), permissionList)">
-                        <el-popconfirm :title="'确定删除id为【 '+multipleSelection.map(item=>item.ID)+' 】吗?'"
+                        <el-popconfirm :title="'确定删除id为【 '+multipleSelection.map(item=>item.id)+' 】吗?'"
                                 icon="el-icon-info"
                                 icon-color="red"
                                 confirm-button-text='删除'
@@ -56,7 +56,7 @@
                     element-loading-text="拼命加载中" ref="multipleTable" @row-click="tableRowClick"
                 >
                     <el-table-column type="selection" width="55"></el-table-column>
-                    <el-table-column prop="ID" label="id"></el-table-column>
+                    <el-table-column prop="id" label="id"></el-table-column>
                     <el-table-column prop="name" label="name" ></el-table-column>
                     <el-table-column prop="isopenga" label="isopenga" >
                         <template slot-scope="scope">
@@ -547,7 +547,7 @@ export default {
                     if (this.multipleSelection.length === 0) {
                         return Message.error("请先勾选需要删除的用户id")
                     }
-                    data = JSON.stringify({uid: this.multipleSelection.map(item => item.ID),});
+                    data = JSON.stringify({uid: this.multipleSelection.map(item => item.id),});
                     break
                 case "sin":
                     if (this.delByID.length != 0 ){
@@ -556,7 +556,6 @@ export default {
                     } else {
                         this.delByID.push(id);
                     };
-                    console.log("delByID >>> ", this.delByID);
                     data = JSON.stringify({uid: this.delByID});
                     break
             };
@@ -584,7 +583,7 @@ export default {
             var isopenga = this.ruleForm.isopenga ? 1 : 2;
             const resp = await updateUsers({
                 name: this.ruleForm.name,
-                uid: this.ruleForm.uid,
+                id: this.ruleForm.uid,
                 rid: this.ruleForm.roles,
                 isopenqr: isopenqr,
                 isopenga: isopenga,
@@ -624,7 +623,7 @@ export default {
             this.editDialogVisible = true;
             this.ruleForm.name = row.name;
             this.ruleForm.roles = row.roles.length > 0 ? row.roles[0].ID : '';
-            this.ruleForm.uid = row.ID;
+            this.ruleForm.uid = row.id;
             this.ruleForm.isopenqr = row.isopenqr == 1 ? true : false;
             this.ruleForm.isopenga = row.isopenga == 1 ? true : false;
         },
@@ -640,7 +639,7 @@ export default {
             console.log(index, row);
         },
         handleDelete(row) {
-            this.DelUser(row.ID, "sin");
+            this.DelUser(row.id, "sin");
         },
         handleMutilDelete() {
             this.DelUser(1, "mul");

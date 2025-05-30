@@ -15,6 +15,9 @@ export function isHidden(path, routers=[]) {
 }
 
 export function getRouterPath(name, routes) {
+    if (!routes) {
+        return null;
+    }
     for (const route of routes) {
         if (route.name === name) {
             return route.path;

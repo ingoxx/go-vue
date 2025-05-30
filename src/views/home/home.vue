@@ -162,7 +162,7 @@ export default {
     },
     data () {
         return {
-            isCollapse: true,
+            isCollapse: false,
             userCenterDialogVisible: false,
             pwdDialogVisible: false,
             editableTabs: [],

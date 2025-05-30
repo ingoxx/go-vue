@@ -96,10 +96,11 @@ export default {
             } else if (resp.data.code === 10001 || resp.data.code === 10003) {
                 return Message.error(resp.data.message);
             }
-
+            
+            console.log("galogin >>> ", resp.data.data);
             sessionStorage.setItem("token", resp.data.data.token);
             sessionStorage.setItem("user", resp.data.data.name);
-            sessionStorage.setItem("uid", resp.data.data.uid);
+            sessionStorage.setItem("uid", resp.data.data.id);
             // this.$router.replace('/').catch((err) => err);
             // 登录成功后拉取当前用户的权限列表
             // await store.dispatch("getUserPerms");

@@ -79,7 +79,7 @@ export default {
             this.updateLoad = true;
             const resp = await userUpdatePwd({
                 name: this.userdetail.name,
-                uid: this.userdetail.ID,
+                uid: this.userdetail.id,
                 rid: this.userdetail.roles[0].ID,
                 password: this.ruleForm.pass,
                 rePassword: this.ruleForm.repass,
