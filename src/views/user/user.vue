@@ -359,7 +359,7 @@ export default {
                 callback(new Error('密码不能为空'));
 
             } else if (value.length < 6 ) {
-                callback(new Error('密码长度需要大于7'));
+                callback(new Error('密码长度需要大于5'));
             } else {
                 callback();
             }
