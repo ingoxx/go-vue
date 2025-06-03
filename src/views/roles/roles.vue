@@ -36,7 +36,7 @@
                             <el-row :class="['level-bottom', index === 0 ? 'level-top' : '', 'center']" v-for="(item1, index) in scope.row.mm" :key="item1.ID">
                                 <!---一级菜单--->
                                 <el-col :span="5">
-                                    <el-tag closable :disable-transitions="false" @close="removeRolePerms(item1.ID, scope.row, 'tag')">{{ item1.title }}</el-tag>
+                                    <el-tag closable :disable-transitions="false" @close="removeRolePerms(item1.ID, scope.row, 'tag')">{{ item1.ID }}-{{ item1.title }}</el-tag>
                                     <i class="el-icon-caret-right"></i>
                                 </el-col>
                                 <!---二级,三级菜单--->
@@ -44,12 +44,12 @@
                                     <el-row :class="[index === 0 ? '' : 'level-top']" v-for="(item2, index) in item1.children" :key="item2.ID">
                                         <!---二级菜单--->
                                         <el-col :span="5">
-                                            <el-tag closable :disable-transitions="false" type="success" @close="removeRolePerms(item2.ID, scope.row, 'tag')">{{ item2.title }}</el-tag>
+                                            <el-tag closable :disable-transitions="false" type="success" @close="removeRolePerms(item2.ID, scope.row, 'tag')">{{ item2.ID }}-{{ item2.title }}</el-tag>
                                             <i class="el-icon-caret-right"></i>
                                         </el-col>
                                         <!---三级菜单--->
                                         <el-col :span="18">
-                                            <el-tag closable :disable-transitions="false" type="warning" @close="removeRolePerms(item3.ID, scope.row, 'tag')" v-for="item3 in item2.children" :key="item3.ID">{{ item3.title }}</el-tag>
+                                            <el-tag closable :disable-transitions="false" type="warning" @close="removeRolePerms(item3.ID, scope.row, 'tag')" v-for="item3 in item2.children" :key="item3.ID">{{ item3.ID }}-{{ item3.title }}</el-tag>
                                         </el-col>
                                     </el-row>
                                 </el-col>
@@ -249,7 +249,7 @@ export default {
             total:0,
             permProps: {
                 children: 'children',
-                label: 'title'
+                label: 'label'
             },
             pages: {
                 curPage:1,
@@ -388,7 +388,7 @@ export default {
                 this.treeLoading = false;
                 return Message.error(resp.data.message);
             }
-
+            
             this.permsTreeList = resp.data.data;
             this.RolePerms(rid);
             this.treeLoading = false;
