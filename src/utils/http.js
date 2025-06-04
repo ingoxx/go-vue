@@ -28,20 +28,20 @@ instance.interceptors.response.use(resp => {
     switch (err.response.status) {
         case 400:
             Message.error(err.response.data.message);
-            break
+            return new Promise(() => {});
         case 403:
             Message.error(err.response.data.message);
-            break
+            return new Promise(() => {});
         case 500:
             Message.error(err);
-            break
+            return new Promise(() => {});
         case 502:
             Message.error(err.response.data.message+" 3秒后将跳转到登录页!");
             setTimeout(()=>{
                 sessionStorage.clear();
                 window.location.href = '/';
                 ;},3000)
-            break
+            return new Promise(() => {});
     }
     return Promise.reject(err)
 });
