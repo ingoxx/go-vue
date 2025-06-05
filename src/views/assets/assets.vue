@@ -389,12 +389,21 @@
                     </el-table-column>
                     <el-table-column prop="process" label="更新日志" width="200">
                         <template slot-scope="scope">
-                            <el-link slot="reference" type="success" @click="viewUpdateLog(scope.row)">查看更新日志</el-link>
+                            <el-link slot="reference" type="success" @click="viewUpdateLog(scope.row)" v-if="scope.row.status === 300" disabled>查看更新日志</el-link>
+                            <el-link slot="reference" type="success" @click="viewUpdateLog(scope.row)" v-else>查看更新日志</el-link>
                         </template>
                     </el-table-column>
                     <el-table-column prop="process" label="失败日志" width="200">
                         <template slot-scope="scope">
-                            <el-link type="danger" @click="viewUpdateLog(scope.row)">
+                            <el-link type="danger" @click="viewUpdateLog(scope.row)" v-if="scope.row.status === 200" disabled>
+                                <el-popover trigger="hover" placement="top">
+                                    <p class="p-pop">更新失败可以点击这里查看失败日志</p>
+                                    <div slot="reference" class="name-wrapper">
+                                        查看失败日志
+                                    </div>
+                                </el-popover>
+                            </el-link>
+                            <el-link type="danger" @click="viewUpdateLog(scope.row)" v-else>
                                 <el-popover trigger="hover" placement="top">
                                     <p class="p-pop">更新失败可以点击这里查看失败日志</p>
                                     <div slot="reference" class="name-wrapper">
@@ -2017,12 +2026,26 @@ export default {
             }
 
             this.pages.curPage = pageNum;
-
             this.dataList = resp.data.data;
-            this.clusterList = resp.data.clusters;
             this.pages.pageSize = resp.data.pageSize;
             this.total = resp.data.total;
             this.tableLoad = false;
+
+            // 1️⃣ 过滤掉 name 为空的对象
+            const filteredArr = this.dataList.filter(item => item.cluster.name);
+
+            // 2️⃣ 根据 name 去重，保留第一次出现的
+            const seen = new Set();
+            const result = filteredArr.filter(item => {
+            if (seen.has(item.cluster.name)) {
+                return false;
+            }
+            seen.add(item.cluster.name);
+            return true;
+            });
+
+            this.clusterList = result.map(item => item.cluster);
+            
             // this.programList = resp.data.config.config;
             // this.programName = resp.data.config.select;
 
