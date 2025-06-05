@@ -58,7 +58,7 @@ export const get = (url, params) => {
             resolve(resp);
         }).catch(error => {
             Message.error(error+":无法连接服务器");
-            reject(error);
+            return new Promise(() => {});
         })
     })
 };
@@ -69,8 +69,9 @@ export const post = (url, data, method) => {
             method.call(); // 不知道当初为啥要传入一个method
             resolve(resp);
         }).catch(error => {
-            // Message.error(error+":无法连接服务器");
-            reject(error);
+            Message.error(error+":无法连接服务器");
+            // reject(error);
+            return new Promise(() => {});
         })
     })
 };
@@ -82,8 +83,9 @@ export const loginPost = (url, data, other, method) => {
             method.call();
             resolve(resp);
         }).catch(error => {
-            // Message.error(error+":无法连接服务器");
-            reject(error);
+            Message.error(error+":无法连接服务器");
+            // reject(error);
+            return new Promise(() => {});
         })
     })
 };
