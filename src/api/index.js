@@ -20,6 +20,7 @@ export const editServer = (params, method) => post("/assets/update?user="+ sessi
 export const delServer = (params, method) => post("/assets/del?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 export const runProgram = (params, method) => post("/assets/api?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 export const ProgramAdd = (params, method) => post("/assets/program/add?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
+export const programUpdateRecordDel = (params, method) => post("/assets/program/del?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 export const userUpdatePwd = (params, method) => post("/user/update-pwd?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 export const createCluster = (params, method) => post("/cluster/add?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);
 export const delCluster = (params, method) => post("/cluster/del?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params, method);

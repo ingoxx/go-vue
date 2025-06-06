@@ -38,6 +38,7 @@ import { Message } from 'element-ui';
 import { mapState } from 'vuex'
 import store from '../../store/index'
 import wssUrl from "../../utils/wssUrl";
+import { getRouterPath } from '@/utils/utils';
 
 export default {
     name: "assetsUpdate",
@@ -53,14 +54,22 @@ export default {
             socket:"",
         }
     },
+    computed: {
+        ...mapState({
+            'permissionList': state => state.addRouters.permissionList,
+        }),
+    },
     methods: {
+        getRouterPath,
         wsInit () {
             if (typeof(WebSocket) === "undefined") {
                 Message.error("您的浏览器不支持socket");
             } else {
                 // 实例化socket
-                this.wsUrl = wssUrl;
-                this.socket = new WebSocket(this.wsUrl+"/assets/ws?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"));
+                var path = getRouterPath('assetsWs', this.permissionList)
+                this.wsUrl = `${wssUrl}${path}?user=${sessionStorage.getItem("user")}&token=${sessionStorage.getItem("token")}`;
+                this.socket = new WebSocket(this.wsUrl);
+                
                 // 监听socket连接
                 this.socket.onopen = this.open;
                 // 监听socket错误信息
@@ -106,6 +115,13 @@ export default {
         close () {
             // Message.error("websocket连接已关闭");
         },
+    },
+    beforeDestroy() {
+        // 3️⃣ 页面销毁时，关闭 ws 并移除监听
+        if (this.ws) {
+            this.socket.close();
+            this.socket = null;
+        }
     },
     mounted () {
         this.curName = this.$route.params.name;

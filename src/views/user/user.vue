@@ -648,21 +648,6 @@ export default {
             this.pages.curPage = val;
             this.ListUser("page");
         },
-        // isHidden(path, routers=[]) {
-        //     if (routers !== null){
-        //         for (var i=0; i<routers.length; i++) {
-        //         if (routers[i].path === path) {
-        //             return  routers[i].hidden;
-        //         }
-        //         if (routers[i].children != undefined && routers[i].children.length > 0) {
-        //             let hidden = this.isHidden(path, routers[i].children);
-        //             if (hidden) {
-        //                 return  hidden
-        //             }
-        //         }
-        //         }
-        //     }
-        // },
         callMethod() {},
     },
     mounted() {

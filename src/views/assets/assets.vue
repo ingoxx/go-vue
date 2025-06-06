@@ -121,7 +121,7 @@
                                 </el-tooltip>
                             </el-col>
                             <el-col :span="1" class="col-last">
-                                <el-tooltip class="item" effect="dark" content="刷新服务器列表" placement="top-start">
+                                <el-tooltip class="item" effect="dark" content="刷新服务器表" placement="top-start">
                                     <el-button size="small" type="info" icon="el-icon-refresh" circle @click="getAssetsList('page')"></el-button>
                                 </el-tooltip>
                             </el-col>
@@ -356,8 +356,22 @@
                                 <el-link class="rr" type="primary" size="mini" :underline="false"><span>实时刷新中{{ realTimeRefreshBot }}</span></el-link>
                             </el-col>
                         </transition>
+                        <el-col :span="1" class="col-last">
+                            <el-tooltip class="item" effect="dark" content="刷新更新记录表" placement="top-start">
+                                <el-button size="small" type="info" icon="el-icon-refresh" circle @click="getUpdateList('page', '', 200)"></el-button>
+                            </el-tooltip>
+                        </el-col>
                     </el-row>
                 </div>
+                <!-- 删除记录 -->
+                <div  class="mv-bt">
+                    <el-row :gutter=5>
+                        <el-col :span="0.5">
+                            <el-button type="danger" icon="el-icon-delete-solid" size="mini" @click="handleDelete2Mth">删除</el-button>
+                        </el-col>
+                    </el-row>
+                </div>
+                <!-- 更新记录表 -->
                 <div class="table">
                     <el-table v-loading="tableLoad2" stripe  :data="dataList2" @selection-change="handleSelectionChange2"
                         element-loading-text="拼命加载中" :row-key="getRowKey" ref="multipleTable2" @row-dblclick="tableRowClick2"
@@ -950,7 +964,7 @@
 <script>
 import { Message, MessageBox } from 'element-ui';
 import { mapState } from 'vuex';
-import { getClusterList, getAssetsList, getProcessStatus, createProgramUpdateRecord, runProgram, getUpdateList, assetsUpload, createServer, delServer, editServer, ProgramAdd, getProgramList, webTerminal } from '../../api';
+import { getClusterList, getAssetsList, getProcessStatus, createProgramUpdateRecord, runProgram, getUpdateList, assetsUpload, createServer, delServer, editServer, ProgramAdd, getProgramList, webTerminal, programUpdateRecordDel } from '../../api';
 import { v4 as uuidv4 } from 'uuid';
 import CryptoJS from 'crypto-js';
 import baseUrl from "../../utils/baseUrl";
@@ -1280,6 +1294,29 @@ export default {
     methods: {
         isHidden, 
         getRouterPath,
+        handleDelete2Mth() {
+            if (this.multipleSelection2.length == 0) {
+                Message.error("请勾选需要删除的内容");
+                return;
+            }
+            MessageBox.confirm(`确定删除勾选的id：${this.multipleSelection2.map(item => item.id)}吗？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.delProgramUpdateRecordMth();
+            }).catch((err) => {     
+            });
+        },
+        async delProgramUpdateRecordMth() {
+            var data = JSON.stringify({id: this.multipleSelection2.map(item => item.id),});
+            const resp = await programUpdateRecordDel(data, this.callMethod);
+            if (resp.data.code !== 10000) {
+                return Message.error(resp.data.message);
+            }
+            this.getUpdateList("page", '', 200);
+            Message.success(resp.data.message);
+        },
         reConnectMth() {
             this.$refs.terminalComponent.clearTerminal();
             // this.handleTerminalOpenMth();
@@ -1907,11 +1944,10 @@ export default {
             this.runningJumpOrNot(data_list);
             
             // 再提交更新记录
-            const resp = await this.createProgramUpdateRecord(data_list).catch(err => console.log("createProgramUpdateRecord >>>", err));
+            const resp = await this.createProgramUpdateRecordMth(data_list);
             if (resp.data.code === 10000) {
-                Message.success(resp.data.message);
                 this.actualTimeGetTaskStatus();
-                
+                Message.success(resp.data.message);
             } else {
                 Message.error(resp.data.message);
             }
@@ -1923,8 +1959,8 @@ export default {
             }
         },
         // 添加更新记录
-        async createProgramUpdateRecord(data) {
-            const resp = await createProgramUpdateRecord(JSON.stringify({data_list: data}), this.callMethod).catch((err)=>{Message.error(err);})
+        async createProgramUpdateRecordMth(data) {
+            const resp = await createProgramUpdateRecord(JSON.stringify({data_list: data}), this.callMethod);
             return resp
         },
         // 实时获取任务状态
@@ -1932,7 +1968,7 @@ export default {
             this.realTimeRefreshBotVisible = true;
             this.timer = setInterval(() => {
                 this.getUpdateList("page", "", 200, false);
-            }, 1000)
+            }, 2500)
         },
         // 是否需要在新的页面打开，实时查看更新脚本的输出内容
         async runningJumpOrNot(data_list) {
@@ -2467,6 +2503,9 @@ export default {
 }
 .col-last {
     float: right;
+}
+.mv-bt {
+    margin-top: 18px;
 }
 </style>
 
