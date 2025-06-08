@@ -331,6 +331,7 @@
                                 <el-button type="warning"  size="mini" @click="getUpdateList('search','更新中', 300)">更新中</el-button>
                                 <el-button type="success" size="mini" @click="getUpdateList('search','完成', 300)">完成</el-button>
                                 <el-button type="danger"  size="mini" @click="getUpdateList('search','失败', 300)">失败</el-button>
+                                <el-button type="primary" size="mini" @click="getUpdateList('page', 300)">取消实时刷新</el-button>
                             </el-button-group>
                         </el-col>
                         <el-col :span="3.9">
@@ -2506,6 +2507,10 @@ export default {
 }
 .mv-bt {
     margin-top: 18px;
+}
+.btn-c-4 {
+    background: #409eff !important;
+    color: #fff;
 }
 </style>
 
