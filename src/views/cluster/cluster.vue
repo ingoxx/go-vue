@@ -743,10 +743,10 @@ export default {
 
             this.shrinkClusterLoading = true;
             const resp = await leaveCluster(JSON.stringify(data), this.methodCall);
-            if (resp.data && resp.data.code !== 10000) {
-                Message.error(resp.data.message);
-            } else {
+            if (resp.data && resp.data.code === 10000) {
                 Message.success(resp.data.message);
+            } else {
+                Message.error(resp.data.message);
             }
             
             this.shrinkClusterLoading = false;
