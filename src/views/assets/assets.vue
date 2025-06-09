@@ -42,7 +42,7 @@
                                 </el-col>
                             </template>
                         </template>
-                        <el-col :span="1.9" v-if="isHidden(getRouterPath('program-add', permissionList), permissionList)"><el-button  type="info" size="mini" icon="el-icon-document-add" @click="handleCreateProgramOpMth">添加操作</el-button></el-col>
+                        <el-col :span="1.9" v-if="isHidden(getRouterPath('program-add', permissionList), permissionList)"><el-button  type="info" size="mini" icon="el-icon-document-add" @click="handleCreateProgramOpMth">添加程序</el-button></el-col>
                     </el-row>
                 </div>
             </el-card>
@@ -151,9 +151,6 @@
                             <el-col :span="3.9">
                                 <el-button type="danger" icon="el-icon-mouse" size="mini" @click="openDialogMth('cmd', null)" v-if="isHidden(getRouterPath('run-linux-cmd', permissionList), permissionList)" :loading="submitLoading">批量ansible作业</el-button>
                             </el-col>
-                                <!-- <el-col :span="3.9">
-                                    <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openDialogMth('add-assets', null)" v-if="isHidden(getRouterPath('assetsAdd', permissionList), permissionList)">新建服务器</el-button>
-                                </el-col> -->
                                 <el-col :span="2" class="c3">
                                     <el-link type="primary" @click="updateSetup">{{ detailContent }}<i :class="detailICon"></i> </el-link>
                                 </el-col>
@@ -163,6 +160,9 @@
                         <el-row :gutter=10>
                             <el-col :span="3.9">
                                 <el-button type="primary"  size="mini" icon="el-icon-circle-plus-outline" @click="openDialogMth('add-assets', null)" v-if="isHidden(getRouterPath('assetsAdd', permissionList), permissionList)">新建服务器</el-button>
+                            </el-col>
+                            <el-col :span="3.9">
+                                <el-button type="danger"  size="mini" icon="el-icon-delete-solid" @click="handleDelete(null, 'multi')" v-if="isHidden(getRouterPath('assetsDel', permissionList), permissionList)">删除服务器</el-button>
                             </el-col>
                             <!-- <el-col :span="3.9">
                                 <el-button type="danger" icon="el-icon-mouse" size="mini" @click="runProcess('mul', null)" v-if="isHidden(getRouterPath('updateProgram', permissionList), permissionList)" :loading="submitLoading">批量更新程序</el-button>
@@ -293,14 +293,7 @@
                             <el-button size="mini" type="warning" plain icon="el-icon-connection" @click="openDialogMth('term2', scope.row)" v-if="isHidden(getRouterPath('web-terminal', permissionList), permissionList)">终端连接</el-button>
                             <el-button size="mini" type="primary" plain icon="el-icon-view" @click="openDialogMth('log', scope.row)" v-if="isHidden(getRouterPath('view-system-log', permissionList), permissionList)">查看系统日志</el-button>
                             <el-button size="mini" icon="el-icon-edit" v-if="isHidden(getRouterPath('assetsUpdate', permissionList), permissionList)" @click="openDialogMth('update-assets', scope.row)">编辑</el-button>
-                            <el-popconfirm :title="'确定删除'+scope.row.ip+'吗?'"
-                                icon="el-icon-info"
-                                icon-color="red"
-                                confirm-button-text='删除'
-                                @confirm="handleDelete(scope.row)"
-                            >
-                                <el-button class="pop-btn" size="mini" type="danger" slot="reference" icon="el-icon-delete-solid" plain v-if="isHidden(getRouterPath('assetsDel', permissionList), permissionList)">删除</el-button>
-                            </el-popconfirm>
+                            <el-button class="pop-btn" size="mini" type="danger" slot="reference" @click="handleDelete(scope.row, 'sig')" icon="el-icon-delete-solid" plain v-if="isHidden(getRouterPath('assetsDel', permissionList), permissionList)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -331,7 +324,7 @@
                                 <el-button type="warning"  size="mini" @click="getUpdateList('search','更新中', 300)">更新中</el-button>
                                 <el-button type="success" size="mini" @click="getUpdateList('search','完成', 300)">完成</el-button>
                                 <el-button type="danger"  size="mini" @click="getUpdateList('search','失败', 300)">失败</el-button>
-                                <el-button type="primary" size="mini" @click="getUpdateList('page', 300)">取消实时刷新</el-button>
+                                <el-button type="primary" size="mini" @click="getUpdateList('page', '', 300)">取消实时刷新</el-button>
                             </el-button-group>
                         </el-col>
                         <el-col :span="3.9">
@@ -368,7 +361,7 @@
                 <div  class="mv-bt">
                     <el-row :gutter=5>
                         <el-col :span="0.5">
-                            <el-button type="danger" icon="el-icon-delete-solid" size="mini" @click="handleDelete2Mth">删除</el-button>
+                            <el-button type="danger" icon="el-icon-delete-solid" size="mini" @click="handleDelete2Mth">删除记录</el-button>
                         </el-col>
                     </el-row>
                 </div>
@@ -1594,20 +1587,17 @@ export default {
         },
         async delServerMth(action, row) {
             let data = "";
-            switch (action) {
-                case 'multi':
-                    if (this.multipleSelection.length == 0) {
-                        return Message.error("请勾选需要删除的服务器");
-                    }
-                    data = JSON.stringify({ip: this.multipleSelection.map(item => item.ip)});
-                    break
-                case 'sig':
-                    this.tableLoad = true;
-                    let dl  = [];
-                    dl.push(row.ip)
-                    data = JSON.stringify({ips: dl});
-                    break
+            if (action == 'multi') {
+                data = JSON.stringify({id: this.multipleSelection.map(item => item.id)});
+            } else if (action == 'sig') {
+                let dl  = [];
+                dl.push(row.id)
+                data = JSON.stringify({id: dl});
+            } else {
+                Message.error("未知类型");
+                return;
             }
+            this.tableLoad = true;
 
             const resp = await delServer(data, this.callMethod)
             if (resp.data.code !== 10000) {
@@ -1616,7 +1606,7 @@ export default {
                 this.getAssetsList("page");
                 Message.success(resp.data.message)
             }
-            this.this.tableLoad = false;
+            this.tableLoad = false;
         },
         async createServerMth() {
             if (this.$refs.upload.uploadFiles.length === 0 && this.ruleForm.password == "") {
@@ -1980,6 +1970,7 @@ export default {
                     let routeData = this.$router.resolve(
                         { path: `${path}/${data_list[i].project}/${data_list[i].ip}/${this.programName[data_list[i].update_name]}/${data_list[i].uuid}` }
                     );
+                    sessionStorage.setItem("not_allow_flush", 1);
                     window.open(routeData.href, '_blank');
                 } else {
                     // 当前页面执行
@@ -2150,8 +2141,34 @@ export default {
             this.total2 = resp.data.total;
             this.tableLoad2 = false;
         },
-        handleDelete (data) {
-            this.delServerMth('sig', data);
+        handleDelete (data, actionType) {
+            if (actionType == 'multi') {
+                if (this.multipleSelection.length == 0) {
+                    Message.error("请勾选需要删除的服务器");
+                    return;
+                }
+                MessageBox.confirm(`确定删除勾选的ip：${this.multipleSelection.map(item => item.ip)}？`, '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                }).then(() => {
+                    this.delServerMth(actionType, null);
+                }).catch((err) => {     
+                });
+            } else if (actionType == 'sig') {
+                MessageBox.confirm(`确定删除ip：${data.ip}？`, '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.delServerMth(actionType, data);
+                }).catch((err) => {     
+                });
+            } else {
+                Message.error("未知类型");
+            }
+            
+            
         },
         handleSelectionChange(val) {
             this.multipleSelection = val;
@@ -2283,6 +2300,18 @@ export default {
         this.updateRealTimeRefreshMth();
         this.getCurrentWindowsResizeMth();
         this.listenWindowsResizeMth();
+    },
+    beforeDestroy() {
+        // 3️⃣ 页面销毁时，关闭 ws 并移除监听this.outputWs
+        if (this.ws) {
+            this.ws.close();
+            this.ws = null;
+        }
+
+        if (this.outputWs) {
+            this.outputWs.close();
+            this.outputWs = null;
+        }
     },
     filters: {
         formatDate(date) {
@@ -2512,5 +2541,9 @@ export default {
     background: #409eff !important;
     color: #fff;
 }
+
 </style>
 
+<style lang="scss" scoped>
+    @import '../../../public/style/assets.css';
+</style>

@@ -39,6 +39,7 @@ import { mapState } from 'vuex'
 import store from '../../store/index'
 import wssUrl from "../../utils/wssUrl";
 import { getRouterPath } from '@/utils/utils';
+import { MessageBox } from 'element-ui';
 
 export default {
     name: "assetsUpdate",
@@ -65,6 +66,7 @@ export default {
             if (typeof(WebSocket) === "undefined") {
                 Message.error("您的浏览器不支持socket");
             } else {
+                sessionStorage.setItem("not_allow_flush", 2);
                 // 实例化socket
                 var path = getRouterPath('assetsWs', this.permissionList)
                 this.wsUrl = `${wssUrl}${path}?user=${sessionStorage.getItem("user")}&token=${sessionStorage.getItem("token")}`;
@@ -79,7 +81,6 @@ export default {
                     console.log(err);
                     return
                 }
-                console.log(111);
                 // 监听socket消息
                 this.socket.onmessage = this.getMessage;
                 // 监听socket关闭消息
@@ -87,13 +88,13 @@ export default {
             }
         },
         open () {
-            // Message.success('websocket连接成功')
+            console.log('websocket connect ok')
             this.updateLoading = false;
             this.send();
         },
         error () {
+            console.log('websocket connect failed')
             this.updateLoading = false;
-            // Message.error("websocket连接失败");
             this.content.push("websocket连接失败");
         },
         getMessage (msg) {
@@ -113,12 +114,12 @@ export default {
             this.socket.send(JSON.stringify(data));
         },
         close () {
-            // Message.error("websocket连接已关闭");
+            console.log('websocket closed')
         },
     },
     beforeDestroy() {
         // 3️⃣ 页面销毁时，关闭 ws 并移除监听
-        if (this.ws) {
+        if (this.socket) {
             this.socket.close();
             this.socket = null;
         }
