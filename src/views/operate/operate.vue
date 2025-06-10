@@ -47,9 +47,9 @@
                     <el-table-column prop="ip" label="remoteIP" ></el-table-column>
                     <el-table-column prop="url" label="event" show-overflow-tooltip></el-table-column>
                     <!-- <el-table-column prop="CreatedAt" label="visit_time" ></el-table-column> -->
-                    <el-table-column prop="Start" label="event_time" >
+                    <el-table-column prop="start" label="event_time" >
                         <template slot-scope="scope">
-                            <el-tag size="small" type="success">{{ scope.row.Start | formatDate}}</el-tag>
+                            <el-tag size="small" type="success">{{ scope.row.start | formatDate}}</el-tag>
                         </template>
                     </el-table-column>
                 </el-table>
