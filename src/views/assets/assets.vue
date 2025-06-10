@@ -146,10 +146,10 @@
                                     </el-select>
                                 </el-col>
                                 <el-col :span="3.9">
-                                <el-button type="danger" icon="el-icon-mouse" size="mini" @click="runProcess('mul', null)" v-if="isHidden(getRouterPath('updateProgram', permissionList), permissionList)" :loading="submitLoading">批量更新程序</el-button>
+                                <el-button type="primary" icon="el-icon-mouse" size="mini" @click="runProcess('mul', null)" v-if="isHidden(getRouterPath('updateProgram', permissionList), permissionList)" :loading="submitLoading">批量更新程序</el-button>
                             </el-col>
                             <el-col :span="3.9">
-                                <el-button type="danger" icon="el-icon-mouse" size="mini" @click="openDialogMth('cmd', null)" v-if="isHidden(getRouterPath('run-linux-cmd', permissionList), permissionList)" :loading="submitLoading">批量ansible作业</el-button>
+                                <el-button type="primary" icon="el-icon-mouse" size="mini" @click="openDialogMth('cmd', null)" v-if="isHidden(getRouterPath('run-linux-cmd', permissionList), permissionList)" :loading="submitLoading">批量ansible作业</el-button>
                             </el-col>
                                 <el-col :span="2" class="c3">
                                     <el-link type="primary" @click="updateSetup">{{ detailContent }}<i :class="detailICon"></i> </el-link>
