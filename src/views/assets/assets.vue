@@ -213,6 +213,7 @@
                             <el-link type="primary" :underline="false"  size="mini" plain v-if="scope.row.cluster.name != ''" >
                                 <el-popover trigger="hover" placement="top">
                                     <p>集群ID: {{ scope.row.cluster.cluster_cid }}</p>
+                                    <p>集群状态: {{ scope.row.cluster.status | getClusterStatus }}</p>
                                     <div slot="reference" class="name-wrapper">
                                         {{ scope.row.cluster.name }}
                                     </div>
@@ -2336,6 +2337,17 @@ export default {
         getName(data) {
             let fd =  data.map(file => file.name);
             return fd.join(',');
+        },
+        getClusterStatus(data) {
+            if (data == 100) {
+                return "异常"
+            } else if (data == 200) {
+                return "正常"
+            }  else if (data == 300) {
+                return "正在初始化"
+            } else {
+                return "未知状态"
+            }
         },
     },
 }
