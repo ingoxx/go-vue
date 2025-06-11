@@ -198,7 +198,11 @@
                     <el-table-column type="selection" width="55"></el-table-column>
                     <el-table-column prop="id" label="id"></el-table-column>
                     <el-table-column prop="project" label="项目"></el-table-column>
-                    <el-table-column prop="ip" label="服务器" width="180"></el-table-column>
+                    <el-table-column prop="ip" label="服务器" width="180">
+                        <template slot-scope="scope">
+                            <el-link  :underline="false"  size="mini" plain @click="copyTextMth(scope.row.ip)">{{ scope.row.ip }}<i class="el-icon-document-copy el-icon-s"></i></el-link>
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="os_type" label="系统类型">
                         <template slot-scope="scope">
                             <el-link  :underline="false"  size="mini" v-if="scope.row.os_type === 1" plain>ubuntu</el-link>
@@ -1289,6 +1293,15 @@ export default {
     methods: {
         isHidden, 
         getRouterPath,
+        copyTextMth(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    Message.success('复制成功！');
+                })
+                .catch(err => {
+                    Message.error('复制失败，请手动复制');
+                });
+        },
         handleDelete2Mth() {
             if (this.multipleSelection2.length == 0) {
                 Message.error("请勾选需要删除的内容");

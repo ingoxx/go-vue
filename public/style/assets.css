@@ -1,3 +1,9 @@
 .el-message-box__content {
     word-wrap: break-word !important;
 }
+.el-icon-s {
+    position: relative;
+    bottom: 4px;
+    left: 3px;
+    font-size: 11px;
+}
