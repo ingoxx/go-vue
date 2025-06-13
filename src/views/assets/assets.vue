@@ -293,9 +293,10 @@
                             <span style="margin-left: 10px">{{ scope.row.start | formatDate }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="operate" label="操作" width="450">
+                    <el-table-column prop="operate" label="操作" width="580">
                         <template slot-scope="scope">
                             <el-button size="mini" type="warning" plain icon="el-icon-connection" @click="openDialogMth('term2', scope.row)" v-if="isHidden(getRouterPath('web-terminal', permissionList), permissionList)">终端连接</el-button>
+                            <el-button size="mini" type="success" plain icon="el-icon-s-marketing" @click="getServerStatusMth(scope.row)" v-if="isHidden(getRouterPath('assets-res-vis', permissionList), permissionList)">资源监控</el-button>
                             <el-button size="mini" type="primary" plain icon="el-icon-view" @click="openDialogMth('log', scope.row)" v-if="isHidden(getRouterPath('view-system-log', permissionList), permissionList)">查看系统日志</el-button>
                             <el-button size="mini" icon="el-icon-edit" v-if="isHidden(getRouterPath('assetsUpdate', permissionList), permissionList)" @click="openDialogMth('update-assets', scope.row)">编辑</el-button>
                             <el-button class="pop-btn" size="mini" type="danger" slot="reference" @click="handleDelete(scope.row, 'sig')" icon="el-icon-delete-solid" plain v-if="isHidden(getRouterPath('assetsDel', permissionList), permissionList)">删除</el-button>
@@ -957,13 +958,35 @@
                 </div>
                 </el-dialog>
         </div>
+        <!-- 资源使用率可视化 -->
+        <div class="res-vis">
+            <el-dialog
+                :title="serverInfo"
+                :visible.sync="resourcesVisible"
+                v-draggable
+                :close-on-click-modal="false"
+                center
+                custom-class="cus-dia-center"
+                >
+                <div class="box-card">
+                    <VeLine :data="cpuLoadData" :settings="chartSettings" :extend="chartExtend1"/>
+                </div>
+                <div class="box-card">
+                    <VeLine :data="memUsageData" :settings="chartSettings" :extend="chartExtend2"/>
+                </div>
+                <div class="box-card">
+                    <VeLine :data="diskUsageData" :settings="chartSettings" :extend="chartExtend3"/>
+                </div>
+            </el-dialog>
+        </div>
     </div>
 </template>
 
 <script>
+import VeLine from 'v-charts/lib/line.common'; // 引入折线图组件
 import { Message, MessageBox } from 'element-ui';
 import { mapState } from 'vuex';
-import { getClusterList, getAssetsList, getProcessStatus, createProgramUpdateRecord, runProgram, getUpdateList, assetsUpload, createServer, delServer, editServer, ProgramAdd, getProgramList, webTerminal, programUpdateRecordDel } from '../../api';
+import { getServerStatus, getClusterList, getAssetsList, getProcessStatus, createProgramUpdateRecord, runProgram, getUpdateList, assetsUpload, createServer, delServer, editServer, ProgramAdd, getProgramList, webTerminal, programUpdateRecordDel } from '../../api';
 import { v4 as uuidv4 } from 'uuid';
 import CryptoJS from 'crypto-js';
 import baseUrl from "../../utils/baseUrl";
@@ -1105,6 +1128,78 @@ export default {
             }
         };
         return {
+            chartExtend: {
+                xAxis: {
+                    type: 'category',
+                    axisLabel: {
+                        interval: 0, // 强制显示所有刻度
+                        rotate: 30, // 旋转以防重叠
+                    },
+                },
+            },
+            chartExtend1: {
+                color: ['#409EFF'], // 这里设置线条和区域颜色
+                series: {
+                    // 也可以更细致地设置线条样式、填充色等
+                    areaStyle: {
+                        opacity: 0.3
+                    }
+                }
+            },
+            chartExtend2: {
+                color: ['#ff7f50'], // 这里设置线条和区域颜色
+                series: {
+                    // 也可以更细致地设置线条样式、填充色等
+                    areaStyle: {
+                        opacity: 0.3
+                    }
+                }
+            },
+            chartExtend3: {
+                color: ['#67C23A'], // 这里设置线条和区域颜色
+                series: {
+                    // 也可以更细致地设置线条样式、填充色等
+                    areaStyle: {
+                        opacity: 0.3
+                    }
+                }
+            },
+            chartSettings: {
+                area: true, // 区域内填充颜色
+                smooth: true, // 开启平滑曲线
+                xAxisType: 'category',
+            },
+            cpuLoadData: {
+                columns: ['时间', 'CPU负载'],
+                rows: [
+                    { '时间': '1月1日', 'CPU负载': 10 },
+                    { '时间': '1月2日', 'CPU负载': 10 },
+                    { '时间': '1月3日', 'CPU负载': 10 },
+                    { '时间': '1月4日', 'CPU负载': 10 },
+                    { '时间': '1月5日', 'CPU负载': 10 },
+                ],
+            },
+            memUsageData: {
+                columns: ['时间', '内存使用率'],
+                rows: [
+                    { '时间': '1月1日', '内存使用率': 10 },
+                    { '时间': '1月2日', '内存使用率': 10 },
+                    { '时间': '1月3日', '内存使用率': 10 },
+                    { '时间': '1月4日', '内存使用率': 10 },
+                    { '时间': '1月5日', '内存使用率': 10 },
+                ],
+            },
+            diskUsageData: {
+                columns: ['时间', '根目录使用率'],
+                rows: [
+                    { '时间': '1月1日', '根目录使用率': 10 },
+                    { '时间': '1月2日', '根目录使用率': 10 },
+                    { '时间': '1月3日', '根目录使用率': 10 },
+                    { '时间': '1月4日', '根目录使用率': 10 },
+                    { '时间': '1月5日', '根目录使用率': 10 },
+                ],
+            },
+            resourcesVisible: false,
             filterSystemLogLoading: false,
             serverOsTypeSearch: "",
             serverNodeStatusSearch: "",
@@ -1289,10 +1384,23 @@ export default {
     },
     components: {
         terminal,
+        VeLine,
     },
     methods: {
         isHidden, 
         getRouterPath,
+        async getServerStatusMth(row) {
+            this.resourcesVisible = true;
+            this.serverInfo = `${row.ip} 状态监控`;
+            const resp = await getServerStatus({ip: row.ip})
+            if (resp.data.code === 10000) {
+                this.cpuLoadData = resp.data.cpu;
+                this.memUsageData = resp.data.mem;
+                this.diskUsageData = resp.data.disk;
+            } else {
+                Message.error(resp.data.message);
+            }
+        },
         copyTextMth(text) {
             navigator.clipboard.writeText(text)
                 .then(() => {

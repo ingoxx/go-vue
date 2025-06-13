@@ -48,3 +48,4 @@ export const getRunLinuxCmdNum = (params) => get("/log/get-run-linux-cmd-num?use
 export const getUserLoginNum = (params) => get("/log/get-user-login-num?user="+ sessionStorage.getItem("user") +"&token="+ sessionStorage.getItem("token"), params);
 export const webTerminal = (params) => get("/assets/terminal?user="+ sessionStorage.getItem("user") +"&token="+ sessionStorage.getItem("token"), params);
 export const getClusterList = (params) => get("/cluster/list?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params);
+export const getServerStatus = (params) => get("/assets/res-vis?user="+ sessionStorage.getItem("user") +"&token="+sessionStorage.getItem("token"), params);

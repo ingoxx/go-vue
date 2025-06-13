@@ -362,6 +362,12 @@ const dynamicRoutes = [
             meta: { name: '连接终端'},
             hidden: false,
           },
+          {
+            path:'/assets/res-vis',
+            name: 'assets-res-vis',
+            meta: { name: '服务器资源可视化'},
+            hidden: false,
+          },
         ],
       },
     ],
