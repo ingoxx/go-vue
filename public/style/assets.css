@@ -8,9 +8,9 @@
     font-size: 11px;
 }
 .box-card {
-    display: inline-block;
-    padding: 10px 10px;
-    width: 522px;
+    /* display: inline-block; */
+    padding: 0 10px;
+    /* width: 522px; */
 }
 .ve-pie {
     width: auto;
@@ -52,7 +52,8 @@
     font-size: 17px;
     color: #19d4ae;
 }
-.cus-dia-center .el-dialog__body{
-    display: flex;
-    justify-content: center;
+.res-vis .el-dialog--center .el-dialog__body {
+    text-align: center;
 }
+
+  

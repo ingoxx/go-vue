@@ -296,7 +296,7 @@
                     <el-table-column prop="operate" label="操作" width="580">
                         <template slot-scope="scope">
                             <el-button size="mini" type="warning" plain icon="el-icon-connection" @click="openDialogMth('term2', scope.row)" v-if="isHidden(getRouterPath('web-terminal', permissionList), permissionList)">终端连接</el-button>
-                            <el-button size="mini" type="success" plain icon="el-icon-s-marketing" @click="getServerStatusMth(scope.row)" v-if="isHidden(getRouterPath('assets-res-vis', permissionList), permissionList)">资源监控</el-button>
+                            <el-button size="mini" type="success" plain icon="el-icon-s-marketing" @click="getServerStatusMth(scope.row.ip, 1)" v-if="isHidden(getRouterPath('assets-res-vis', permissionList), permissionList)">资源监控</el-button>
                             <el-button size="mini" type="primary" plain icon="el-icon-view" @click="openDialogMth('log', scope.row)" v-if="isHidden(getRouterPath('view-system-log', permissionList), permissionList)">查看系统日志</el-button>
                             <el-button size="mini" icon="el-icon-edit" v-if="isHidden(getRouterPath('assetsUpdate', permissionList), permissionList)" @click="openDialogMth('update-assets', scope.row)">编辑</el-button>
                             <el-button class="pop-btn" size="mini" type="danger" slot="reference" @click="handleDelete(scope.row, 'sig')" icon="el-icon-delete-solid" plain v-if="isHidden(getRouterPath('assetsDel', permissionList), permissionList)">删除</el-button>
@@ -966,8 +966,17 @@
                 v-draggable
                 :close-on-click-modal="false"
                 center
+                :width="setDialogWth"
                 custom-class="cus-dia-center"
+                :show-close="true"
                 >
+                <div class="time-select">
+                    <el-button-group>
+                        <el-button disabled type="info" size="mini" plain @click="getServerStatusMth(selectIp, 1)">近1天</el-button>
+                        <el-button disabled type="info" size="mini" plain @click="getServerStatusMth(selectIp, 3)">近3天</el-button>
+                        <el-button disabled type="info" size="mini" plain @click="getServerStatusMth(selectIp, 7)">近7天</el-button>
+                    </el-button-group>
+                </div>
                 <div class="box-card">
                     <VeLine :data="cpuLoadData" :settings="chartSettings" :extend="chartExtend1"/>
                 </div>
@@ -1170,35 +1179,18 @@ export default {
                 xAxisType: 'category',
             },
             cpuLoadData: {
-                columns: ['时间', 'CPU负载'],
-                rows: [
-                    { '时间': '1月1日', 'CPU负载': 10 },
-                    { '时间': '1月2日', 'CPU负载': 10 },
-                    { '时间': '1月3日', 'CPU负载': 10 },
-                    { '时间': '1月4日', 'CPU负载': 10 },
-                    { '时间': '1月5日', 'CPU负载': 10 },
-                ],
+                columns: [],
+                rows: [],
             },
             memUsageData: {
-                columns: ['时间', '内存使用率'],
-                rows: [
-                    { '时间': '1月1日', '内存使用率': 10 },
-                    { '时间': '1月2日', '内存使用率': 10 },
-                    { '时间': '1月3日', '内存使用率': 10 },
-                    { '时间': '1月4日', '内存使用率': 10 },
-                    { '时间': '1月5日', '内存使用率': 10 },
-                ],
+                columns: [],
+                rows: [],
             },
             diskUsageData: {
-                columns: ['时间', '根目录使用率'],
-                rows: [
-                    { '时间': '1月1日', '根目录使用率': 10 },
-                    { '时间': '1月2日', '根目录使用率': 10 },
-                    { '时间': '1月3日', '根目录使用率': 10 },
-                    { '时间': '1月4日', '根目录使用率': 10 },
-                    { '时间': '1月5日', '根目录使用率': 10 },
-                ],
+                columns: [],
+                rows: [],
             },
+            windowWidth: window.innerWidth,
             resourcesVisible: false,
             filterSystemLogLoading: false,
             serverOsTypeSearch: "",
@@ -1389,10 +1381,11 @@ export default {
     methods: {
         isHidden, 
         getRouterPath,
-        async getServerStatusMth(row) {
+        async getServerStatusMth(ip, days) {
             this.resourcesVisible = true;
-            this.serverInfo = `${row.ip} 状态监控`;
-            const resp = await getServerStatus({ip: row.ip})
+            this.serverInfo = `${ip} 状态监控`;
+            this.selectIp = ip;
+            const resp = await getServerStatus({ip: this.selectIp, days: days})
             if (resp.data.code === 10000) {
                 this.cpuLoadData = resp.data.cpu;
                 this.memUsageData = resp.data.mem;
@@ -2434,6 +2427,9 @@ export default {
             this.outputWs.close();
             this.outputWs = null;
         }
+   
+        // 移除监听，避免内存泄露
+        window.removeEventListener('resize', this.listenWindowsResizeMth);
     },
     filters: {
         formatDate(date) {
