@@ -972,9 +972,9 @@
                 >
                 <div class="time-select">
                     <el-button-group>
-                        <el-button disabled type="info" size="mini" plain @click="getServerStatusMth(selectIp, 1)">近1天</el-button>
-                        <el-button disabled type="info" size="mini" plain @click="getServerStatusMth(selectIp, 3)">近3天</el-button>
-                        <el-button disabled type="info" size="mini" plain @click="getServerStatusMth(selectIp, 7)">近7天</el-button>
+                        <el-button type="info" size="mini" plain @click="getServerStatusMth(selectIp, 1)">近1天</el-button>
+                        <el-button type="info" size="mini" plain @click="getServerStatusMth(selectIp, 3)">近3天</el-button>
+                        <el-button type="info" size="mini" plain @click="getServerStatusMth(selectIp, 7)">近7天</el-button>
                     </el-button-group>
                 </div>
                 <div class="box-card">
@@ -1147,6 +1147,13 @@ export default {
                 },
             },
             chartExtend1: {
+                xAxis: {
+                    type: 'category',
+                    axisLabel: {
+                        interval: 0, // 强制显示所有刻度
+                        rotate: 30, // 旋转以防重叠
+                    },
+                },
                 color: ['#409EFF'], // 这里设置线条和区域颜色
                 series: {
                     // 也可以更细致地设置线条样式、填充色等
