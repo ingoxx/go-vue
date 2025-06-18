@@ -969,21 +969,23 @@
                 :width="setDialogWth"
                 custom-class="cus-dia-center"
                 :show-close="true"
+                :destroy-on-close="true"
                 >
-                <div class="time-select">
+                <div class="time-select" >
                     <el-button-group>
                         <el-button type="info" size="mini" plain @click="getServerStatusMth(selectIp, 1)">近1天</el-button>
                         <el-button type="info" size="mini" plain @click="getServerStatusMth(selectIp, 3)">近3天</el-button>
                         <el-button type="info" size="mini" plain @click="getServerStatusMth(selectIp, 7)">近7天</el-button>
                     </el-button-group>
                 </div>
-                <div class="box-card">
+                <div class="box-card" v-loading="statuLoading">
+                    <!-- <VeLine :title="cpuTitle" :legend="legend" :data="cpuLoadData" :settings="chartSettings" :extend="chartExtend1"/> -->
                     <VeLine :data="cpuLoadData" :settings="chartSettings" :extend="chartExtend1"/>
                 </div>
-                <div class="box-card">
+                <div class="box-card" v-loading="statuLoading">
                     <VeLine :data="memUsageData" :settings="chartSettings" :extend="chartExtend2"/>
                 </div>
-                <div class="box-card">
+                <div class="box-card" v-loading="statuLoading">
                     <VeLine :data="diskUsageData" :settings="chartSettings" :extend="chartExtend3"/>
                 </div>
             </el-dialog>
@@ -993,6 +995,7 @@
 
 <script>
 import VeLine from 'v-charts/lib/line.common'; // 引入折线图组件
+import 'v-charts/lib/style.css'
 import { Message, MessageBox } from 'element-ui';
 import { mapState } from 'vuex';
 import { getServerStatus, getClusterList, getAssetsList, getProcessStatus, createProgramUpdateRecord, runProgram, getUpdateList, assetsUpload, createServer, delServer, editServer, ProgramAdd, getProgramList, webTerminal, programUpdateRecordDel } from '../../api';
@@ -1000,6 +1003,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CryptoJS from 'crypto-js';
 import baseUrl from "../../utils/baseUrl";
 import wssUrl from "../../utils/wssUrl";
+import {validatePath, validateCmd, validateproject, validateip, validateuser, validateOpCNName, validateOpENName} from "../../utils/validators";
 import 'vue-draggable-resizable/dist/VueDraggableResizable.css';
 import SparkMD5 from 'spark-md5';
 import md5 from 'blueimp-md5';
@@ -1078,64 +1082,6 @@ export default {
         },
     },
     data () {
-        var validateproject = (rule, value, callback) => {
-            if (!value) {
-                callback(new Error('请输入项目'));
-            } else {
-                callback();
-            }
-        };
-        var validateip = (rule, value, callback) => {
-            if (!value) {
-                callback(new Error('请输入ip'));
-            }
-            const regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-            if (!regex.test(value)) {
-                callback(new Error('ip格式错误'));
-            }  else {
-                callback();
-            }
-        };
-        var validateuser = (rule, value, callback) => {
-            if (!value) {
-                callback(new Error('请输入用户名'));
-            } else {
-                callback();
-            }
-        };
-        // new
-        var validateOpCNName = (rule, value, callback) => {
-            if (!value) {
-                callback(new Error('操作中文名不能为空'));
-            } else {
-                callback();
-            }
-        };
-        var validateOpENName= (rule, value, callback) => {
-            if (!value) {
-                callback(new Error('操作英文名不能为空'));
-            } else {
-                callback();
-            }
-        };
-        var validatePath = (rule, value, callback) => {
-            if (!value) {
-                callback(new Error('请求路径不能为空'));
-            } else {
-                callback();
-            }
-        };
-        var validateCmd = (rule, value, callback) => {
-            if (!value) {
-                callback(new Error('linux命令不能为空'));
-            } else {
-                const regex = /^\s*(rm|mv|chmod|chown|su|sudo|useradd|userdel|groupadd| )\b/;
-                if (regex.test(value)) {
-                    callback(new Error('输入的bash命令不合法'));
-                }
-                callback();
-            }
-        };
         return {
             chartExtend: {
                 xAxis: {
@@ -1147,6 +1093,23 @@ export default {
                 },
             },
             chartExtend1: {
+                legend: {
+                    left: 'left',
+                    top: 'bottom'
+                },
+                title: {
+                    text: '服务器cpu负载走势图',
+                    subtext: '单位：1分钟负载',
+                    left: 'center',
+                    top: 'top',
+                    subtextStyle: {
+                        color: '#de4751',
+                        fontSize: 12
+                    },
+                    textStyle: {
+                        fontSize: 12
+                    }
+                },
                 xAxis: {
                     type: 'category',
                     axisLabel: {
@@ -1163,6 +1126,23 @@ export default {
                 }
             },
             chartExtend2: {
+                legend: {
+                    left: 'left',
+                    top: 'bottom'
+                },
+                title: {
+                    text: '服务器内存使用率走势图',
+                    subtext: '单位：百分比',
+                    left: 'center',
+                    top: 'top',
+                    subtextStyle: {
+                        color: '#de4751',
+                        fontSize: 12
+                    },
+                    textStyle: {
+                        fontSize: 12
+                    }
+                },
                 color: ['#ff7f50'], // 这里设置线条和区域颜色
                 series: {
                     // 也可以更细致地设置线条样式、填充色等
@@ -1172,6 +1152,23 @@ export default {
                 }
             },
             chartExtend3: {
+                legend: {
+                    left: 'left',
+                    top: 'bottom'
+                },
+                title: {
+                    text: '服务器根目录使用率走势图',
+                    subtext: '单位：百分比',
+                    left: 'center',
+                    top: 'top',
+                    subtextStyle: {
+                        color: '#de4751',
+                        fontSize: 12
+                    },
+                    textStyle: {
+                        fontSize: 12
+                    }
+                },
                 color: ['#67C23A'], // 这里设置线条和区域颜色
                 series: {
                     // 也可以更细致地设置线条样式、填充色等
@@ -1186,16 +1183,16 @@ export default {
                 xAxisType: 'category',
             },
             cpuLoadData: {
-                columns: [],
-                rows: [],
+                columns: ["time", "data"],
+                rows: [{"time": "06/17 15:04", "data": 0}],
             },
             memUsageData: {
-                columns: [],
-                rows: [],
+                columns: ["time", "data"],
+                rows: [{"time": "06/17 15:04", "data": 0}],
             },
             diskUsageData: {
-                columns: [],
-                rows: [],
+                columns: ["time", "data"],
+                rows: [{"time": "06/17 15:04", "data": 0}],
             },
             windowWidth: window.innerWidth,
             resourcesVisible: false,
@@ -1277,6 +1274,7 @@ export default {
             failedNum: 0,
             total:5,
             total2:5,
+            statuLoading: false,
             syncFileLoading: true,
             nowLoading: false,
             syncFileVisible: false,
@@ -1389,17 +1387,20 @@ export default {
         isHidden, 
         getRouterPath,
         async getServerStatusMth(ip, days) {
+            this.statuLoading = true;
             this.resourcesVisible = true;
             this.serverInfo = `${ip} 状态监控`;
             this.selectIp = ip;
-            const resp = await getServerStatus({ip: this.selectIp, days: days})
+            const resp = await getServerStatus({ip: this.selectIp, days: days}).finally(()=>{
+                this.statuLoading = false;
+            });
             if (resp.data.code === 10000) {
                 this.cpuLoadData = resp.data.cpu;
                 this.memUsageData = resp.data.mem;
                 this.diskUsageData = resp.data.disk;
-            } else {
-                Message.error(resp.data.message);
+                return;
             }
+            Message.error(resp.data.message);
         },
         copyTextMth(text) {
             navigator.clipboard.writeText(text)

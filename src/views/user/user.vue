@@ -251,6 +251,7 @@ import { Message } from 'element-ui';
 import { addUsers, delUsers, updateUsers, getUserList, getRolesName } from '../../api';
 import { mapState } from 'vuex';
 import { isHidden, getRouterPath } from '@/utils/utils';
+import {validatename, validatetel, validaterole, validateemail, validatepass, validateupass } from "../../utils/validators";
 
 export default {
     name: "user",
@@ -318,52 +319,6 @@ export default {
         },
     },
     data() {
-        var validatename = (rule, value, callback) => {
-            if (!value) {
-                callback(new Error('请输入用户名'));
-            } else {
-                callback();
-            }
-        };
-        var validatetel = (rule, value, callback) => {
-            if (!value) {
-                callback(new Error('电话不能为空'));
-            } else if (value.length < 6 ) {
-                callback(new Error('电话长度需要大于7')); 
-            } else {
-                callback();
-            }
-        };
-        var validaterole = (rule, value, callback) => {
-            if (!value) {
-                callback(new Error('用户组不能为空'));
-            } else {
-                callback();
-            }
-        };
-        var validateemail = (rule, value, callback) => {
-            if (!value) {
-                callback(new Error('邮箱不能为空'));
-                return
-            }
-            var emailRegExp=/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
-            var ok=emailRegExp.test(value);
-            if (!ok) {
-                callback(new Error('邮箱格式错误'));
-            } else {
-                callback();
-            }
-        };
-        var validatepass = (rule, value, callback) => {
-            if (!value) {
-                callback(new Error('密码不能为空'));
-
-            } else if (value.length < 6 ) {
-                callback(new Error('密码长度需要大于5'));
-            } else {
-                callback();
-            }
-        };
         var validaterepass = (rule, value, callback) => {
             if (!value) {
                 callback(new Error('确认密码不能为空'));
@@ -372,17 +327,6 @@ export default {
             } else {
                 callback();
             }
-        };
-        var validateupass = (rule, value, callback) => {
-           if (value) {
-                if(value.length < 6 ) {
-                callback(new Error('密码长度需要大于7'));
-                } else {
-                    callback();
-                }
-           } else {
-                callback();
-           }
         };
         var validateurepass = (rule, value, callback) => {
             if (this.ruleForm.upass != value) {

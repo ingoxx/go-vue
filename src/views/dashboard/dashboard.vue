@@ -51,22 +51,22 @@ components: {
 data() {
     return {
         loginExtend: {
-            title: {
-          show: true, // 确保标题显示
-          text: '用户登录次数占比', // 主标题
-          subtext: '统计前五名用户', // 副标题（可选）
-          left: 'center', // 标题居中
-          top: '10px',
-          textStyle: {
-            fontSize: 18, // 标题字体大小
-            fontWeight: 'bold',
-            color: '#333', // 颜色
-          },
-          subtextStyle: {
-            fontSize: 14,
-            color: '#666',
-          },
-        },
+        //     title: {
+        //   show: true, // 确保标题显示
+        //   text: '用户登录次数占比', // 主标题
+        //   subtext: '统计前五名用户', // 副标题（可选）
+        //   left: 'center', // 标题居中
+        //   top: '10px',
+        //   textStyle: {
+        //     fontSize: 18, // 标题字体大小
+        //     fontWeight: 'bold',
+        //     color: '#333', // 颜色
+        //   },
+        //   subtextStyle: {
+        //     fontSize: 14,
+        //     color: '#666',
+        //   },
+        // },
         },
         chartExtend: {
             xAxis: {
