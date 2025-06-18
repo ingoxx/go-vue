@@ -969,7 +969,7 @@
                 :width="setDialogWth"
                 custom-class="cus-dia-center"
                 :show-close="true"
-                :destroy-on-close="true"
+           
                 >
                 <div class="time-select" >
                     <el-button-group>
