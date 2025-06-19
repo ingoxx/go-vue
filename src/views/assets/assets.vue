@@ -1110,6 +1110,7 @@ export default {
                         fontSize: 12
                     }
                 },
+                color: ['#409EFF'], // 这里设置线条和区域颜色
                 xAxis: {
                     type: 'category',
                     axisLabel: {
@@ -1117,7 +1118,6 @@ export default {
                         rotate: 30, // 旋转以防重叠
                     },
                 },
-                color: ['#409EFF'], // 这里设置线条和区域颜色
                 series: {
                     // 也可以更细致地设置线条样式、填充色等
                     areaStyle: {
@@ -1144,6 +1144,13 @@ export default {
                     }
                 },
                 color: ['#ff7f50'], // 这里设置线条和区域颜色
+                xAxis: {
+                    type: 'category',
+                    axisLabel: {
+                        interval: 0, // 强制显示所有刻度
+                        rotate: 30, // 旋转以防重叠
+                    },
+                },
                 series: {
                     // 也可以更细致地设置线条样式、填充色等
                     areaStyle: {
@@ -1170,6 +1177,13 @@ export default {
                     }
                 },
                 color: ['#67C23A'], // 这里设置线条和区域颜色
+                xAxis: {
+                    type: 'category',
+                    axisLabel: {
+                        interval: 0, // 强制显示所有刻度
+                        rotate: 30, // 旋转以防重叠
+                    },
+                },
                 series: {
                     // 也可以更细致地设置线条样式、填充色等
                     areaStyle: {
