@@ -971,13 +971,9 @@
                 :show-close="true"
            
                 >
-                <div class="time-select" >
-                    <el-button-group>
-                        <el-button type="info" size="mini" plain @click="getServerStatusMth(selectIp, 1)">近1天</el-button>
-                        <el-button type="info" size="mini" plain @click="getServerStatusMth(selectIp, 3)">近3天</el-button>
-                        <el-button type="info" size="mini" plain @click="getServerStatusMth(selectIp, 7)">近7天</el-button>
-                    </el-button-group>
-                </div>
+                <!-- <div class="time-select" >
+                    <el-button type="info" size="mini" plain @click="getServerStatusMth(selectIp, 3)">近5天</el-button>
+                </div> -->
                 <div class="box-card" v-loading="statuLoading">
                     <!-- <VeLine :title="cpuTitle" :legend="legend" :data="cpuLoadData" :settings="chartSettings" :extend="chartExtend1"/> -->
                     <VeLine :data="cpuLoadData" :settings="chartSettings" :extend="chartExtend1"/>
